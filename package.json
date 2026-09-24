@@ -1,0 +1,38 @@
+{
+  "name": "iteroom",
+  "version": "0.0.0-ui-review",
+  "private": true,
+  "type": "module",
+  "description": "Iteroom UI review build on the DeepSeek Harness Web profile",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build-ui.mjs",
+    "review": "node scripts/review.mjs",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@deepseek-ai/cordis-plugin-group": "1.0.2",
+    "@deepseek-ai/dsh": "0.1.5-rc.3"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.28",
+    "esbuild": "0.25.12",
+    "lightningcss": "1.30.2",
+    "react": "18.3.1",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,7 @@
+# Keep the official DSH Web shell and add the Iteroom browser plugin.
+# Relative plugin paths are resolved from this patch file by the DSH launcher.
+- id: ui-brand-official
+  disabled: true
+- insert:
+    - id: iteroom-ui
+      name: ./lib/index.js

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iteroom · 工坊方向 · 语音空间</title>
+  <link rel="icon" type="image/svg+xml" href="./logo.svg">
+  <link rel="stylesheet" href="./call.css?v=3">
+</head>
+<body>
+  <div class="voice-page">
+    <header class="topbar">
+      <div class="topbar-identity">
+        <a class="brand" href="./workspace.html" aria-label="Iteroom，返回文字工作台">
+          <img src="./logo.svg" alt="">
+          <span>iteroom</span>
+        </a>
+        <span class="topbar-divider" aria-hidden="true"></span>
+        <span class="page-name">语音空间</span>
+      </div>
+      <a class="back-link" href="./workspace.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>
+        返回文字工作台
+      </a>
+    </header>
+
+    <main class="voice-main">
+      <h1 class="sr-only">语音空间界面预览</h1>
+      <a class="task-context" href="./workspace.html" aria-label="返回当前文字任务：梳理检索结果偏移">
+        <span class="task-caption">当前任务</span>
+        <span class="task-name">梳理检索结果偏移</span>
+        <span class="task-project">SampleRAG · 示例</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </a>
+
+      <div class="voice-focus">
+        <div class="sound-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p class="connection-state"><span class="state-dot" aria-hidden="true"></span>尚未连接 <span class="state-divider">·</span> 界面预览</p>
+      </div>
+
+      <section class="transcript" aria-labelledby="transcript-title">
+        <div class="transcript-heading">
+          <h2 id="transcript-title">字幕预览</h2>
+          <span>示例内容，尚未产生真实转写</span>
+        </div>
+        <div class="transcript-line">
+          <span class="speaker">你 · 示例</span>
+          <p>先定位引用偏移的原因，不要修改代码。</p>
+        </div>
+        <div class="transcript-line">
+          <span class="speaker">Iteroom · 示例</span>
+          <p>我会从分块位置与引用映射开始核对。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="dock-shell">
+      <div class="dock" role="group" aria-label="语音控制预览，当前不可用">
+        <a class="task-button" href="./workspace.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 10h8M8 14h6"/></svg>
+          <span>文字任务</span>
+        </a>
+        <span class="dock-divider" aria-hidden="true"></span>
+        <button class="icon-button" type="button" disabled aria-label="麦克风尚未接入" title="麦克风尚未接入">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 10.5a6.5 6.5 0 0 0 13 0M12 17v4m-4 0h8"/></svg>
+        </button>
+        <button class="icon-button" type="button" disabled aria-label="字幕尚未接入" title="字幕尚未接入">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 10h4m-4 4h3m4-4h3m-3 4h3"/></svg>
+        </button>
+        <span class="dock-spacer"></span>
+        <span class="dock-note">控件仅为设计示意</span>
+        <button class="end-button" type="button" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15.5a15 15 0 0 1 18 0l-2.2 3a1.5 1.5 0 0 1-2 .4l-2.3-1.4a1.5 1.5 0 0 1-.7-1.7l.3-1.1a11 11 0 0 0-4.2 0l.3 1.1a1.5 1.5 0 0 1-.7 1.7l-2.3 1.4a1.5 1.5 0 0 1-2-.4Z"/></svg>
+          结束通话
+        </button>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

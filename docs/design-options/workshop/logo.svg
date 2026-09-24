@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-label="Iteroom 双重门廊标志">
+  <path d="M10 54V28C10 16 19 7 31 7h2c12 0 21 9 21 21v26" stroke="#254D42" stroke-width="5" stroke-linecap="round"/>
+  <path d="M23 54V31a9 9 0 0 1 18 0v23" stroke="#254D42" stroke-width="5" stroke-linecap="round"/>
+  <path d="M10 54h13m18 0h13" stroke="#B2644C" stroke-width="5" stroke-linecap="round"/>
+</svg>

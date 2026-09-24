@@ -1,0 +1,16 @@
+node_modules/
+dist/
+lib/
+.playwright-cli/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+.iteroom/
+
+# Unselected UI concepts retained locally; only option C is submitted.
+docs/design-options/editorial/
+docs/design-options/instrument/

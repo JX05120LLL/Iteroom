@@ -1,0 +1,160 @@
+/* The DSH shell stays authoritative for sessions and messages; these tokens give it the selected Iteroom skin. */
+body[data-iteroom-ui] {
+  color-scheme: light;
+  --iteroom-ink: #1d302a;
+  --iteroom-green: #254d42;
+  --iteroom-muted: #53685c;
+  --iteroom-line: #e5eae5;
+  --iteroom-copper: #b2644c;
+  --dsw-alias-bg-base: #fff;
+  --dsw-alias-bg-layer-1: #fff;
+  --dsw-alias-bg-layer-2: #fff;
+  --dsw-alias-bg-layer-3: #fff;
+  --dsw-specific-sidebar-fill: #fff;
+  --dsw-specific-sidebar-nav-item-active: #f3f7f3;
+  --dsw-specific-sidebar-nav-item-active-accent: #edf4ed;
+  --dsw-specific-sidebar-nav-item-hover: #f7faf7;
+  --dsw-specific-selector: #f5f8f5;
+  --dsw-specific-bubble: #f2f6f2;
+  --dsw-specific-bubble-highlight: #e5eee6;
+  --dsw-specific-tip: #f5f8f5;
+  --dsw-specific-login-input: #f9fafb;
+  --dsw-specific-input-major: #fff;
+  --dsw-alias-label-primary: #1d302a;
+  --dsw-alias-label-primary-bluish: #245846;
+  --dsw-alias-label-secondary: #53685c;
+  --dsw-alias-label-tertiary: #667a6d;
+  --dsw-alias-label-caption: #667a6d;
+  --dsw-alias-label-primary-foreground: #fff;
+  --dsw-alias-label-primary-inverted: #fff;
+  --dsw-alias-brand-primary: #254d42;
+  --dsw-alias-brand-text: #1d302a;
+  --dsw-alias-link: #245846;
+  --dsw-alias-border-l1: #e5eae5;
+  --dsw-alias-border-l2: #d6e1d7;
+  --dsw-alias-border-l3: #cbd8cd;
+  --dsw-alias-border-l4: #c1d0c3;
+  --dsw-alias-bg-module-platform: #f5f8f5;
+  --dsw-alias-bg-multi-select: #f5f8f5;
+  --dsw-alias-bg-overlay: #f9fafb;
+  --dsw-alias-markdown-code-block: #f9fafb;
+  --dsw-alias-markdown-code-block-banner: #f9fafb;
+  --dsw-alias-markdown-inline-code: #f5f8f5;
+  --dsw-alias-markdown-placeholder: #f5f8f5;
+  --dsw-alias-button-elevated-fill: #fff;
+  --dsw-alias-button-floating-fill: #fff;
+  --dsw-alias-button-floating-hover: #f3f7f3;
+  --dsw-alias-button-primary-dimmed: #e5eee6;
+  --dsw-alias-button-ghost-active-fill: #e5eee6;
+  --dsw-alias-button-ghost-active-hover: #d9e7dc;
+  --dsw-alias-button-primary-fill: #254d42;
+  --dsw-alias-button-primary-hover: #1d3f35;
+  --dsw-alias-button-info-fill: #254d42;
+  --dsw-alias-button-info-hover: #376658;
+  --dsw-alias-state-business-primary: #254d42;
+  --dsw-alias-state-business-tertiary: #edf4ed;
+  --dsw-alias-interactive-bg-hover: #edf4ed;
+  --dsw-alias-interactive-bg-hover-solid: #edf4ed;
+  --dsw-alias-interactive-bg-active: #e5eee6;
+}
+
+/* A few layout details are not tokenized in the pinned DSH Web shell. */
+body[data-iteroom-ui] [class*="_sidebarCol"] { background: #fff; border-right: 1px solid var(--iteroom-line); }
+body[data-iteroom-ui] [class*="_centerCol"] { background: #fff; }
+body[data-iteroom-ui] button[class*="_newSession"] { border: 1px solid #d7e1d8; color: var(--iteroom-green); }
+body[data-iteroom-ui] [role="treeitem"][aria-selected="true"] { background: #f3f7f3; box-shadow: inset 2px 0 0 var(--iteroom-green); }
+body[data-iteroom-ui] [class*="_composerStack"] [class*="_card"] { border-color: #cfd9d0; border-radius: 12px; box-shadow: 0 5px 20px #213d2912; }
+body[data-iteroom-ui]:has([data-iteroom-call-page]) [class*="_sidebarCol"],
+body[data-iteroom-ui]:has([data-iteroom-call-page]) [class*="_rightbarCol"] { display: none; }
+
+.mark { display: block; flex: none; }
+.markArch { stroke: #254d42; }
+.markBase { stroke: #b2644c; }
+.wordmark { color: var(--iteroom-ink); font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", sans-serif; font-size: 19px; font-weight: 720; letter-spacing: -.075em; line-height: 1; white-space: nowrap; }
+
+.voiceEntry { align-items: center; background: #fff; border: 1px solid #b9ccc0; border-radius: 9px; color: var(--iteroom-green); cursor: pointer; display: inline-flex; font: inherit; font-size: 12px; font-weight: 650; gap: 7px; justify-content: center; min-height: 36px; padding: 0 10px; white-space: nowrap; transition: background-color 130ms ease, border-color 130ms ease; }
+.voiceEntry:hover { background: #f5f8f5; border-color: #91b09b; }
+.voiceEntry:active { background: #eaf1eb; }
+.voiceEntry:focus-visible, .headerBrand:focus-visible, .back:focus-visible, .taskContext:focus-visible, .taskButton:focus-visible { outline: 2px solid var(--iteroom-green); outline-offset: 3px; }
+
+.page { background: #fff; box-sizing: border-box; color: var(--iteroom-ink); display: flex; flex-direction: column; font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", sans-serif; height: 100dvh; inset: 0; overflow-x: hidden; overflow-y: auto; position: fixed; z-index: 500; }
+.page * { box-sizing: border-box; }
+.page button { font-family: inherit; }
+.topbar { align-items: center; border-bottom: 1px solid #eff2ee; display: flex; flex: none; gap: 16px; height: 72px; justify-content: space-between; padding: 0 clamp(24px, 4.5vw, 70px); }
+.topbarIdentity { align-items: center; display: flex; gap: 18px; min-width: 0; }
+.headerBrand { align-items: center; background: transparent; border: 0; color: inherit; cursor: pointer; display: inline-flex; gap: 9px; min-height: 44px; padding: 0; }
+.headerBrand .wordmark { font-size: 20px; }
+.topbarDivider { background: #d8e0d8; height: 22px; width: 1px; }
+.pageName { font-size: 13px; font-weight: 650; white-space: nowrap; }
+.back { align-items: center; background: transparent; border: 0; color: #405d4d; cursor: pointer; display: inline-flex; font-size: 12px; font-weight: 600; gap: 9px; min-height: 44px; padding: 0 5px; white-space: nowrap; }
+.back:hover { color: var(--iteroom-ink); }
+
+.callMain { align-items: center; display: flex; flex: 1; flex-direction: column; margin: 0 auto; min-height: 0; padding: 28px 0 145px; width: min(760px, calc(100% - 48px)); }
+.srOnly { clip: rect(0, 0, 0, 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; white-space: nowrap; width: 1px; }
+.taskContext { align-items: center; background: #fff; border: 1px solid #e5ebe4; border-radius: 999px; color: var(--iteroom-muted); cursor: pointer; display: inline-flex; font-size: 12px; gap: 11px; justify-content: center; max-width: 100%; min-height: 44px; padding: 0 15px; white-space: nowrap; }
+.taskContext:hover { background: #fafcf9; border-color: #bfcfc1; }
+.taskCaption { color: #607469; }
+.taskName { color: var(--iteroom-ink); font-weight: 650; overflow: hidden; text-overflow: ellipsis; }
+.taskNote { color: #607469; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; }
+.taskChevron { color: #8a9c8f; font-size: 21px; line-height: 0; margin-left: 2px; }
+.voiceFocus { align-items: center; display: flex; flex-direction: column; gap: 26px; margin: auto 0; }
+.soundMark { align-items: center; display: flex; gap: 13px; height: 122px; justify-content: center; }
+.soundMark span { background: var(--iteroom-green); border-radius: 999px; width: 43px; }
+.soundMark span:nth-child(1) { height: 96px; }
+.soundMark span:nth-child(2) { height: 110px; }
+.soundMark span:nth-child(3) { height: 103px; }
+.soundMark span:nth-child(4) { height: 119px; }
+.soundMark span:nth-child(5) { height: 94px; }
+.connectionState { align-items: center; color: #53685c; display: flex; font-size: 12px; gap: 7px; letter-spacing: .01em; margin: 0; }
+.stateDot { background: var(--iteroom-copper); border-radius: 50%; flex: none; height: 7px; width: 7px; }
+.stateDivider { color: #a5b1a7; }
+.transcript { width: min(650px, 100%); }
+.transcriptHeading { align-items: center; display: flex; gap: 16px; justify-content: space-between; margin-bottom: 15px; }
+.transcriptHeading h2 { color: #50665a; font-size: 11px; font-weight: 700; letter-spacing: .035em; margin: 0; }
+.transcriptHeading span { color: #607469; font-size: 11px; }
+.transcriptEmpty { color: #53685c; font-size: 13px; line-height: 1.65; margin: 0; }
+
+.dockShell { bottom: max(24px, env(safe-area-inset-bottom)); display: flex; inset-inline: 0; justify-content: center; pointer-events: none; position: fixed; z-index: 510; }
+.dock { align-items: center; background: #fff; border: 1px solid #e7ece7; border-radius: 24px; box-shadow: 0 13px 48px #152b1f1a, 0 2px 7px #152b1f08; display: flex; gap: 9px; min-height: 70px; padding: 9px 12px; pointer-events: auto; width: min(880px, calc(100% - 140px)); }
+.taskButton { align-items: center; background: #f2f6f2; border: 0; border-radius: 15px; color: var(--iteroom-green); cursor: pointer; display: inline-flex; font-size: 12px; font-weight: 650; gap: 8px; min-height: 44px; padding: 0 13px; white-space: nowrap; }
+.taskButton:hover { background: #e8f0e9; }
+.dockDivider { background: #e1e7e1; height: 25px; margin: 0 4px; width: 1px; }
+.iconButton { background: #f8faf8; border: 1px solid #ecf0eb; border-radius: 15px; color: #81958a; display: grid; flex: none; height: 44px; padding: 0; place-items: center; width: 44px; }
+.dockSpacer { flex: 1; }
+.dockNote { color: #607469; font-size: 11px; margin-right: 10px; white-space: nowrap; }
+.endButton { align-items: center; background: #fff2f0; border: 1px solid #f0d7d2; border-radius: 15px; color: #9f5149; display: inline-flex; flex: none; font-size: 12px; font-weight: 650; gap: 9px; justify-content: center; min-height: 44px; padding: 0 16px; white-space: nowrap; }
+.iconButton:disabled, .endButton:disabled { cursor: not-allowed; }
+
+@media (max-width: 1100px) { .voiceEntry span { display: none; } .voiceEntry { min-width: 36px; padding: 0; } }
+@media (max-width: 800px) { .topbar { height: 64px; padding: 0 25px; } .callMain { padding: 22px 0 116px; } .dock { width: calc(100% - 48px); } .dockNote { display: none; } }
+@media (max-width: 540px) {
+  .topbar { padding: 0 18px; }
+  .topbarIdentity { gap: 10px; }
+  .headerBrand { gap: 7px; }
+  .headerBrand .mark { height: 29px; width: 29px; }
+  .headerBrand .wordmark { font-size: 18px; }
+  .topbarDivider { height: 19px; }
+  .pageName { font-size: 12px; }
+  .back { font-size: 0; gap: 0; justify-content: center; min-width: 44px; padding: 0; }
+  .back svg { height: 21px; width: 21px; }
+  .callMain { width: calc(100% - 42px); padding: 19px 0 114px; }
+  .taskContext { gap: 8px; justify-content: flex-start; padding: 0 12px; width: 100%; }
+  .taskNote { display: none; }
+  .taskChevron { margin-left: auto; }
+  .soundMark { gap: 10px; height: 101px; }
+  .soundMark span { width: 34px; }
+  .soundMark span:nth-child(1) { height: 76px; }
+  .soundMark span:nth-child(2) { height: 88px; }
+  .soundMark span:nth-child(3) { height: 82px; }
+  .soundMark span:nth-child(4) { height: 96px; }
+  .soundMark span:nth-child(5) { height: 74px; }
+  .voiceFocus { gap: 20px; }
+  .dockShell { bottom: max(12px, env(safe-area-inset-bottom)); }
+  .dock { border-radius: 21px; gap: 6px; min-height: 62px; padding: 7px; width: calc(100% - 24px); }
+  .taskButton { height: 44px; justify-content: center; padding: 0; width: 44px; }
+  .taskButton span { display: none; }
+  .dockDivider { margin: 0 1px; }
+  .endButton { font-size: 11px; gap: 5px; padding: 0 11px; }
+}
+@media (max-height: 620px) { .callMain { min-height: 500px; padding-bottom: 118px; } .voiceFocus { margin: 35px 0; } }
+@media (prefers-reduced-motion: reduce) { .voiceEntry { transition: none; } }
