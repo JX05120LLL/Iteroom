@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+
+test('official CLI runs the real DSH loop with only synthetic Iteroom capabilities', { timeout: 60000 }, async t => {
+  const { runDshLoopProbe } = await import('../scripts/r0/dsh-loop-probe.mjs')
+  const report = await runDshLoopProbe()
+  await t.test('startup and scope are reported without claiming Gate A completion', () => {
+    assert.equal(report.status, 'passed')
+    assert.equal(report.appBooted, true)
+    assert.equal(report.gateA, 'not_completed')
+    assert.equal(report.evidenceKind, 'official-cli-runtime-with-mock-model')
+    assert.equal(report.actualModel, false)
+    assert.equal(report.actualSandbox, false)
+    assert.deepEqual(report.toolRoster, ['iteroom_read_fixture'])
+    assert.equal(report.workspaceUnchanged, true)
+  })
+  await t.test('model receives an actual tool result and takes the next step', () => {
+    assert.equal(report.loop.modelCalls, 2)
+    assert.equal(report.loop.toolExecutions, 1)
+    assert.equal(report.loop.toolResults, 1)
+    assert.equal(report.loop.toolResultMatchesFixture, true)
+    assert.equal(report.loop.nextStepSawResult, true)
+    assert.equal(report.loop.turnEnd, 'completed')
+  })
+  await t.test('guard denial happens before execution and is distinct from turn completion', () => {
+    assert.equal(report.denied.guardDenials, 1)
+    assert.equal(report.denied.toolExecutions, 0)
+    assert.equal(report.denied.toolResultIsError, true)
+    assert.equal(report.denied.turnEnd, 'completed')
+  })
+  await t.test('model failure retains a failed turn with no tool execution', () => {
+    assert.equal(report.failure.turnEnd, 'error')
+    assert.equal(report.failure.errorCode, 'ITEROOM_MOCK_FAILURE')
+    assert.equal(report.failure.modelCalls, 1)
+    assert.equal(report.failure.toolExecutions, 0)
+  })
+  await t.test('public Agent cancellation observes abort and actual quiescence', () => {
+    assert.equal(report.cancel.turnEnd, 'aborted')
+    assert.equal(report.cancel.cause, 'user')
+    assert.equal(report.cancel.signalObserved, true)
+    assert.equal(report.cancel.whenIdleResolved, true)
+    assert.equal(report.cancel.toolExecutions, 0)
+    assert.equal(report.cancel.sdkCancelAvailable, false)
+  })
+  await t.test('restart retains history and does not replay a finished tool call', () => {
+    assert.equal(report.persistence.sessions, 4)
+    assert.equal(report.persistence.contiguousSequences, true)
+    assert.equal(report.persistence.prefixPreserved, true)
+    assert.equal(report.persistence.durableOutcomesMatch, true)
+    assert.equal(report.restart.historySawFixture, true)
+    assert.equal(report.restart.toolExecutions, 0)
+    assert.equal(report.restart.turnEnd, 'completed')
+    assert.equal(report.restart.sdkResumeRejected, true)
+    assert.equal(report.restart.coreResumeAvailable, true)
+    assert.deepEqual(report.processExitCodes, [0, 0, 0])
+  })
+  await t.test('public report contains no local paths or raw conversations', () => {
+    const text = JSON.stringify(report)
+    assert.doesNotMatch(text, /DSH_HOME|apiKey|DEEPSEEK_API_KEY|[A-Z]:\\\\|Users\\\\|Hello, synthetic/)
+    assert.ok(report.unverified.includes('actual-sandbox'))
+    assert.ok(report.unverified.includes('product-task-recovery'))
+  })
+})

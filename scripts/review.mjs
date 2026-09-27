@@ -14,7 +14,7 @@ const patch = join(root, 'iteroom.patch.yml')
 const harnessHome = resolve(process.env.ITEROOM_DSH_HOME ?? join(tmpdir(), 'iteroom-ui-review-harness'))
 const child = spawn(process.execPath, [entry, '--profile', 'web', '--patch', patch, '--no-open'], {
   cwd: workspace,
-  env: { ...process.env, DSH_HOME: harnessHome },
+  env: { ...process.env, DSH_HOME: harnessHome, ITEROOM_DATA_HOME: join(harnessHome, 'iteroom') },
   stdio: 'inherit',
 })
 

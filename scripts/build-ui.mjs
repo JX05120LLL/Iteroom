@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
@@ -10,6 +10,7 @@ const packageId = 'iteroom'
 
 await mkdir(output, { recursive: true })
 await writeFile(join(output, 'index.js'), await readFile(join(root, 'src/index.js')))
+await cp(join(root, 'src/host'), join(output, 'host'), { recursive: true })
 
 const result = await build({
   entryPoints: [join(root, 'src/client/index.tsx')],

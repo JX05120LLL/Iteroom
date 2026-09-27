@@ -11,6 +11,6 @@ coverage/
 Thumbs.db
 .iteroom/
 
-# Unselected UI concepts retained locally; only option C is submitted.
+# Superseded local UI concepts; excluded from repository delivery.
 docs/design-options/editorial/
 docs/design-options/instrument/

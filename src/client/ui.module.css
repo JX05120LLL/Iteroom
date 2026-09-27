@@ -76,6 +76,7 @@ body[data-iteroom-ui]:has([data-iteroom-call-page]) [class*="_rightbarCol"] { di
 .voiceEntry:hover { background: #f5f8f5; border-color: #91b09b; }
 .voiceEntry:active { background: #eaf1eb; }
 .voiceEntry:focus-visible, .headerBrand:focus-visible, .back:focus-visible, .taskContext:focus-visible, .taskButton:focus-visible { outline: 2px solid var(--iteroom-green); outline-offset: 3px; }
+.projectError { background: #fff8f5; border: 1px solid #e8cabb; border-radius: 8px; bottom: 20px; box-shadow: 0 8px 28px #1d302a1c; color: #8c493e; font-size: 12px; left: 50%; max-width: min(540px, calc(100vw - 32px)); padding: 12px 16px; position: fixed; transform: translateX(-50%); z-index: 1000; }
 
 .page { background: #fff; box-sizing: border-box; color: var(--iteroom-ink); display: flex; flex-direction: column; font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", sans-serif; height: 100dvh; inset: 0; overflow-x: hidden; overflow-y: auto; position: fixed; z-index: 500; }
 .page * { box-sizing: border-box; }

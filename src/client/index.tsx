@@ -3,7 +3,12 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-api-session-controller/client'
+import type {} from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import styles, { stylesheet } from './ui.module.css'
+import { TaskReview } from './task-review.js'
+import { stylesheet as taskReviewStylesheet } from './task-review.module.css'
 
 const CALL_PANEL = 'iteroom.call' as MainPanelId
 const ICON = 'data:image/svg+xml,' + encodeURIComponent(
@@ -154,17 +159,67 @@ function installPageBrand(): () => void {
   }
 }
 
-export const inject = ['slots', 'layout']
+export const inject = ['slots', 'layout', 'sessions', 'workspaces', 'uiWorkspace']
 
 export function apply(ctx: Context): void {
   ctx.effect(() => {
     const style = document.createElement('style')
     style.dataset.iteroomUi = 'true'
-    style.textContent = stylesheet
+    style.textContent = stylesheet + '\n' + taskReviewStylesheet
     document.head.append(style)
     const restoreBrand = installPageBrand()
     return () => { restoreBrand(); style.remove() }
   }, 'iteroom: styles and page brand')
+
+  ctx.effect(() => {
+    const controller = new AbortController()
+    const notice = document.createElement('div')
+    notice.className = styles.projectError
+    notice.setAttribute('role', 'alert')
+    let unsubscribed = false
+    let unsubscribe: (() => void) | undefined
+    const ready = new Promise<boolean>(resolve => {
+      const check = () => {
+        if (ctx.sessions.list.getSnapshot().phase !== 'ready' || unsubscribed) return
+        unsubscribed = true
+        unsubscribe?.()
+        resolve(true)
+      }
+      unsubscribe = ctx.sessions.list.subscribe(check)
+      controller.signal.addEventListener('abort', () => {
+        if (unsubscribed) return
+        unsubscribed = true
+        unsubscribe?.()
+        resolve(false)
+      }, { once: true })
+      check()
+    })
+    void (async () => {
+      if (!await ready || controller.signal.aborted) return
+      const response = await fetch('/api/iteroom/project', { credentials: 'same-origin', cache: 'no-store', signal: controller.signal })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const project: unknown = await response.json()
+      if (!project || typeof project !== 'object' || !('cwd' in project) || typeof project.cwd !== 'string') {
+        throw new Error('启动项目数据不完整')
+      }
+      let alreadyBoundThisTab = false
+      try { alreadyBoundThisTab = sessionStorage.getItem('iteroom:launch-project') === project.cwd } catch { /* unavailable in this browser */ }
+      const workspace = await ctx.workspaces.create({ path: project.cwd })
+      if (controller.signal.aborted) return
+      const sessions = ctx.sessions.list.getSnapshot()
+      const current = sessions.current === undefined ? undefined : sessions.byId[sessions.current]
+      const belongsToProject = sessions.current !== undefined && workspace.sessionIds.includes(sessions.current)
+      if ((!alreadyBoundThisTab || !sessions.current) && !belongsToProject && current?.cwd !== workspace.path) {
+        await ctx.uiWorkspace.openWorkspace(workspace.workspaceId)
+      }
+      try { sessionStorage.setItem('iteroom:launch-project', project.cwd) } catch { /* unavailable in this browser */ }
+    })().catch(error => {
+      if (controller.signal.aborted) return
+      notice.textContent = `启动项目未能自动打开，请检查目录或在工作区中重新选择。（${error instanceof Error ? error.message : '未知错误'}）`
+      document.body.append(notice)
+    })
+    return () => { controller.abort(); unsubscribe?.(); notice.remove() }
+  }, 'iteroom: launch project binding')
 
   const openCall = () => ctx.layout.selectPanel(CALL_PANEL)
   const returnToChat = () => ctx.layout.selectPanel(null)
@@ -178,6 +233,9 @@ export function apply(ctx: Context): void {
   ctx.slots.inject('conversation.input.right', () =>
     ctx.slots.register({ name: 'conversation.input.right', id: 'iteroom.voice', order: 180,
       inject: () => ({ openCall }) }, VoiceEntry))
+
+  ctx.slots.inject('conversation.view', () =>
+    ctx.slots.register({ name: 'conversation.view', id: 'iteroom.review', label: '任务审阅', order: 120 }, TaskReview))
 
   ctx.slots.inject('main', () =>
     ctx.slots.inject('sidebar.panellist', function* () {
