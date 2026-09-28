@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T12:52:27.621Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-sandbox-service-outage-ttl-and-network",
+  "gateC": "not_completed",
+  "modelCalled": false,
+  "userSourceRead": false,
+  "actualSandboxCreated": true,
+  "checks": {
+    "networkPolicyEnforced": true,
+    "restartWithoutReplay": true,
+    "cleanupFailureRecovered": true,
+    "ttlReclaimed": true,
+    "ownedServiceStopped": true
+  },
+  "executions": [
+    {
+      "name": "deny-dns",
+      "executionIdSha256": "78a33543f3b5abd1d06739312bdbf9116d65bb5f5ec992581ff69e9e7a05dc2f",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 31,
+      "outputSha256": "f7cafd48718d2958d9ea24feac0baf5e66620cae933e60c5714166aa8df2ef1a"
+    },
+    {
+      "name": "allow-dns-control",
+      "executionIdSha256": "eee5341174996915d499e6d86ee2949c2f183049c8b389d9b5199bb708566ba4",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 29,
+      "outputSha256": "c7759e1153bdbc864b4b01c529b25fe4246bdb1b85d2f13120b5a484cf977a3d"
+    },
+    {
+      "name": "allow-tcp-control",
+      "executionIdSha256": "8584ebfed4a194df8bf0a2731111fc8d8135b78b4e0094427a5e805200f7c0e7",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 11,
+      "outputSha256": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93"
+    },
+    {
+      "name": "deny-direct-same-ip",
+      "executionIdSha256": "e1ba27aa8c9bce1b71b342fa390eb1fee4c06ff1ce8b917eb69900b1b25fe47c",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 12,
+      "outputSha256": "38667e60226bf99701916900a2a265233dcc014e1206c173ade921d608824b53"
+    },
+    {
+      "name": "restart-sentinel",
+      "executionIdSha256": "2f646891bb83c73513ec2f00b6799cef7de8243cd89b9649f8db37c164559634",
+      "exitCode": null,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ttl-parent-and-child",
+      "executionIdSha256": "bec37019754dfc13a03533a25383851bc1747a17602658af21944a66ca43b674",
+      "exitCode": null,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ttl-parent-and-child-alive-near-expiry",
+      "executionIdSha256": "efdbfda5835667ae3ffe3ed1da624e76b5c17008f7974c10b834fd3f67a88976",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "peakApplicationSandboxes": 1,
+  "unverified": [
+    "DSH-sandbox-tool-loop",
+    "real-model",
+    "other-platforms"
+  ],
+  "network": {
+    "status": "ok",
+    "enforcementMode": "dns+nft",
+    "deniedDns": true,
+    "allowedDns": true,
+    "allowedTcp": true,
+    "deniedIp": true,
+    "sameTargetSha256": "496bff7d9581e299d17cb239125ccfac4bd11684b48e082bbdcc8d798bee936d"
+  },
+  "restart": {
+    "executionIdSha256": "2f646891bb83c73513ec2f00b6799cef7de8243cd89b9649f8db37c164559634",
+    "reconnected": true,
+    "runningBeforeInterrupt": true,
+    "startCount": 1,
+    "replayed": false
+  },
+  "cleanupFailure": {
+    "actualControlServiceOutage": true,
+    "deleteRequestFailed": true,
+    "resourceStillPresent": true,
+    "retryAfterRestart": true
+  },
+  "ttl": {
+    "requestedSeconds": 60,
+    "commandTimeoutSeconds": 120,
+    "runningBeforeExpiry": true,
+    "parentAndChildAliveBeforeExpiry": true,
+    "lastAliveSecondsBeforeExpiry": 8.864,
+    "executionIdSha256": "bec37019754dfc13a03533a25383851bc1747a17602658af21944a66ca43b674",
+    "expiredWithoutKill": true,
+    "apiNotFound": true,
+    "dockerAndVolumesAbsent": true,
+    "reclamation": {
+      "polls": 4,
+      "durationMs": 1714
+    }
+  },
+  "service": {
+    "starts": 3,
+    "logBytes": 24918,
+    "logSha256": "adbfb13eee5aa097134f05fbc734cba811462398cb357062c6d08e1d8e90cb9a",
+    "running": false
+  },
+  "status": "passed"
+}

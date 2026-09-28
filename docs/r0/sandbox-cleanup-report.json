@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:37:20.4645737Z",
+  "evidenceKind": "actual-docker-and-owned-windows-process",
+  "status": "passed",
+  "modelCalled": false,
+  "userSourceRead": false,
+  "baselineContainers": 4,
+  "preservedSameState": 4,
+  "additionalUnownedContainers": 1,
+  "unownedResourcesLeftUntouched": true,
+  "ownedApplicationContainersRemaining": 0,
+  "ownedControlServiceStopped": true,
+  "controlPortListening": false,
+  "isolatedInstallationAndImageCacheRetained": true,
+  "gateC": "not_completed"
+}

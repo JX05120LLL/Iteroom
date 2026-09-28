@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "actual-sdk-adapter-failure-and-reconciliation",
+  "actualSandboxAllocated": true,
+  "actualModel": false,
+  "status": "failed",
+  "errorCode": "adapter_factory_method_missing",
+  "sdkCleanupObserved": true,
+  "apiNotFound": true,
+  "applicationAndEgressAbsent": true,
+  "managedVolumeAbsent": true,
+  "ownedServiceStopped": true
+}

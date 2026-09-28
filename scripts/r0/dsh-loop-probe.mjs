@@ -10,10 +10,11 @@ import { FIXTURE, PROVIDER, MODEL } from './fixtures/probe-plugin.mjs'
 const require = createRequire(import.meta.url)
 const cli = join(dirname(require.resolve('@deepseek-ai/dsh/package.json')), 'lib/bin.js')
 const pluginPath = fileURLToPath(new URL('./fixtures/probe-plugin.mjs', import.meta.url))
-const DISABLED = ['sandbox', 'sandbox-policy', 'subprocess', 'pty', 'terminal-bash',
+export const DISABLED = ['sandbox', 'sandbox-policy', 'subprocess', 'pty', 'terminal-bash',
   'terminal-pwsh', 'jobs', 'persistent-bash', 'persistent-pwsh', 'llm-deepseek', 'llm-retry']
 
-function runtime(workspace, home, patch) {
+export function runtime(workspace, home, patch, { timeoutMs = 10000 } = {}) {
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 120000) throw Error('Invalid probe timeout')
   const env = { DSH_HOME: home }
   for (const [key, value] of Object.entries(process.env)) {
     if (/^(path|systemroot|windir|comspec|pathext|temp|tmp)$/i.test(key)) env[key] = value
@@ -74,12 +75,12 @@ function runtime(workspace, home, patch) {
   const request = (method, params) => new Promise((resolveRequest, reject) => {
     if (fatal) { reject(fatal); return }
     const key = ++id
-    const timer = setTimeout(() => { pending.delete(key); reject(new Error(`Probe RPC timeout: ${method}`)) }, 10000)
+    const timer = setTimeout(() => { pending.delete(key); reject(new Error(`Probe RPC timeout: ${method}`)) }, timeoutMs)
     pending.set(key, { resolve: resolveRequest, reject, timer })
     child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: key, method, ...(params === undefined ? {} : { params }) }) + '\n')
   })
   const wait = predicate => new Promise((resolveWait, reject) => {
-    const timer = setTimeout(() => finish(new Error('Probe event timeout')), 10000)
+    const timer = setTimeout(() => finish(new Error('Probe event timeout')), timeoutMs)
     const finish = error => { clearTimeout(timer); watchers.delete(check); error ? reject(error) : resolveWait() }
     const check = () => {
       if (predicate(notifications)) finish()
@@ -129,7 +130,7 @@ function summarize(events) {
   }
 }
 
-async function persistedSessions(root) {
+export async function persistedSessions(root) {
   const sessions = new Map()
   async function visit(directory, depth = 0) {
     if (depth > 4) throw new Error('Unexpected probe persistence layout')

@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:32:59.290Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-opensandbox-docker-runtime",
+  "gateC": "not_completed",
+  "sseTransport": "native-fetch-via-public-adapter-factory",
+  "actualSandboxCreated": true,
+  "modelCalled": false,
+  "userSourceRead": false,
+  "checks": {
+    "waitedForReadyAndHealth": true,
+    "actualLimitsNoHostBindsNoKey": true,
+    "literalArgvPreserved": true,
+    "importModifyTestExport": true,
+    "hostInputUnchanged": true,
+    "explicitDenyPolicy": true,
+    "backgroundDescendantsStopped": true,
+    "foregroundDescendantsStopped": true,
+    "timeoutDescendantsStopped": true,
+    "disconnectReconciledWithoutReplay": true,
+    "managedVolumesDeleted": true,
+    "deletedAndDockerConfirmed": true
+  },
+  "executions": [
+    {
+      "name": "literal-argv",
+      "executionIdSha256": "2ee575bafbe953a9e77ecfe5a938aeb38fdfb1d3e9ab70ad0b8eee806db90a76",
+      "commandSha256": "21684c9f2c4fb575756e45507a217063615709b888cae2bf6d909028b6754997",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "failing-node-test",
+      "executionIdSha256": "fd7d4c47a5bd384f9e38a200001b62478f245d2807bb623d47cdbedaf8d80d3e",
+      "commandSha256": "456c49875e03289199fc14893605dba8a349cd64fecf269cef6732273bb857de",
+      "cwd": "/workspace",
+      "exitCode": 1,
+      "errorPresent": true,
+      "outputBytes": 842,
+      "outputSha256": "f13c2f2092ebc7999175560bc841a8d9265f3add3208d33b189401ca12cbbf1d"
+    },
+    {
+      "name": "passing-node-test",
+      "executionIdSha256": "8cb16d5fc7d00a4da29a0eabc0a1508aa6d7a761b4155e6409d20cd1757f4c00",
+      "commandSha256": "456c49875e03289199fc14893605dba8a349cd64fecf269cef6732273bb857de",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 141,
+      "outputSha256": "a5d472ddc82720af6b6e6b9fec4ffc3e805b2f4b8b93bbed6cd96e74b91954ed"
+    },
+    {
+      "name": "background-parent-and-child",
+      "executionIdSha256": "77bde4aab8c0688efe40bddc66064b70a289edd3e11d8525958111133ca1cc40",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": null,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-parent-and-child-stopped",
+      "executionIdSha256": "8caf3aa1a0e7f2e3d759c69781435a4f492e474f3fb092a37636a2fceb45812f",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "name": "foreground-parent-and-child",
+      "executionIdSha256": "7817a6cbb8c0ee5f1704c3bcaec7c0b2260b9eff5c615f6852f84545149742b1",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": -1,
+      "errorPresent": true,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-foreground-descendants-stopped",
+      "executionIdSha256": "30e2724a2a1de89fb0115fa122bf4876c5803f013c1318495015b65f065880cb",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "name": "command-timeout",
+      "executionIdSha256": "9753336d2c424ede261b883f62ff122429ba07942c794ea3344bea7062a06d63",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": -1,
+      "errorPresent": true,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-timeout-descendants-stopped",
+      "executionIdSha256": "bebff3d1f80520e8f4dcdcb0b3e532d360ce5962f14ebacfec18bb07d650ef24",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "name": "confirm-disconnect-descendants-stopped",
+      "executionIdSha256": "c7ec3d7b0e66f61ae9433de54e10871941b630f1181975c665f20d2dd8240725",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    }
+  ],
+  "unverified": [
+    "ttl",
+    "control-service-restart",
+    "cleanup-failure-retry",
+    "full-network-policy-enforcement",
+    "DSH-sandbox-tool-loop"
+  ],
+  "images": {
+    "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/execd:v1.1.0": {
+      "digest": "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/execd@sha256:6cf7dba2f21f0b536e100563d841ac58a9f31c2b0a081b7ac76796a24d6f47e2",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 60323007
+    },
+    "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/egress:v1.1.7": {
+      "digest": "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/egress@sha256:db7345d567b0970f384b8e3fa7a93a71b7f43d4b16bb2009de34096e9a87b3b5",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 132036591
+    },
+    "node:24-bookworm-slim": {
+      "digest": "node@sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 80828260
+    }
+  },
+  "allocationState": "Running",
+  "runtimeLimits": {
+    "memoryBytes": 536870912,
+    "nanoCpus": 1000000000,
+    "cpuQuota": 0,
+    "cpuPeriod": 0,
+    "pidsLimit": 128,
+    "mountTypes": [
+      "volume"
+    ],
+    "securityOpt": [
+      "no-new-privileges=true"
+    ]
+  },
+  "artifact": {
+    "path": "greet.mjs",
+    "inputSha256": "ca6b0820f136879563b49c249aa40c6ab142fbdff94317b3b3c9bd8e70839480",
+    "outputSha256": "c6b5e6448cc19663a45fd8aeeb8ab7489158185a213c3c9cfa40e15f7551a3f7",
+    "bytes": 56
+  },
+  "hostInput": {
+    "files": 2,
+    "beforeSha256": "d17a2678f996a2b0ccdf009770ff77ac11e20271000fae326f58e939b30aa82f",
+    "afterSha256": "d17a2678f996a2b0ccdf009770ff77ac11e20271000fae326f58e939b30aa82f"
+  },
+  "disconnect": {
+    "executionIdSha256": "b49868324d202c73da84f4165136a01e7e5ca3586c4beec0303a63dbdfba783c",
+    "clientRequestAborted": true,
+    "remoteRunningAfterAbort": true,
+    "explicitlyInterrupted": true,
+    "replayed": false
+  },
+  "status": "passed"
+}

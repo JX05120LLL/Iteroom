@@ -23,21 +23,29 @@ R0 的三个 PoC 可以独立准备，主产品按 R1–R5 顺序推进。每阶
 
 ### Gate A：DSH
 
-当前进度：[离线契约与 CLI 配置合成](r0/DSH-CONTRACT.md)、[官方 CLI 启动与模拟循环](r0/DSH-RUNTIME.md)已验证。自有合成只读工具、guard 拒绝、模型错误、Agent 取消与已结束会话的核心恢复有运行证据；真实模型、自有沙箱工具及执行恢复仍待验证，Gate A 未完成。SDK 无单任务取消、已有 Session 的 prompt 不能直接恢复，R1 Host 需使用对应核心公开接口。默认 sdk-minimal 带宿主持久 Shell，不能直接作为目标隔离模式。
+当前进度：[离线契约与 CLI 配置合成](r0/DSH-CONTRACT.md)、[官方 CLI 启动与模拟循环](r0/DSH-RUNTIME.md)、[实际沙箱工具组合](r0/DSH-SANDBOX.md)和[真实模型组合](r0/DSH-LIVE.md)已验证。真实 deepseek-flash 经原 Loop 调用自有只读/实际沙箱工具、收到测试结果并继续；模拟模型与实际沙箱另外覆盖 guard、远端失败、取消父子收束和结束/取消会话恢复。固定环境/合成输入内 Gate A 通过，真实提供方失败/取消和产品未知执行恢复不据此验收。SDK 无单任务取消、已有 Session 的 prompt 不能直接恢复，R1 Host 需使用对应核心公开接口。默认 sdk-minimal 带宿主持久 Shell，探针显式禁用，不能直接作为目标隔离模式。
 
 - 固定当前 DSH/Cordis 基线；核对受支持的 Profile、Patch、服务导出与事件。
 - 构建可运行的最小组合，注册一个 Iteroom 只读工具，再注册一个沙箱工具。
 - 模型 → 工具 → 返回 → 下一步循环，检查取消、错误、Session 持久化和重启。
 - 不留宿主执行逃逸入口，不直接使用内部 scheduler 构造第二个工具运行时。
 
+[模型传输准备](r0/MODEL-TRANSPORT.md)验证固定公开 adapter 的本机 HTTP/SSE、请求次数/输出和失败保留；[磁盘计数切片](r0/MODEL-JOURNAL.md)7/7 验证本机文件/独立进程及 I/O 故障注入。本轮获批最多 6 次请求、5 元上限，实际 3 次真实请求；本地保守费用规划上界约 2.691072 元，未核对服务商账单，非产品硬消费限额。
+
 ### Gate B：OpenCodeReview
+
+当前进度：[真实 Delegate 切片](r0/OCR-DELEGATE.md)、[输入切片](r0/REVIEW-INPUT.md)及[固定副本收口](r0/FIXED-REVIEW-COPY.md)已通过 Windows x64、OCR v1.12.9、受管合成输入范围内的 Gate B。三种模式/复杂历史、旧新侧/覆盖、固定副本、无 HEAD 一致新增、attributes/filter 拒绝、异常与进程边界均有证据。保守不支持项和非原子捕获明确记录；产品审查/恶意真实仓库/其他平台未验，不提前迁移 R1/R2。
 
 - 先无模型调用验证工作树、单提交、范围的 preview/rule JSON。
 - 确认临时受管 Git 输入构造、重命名/删除和排除原因；记录 schema/version。
 - 校验异常 JSON、进程超时、输出超限、规则失败和不可定位路径的处理。
 - 测试源码需有覆盖策略；不把 Delegate 同规则分组当语义分组。
 
+测试/删除仍为待推理覆盖，多祖先/无共同历史不任意选基线；固定副本验证不能当产品原子快照，Gate B 通过不等于 A08–A10 产品审查验收完成。
+
 ### Gate C：OpenSandbox
+
+当前进度：[实际运行切片](r0/SANDBOX-RUNTIME.md)及[生命周期与网络切片](r0/SANDBOX-FAULTS.md)共同满足 Gate C 的限定环境验证。已实际验证 Windows→Linux 文件/测试/导出、前台/后台子进程取消、超时、SSE 断线后显式停止、临近 TTL 的父子存活与自动回收、控制服务重启不重放、服务不可达清理失败后重试、DNS 与同 IP TCP 443 的允许/拒绝对照，以及 API/Docker/卷删除核对。SDK SSE Abort 缺陷保留失败报告并通过公开 factory/native fetch 实际验证。版本、网络/故障范围与未验边界见 [Gate 汇总](r0/GATES.md)；不是全部协议/宿主端点安全或产品验收。Gate A/B/C 均在限定范围内通过，R0 技术验证完成；R1 产品接线尚未开始。
 
 - 先无模型调用：创建 → 等待就绪 → 导入合成仓库 → 修改 → 测试 → 导出 → 删除/核对。
 - 长命令包含子进程，分别验证前台/后台取消、断线、TTL、服务重启和清理失败。

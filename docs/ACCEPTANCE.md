@@ -8,7 +8,11 @@
 
 分别标注：源码核对、离线单元测试、模拟协议/模型、实际沙箱、真实模型端到端、干净环境发行检查。mock 成功不能升级为真实模型/沙箱通过；UI 截图不能证明执行安全。
 
+最新 R0 [真实模型/DSH/实际沙箱组合](r0/DSH-LIVE.md)用 3 次官方模型请求验证只读工具→沙箱修复/测试→下一步及重启不重放；模拟模型的错误/取消与远端父子收束另见[组合报告](r0/DSH-SANDBOX.md)。Gate A/B/C 在固定环境和合成输入内通过，R0 技术验证完成；**下表 A01–A21 产品状态不随之通过**，产品未知执行恢复、浏览器与发行仍待验。
+
 ## 2. 场景
+
+独立[模型传输测试](r0/MODEL-TRANSPORT.md)8/8 为离线请求守卫及回环 HTTP/SSE；后续[磁盘计数](r0/MODEL-JOURNAL.md)7/7 为本机文件/独立进程与 I/O 故障注入。真实模型组合另有独立运行证据，本地费用规划不等于服务方账户硬限额或账单。下表产品场景仍待执行。
 
 | ID | 关联要求 | 场景 | 通过条件 |
 |---|---|---|---|
@@ -47,3 +51,11 @@
 当前已有 `npm.cmd run check`、`npm.cmd test`、`npm.cmd run build` 和 `npm.cmd run test:web`。按改动运行相关检查，新架构增加对应测试后再更新命令。纯文档变更检查 Markdown 本地链接、阶段一致性、事实边界和 `git diff --check`，无需强行运行模型或 Docker。
 
 R0 独立检查使用 `node --test test/r0-dsh-contract.test.js test/r0-dsh-loop.test.js`；默认 npm test 未包含它们。[运行探针](r0/DSH-RUNTIME.md)证明官方 CLI 启动、合成只读工具、模拟错误/取消与已结束 Session 恢复，不据此将 A02、A04、A11、A13 等完整产品场景标为通过。
+
+2026-09-27 新增 [OCR Delegate 实测](r0/OCR-DELEGATE.md)：设置经校验的 `ITEROOM_OCR_BIN` 后，`node --test test/r0-dsh-contract.test.js test/r0-dsh-loop.test.js test/r0-ocr-delegate.test.js` 为 35/35，OCR 18/18 含真实固定 CLI 集成。未配置工具则集成项跳过，不能作为 Gate B 通过。证据涵盖三种合成输入、统计/路径/规则完整性及实际错误；删除旧侧、复杂分支与产品完整覆盖待验证。A09/A10/A21 等产品场景仍未完成。
+
+后续[输入扩展实测](r0/REVIEW-INPUT.md)使用上述命令再追加 `test/r0-review-input.test.js`。已覆盖旧/新侧与完整 diff、分叉/root/merge、空输入、binary/Unicode/BOM、实际链接与外部 gitdir、持续改动、多祖先及无共同历史。匿名报告的 pending_inference 不是已完成审查，no_changes 不是真实模型通过。正式固定副本调用及产品 A09/A10 验收状态仍不改变。
+
+本轮最终新增输入测试 20/20，R0 共 55/55；现有 19 通过/1 平台跳过，类型检查和构建通过。真实 CLI、DSH 模拟模型、本机文件测试分开列于对应报告；没有使用整体绿色结果更新 v1 通过项。
+
+后续[固定副本](r0/FIXED-REVIEW-COPY.md)新增 11/11，R0 OCR/DSH 当轮合计 66/66，限定范围内 Gate B 通过；产品审查项仍待验。[实际沙箱](r0/SANDBOX-RUNTIME.md)预检与运行测试 7/7（配置受管安装根且明确执行授权后），真实导入/修改/测试/导出、前台/后台及子进程停止、超时、断线后显式停止、资源与删除核对通过。后续[生命周期/网络](r0/SANDBOX-FAULTS.md)8/8 含实际 TTL、控制服务重启、清理重试与公开 IPv4 DNS/TCP 正向对照，Gate C 在限定环境内通过。各组分别执行，不宣称一次全量 81 项。此段为 2026-09-27 历史切片；2026-09-28 的真实模型 Gate A 结果见上文，技术 Gate 不更新 A01–A21、浏览器或发行状态。

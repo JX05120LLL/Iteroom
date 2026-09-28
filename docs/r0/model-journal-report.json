@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T14:20:48.256Z",
+  "evidenceKind": "actual-private-files-and-separate-node-processes",
+  "actualModel": false,
+  "actualHttp": false,
+  "credentialsRead": false,
+  "userSourceRead": false,
+  "gateA": "not_completed",
+  "checks": {
+    "separateProcessExcluded": true,
+    "diskCommittedBeforeSyntheticTransport": true,
+    "restartBudgetNotRefunded": true,
+    "orphanLockNotReclaimed": true,
+    "ownedFixturesRemoved": true
+  },
+  "unverified": [
+    "real-model-tool-loop",
+    "monetary-budget",
+    "power-loss-durability",
+    "product-budget-store"
+  ],
+  "reservedAttempts": 1,
+  "status": "passed"
+}

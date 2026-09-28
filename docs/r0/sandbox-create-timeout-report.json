@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:46:51.293Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-sandbox-service-outage-ttl-and-network",
+  "gateC": "not_completed",
+  "modelCalled": false,
+  "userSourceRead": false,
+  "checks": {
+    "ownedServiceStopped": true
+  },
+  "executions": [],
+  "peakApplicationSandboxes": 0,
+  "unverified": [
+    "DSH-sandbox-tool-loop",
+    "real-model",
+    "other-platforms"
+  ],
+  "failedStage": "create-sandbox",
+  "service": {
+    "starts": 1,
+    "logBytes": 5193,
+    "logSha256": "63a50bc8e7d9191dbf028ce4b318706c8a6ff3383130f0103f557c29fe0d873c",
+    "running": false
+  },
+  "status": "failed",
+  "errorCode": "client_request_timeout",
+  "clientConfirmedAllocation": false,
+  "actualSandboxCreated": true,
+  "followupRecovery": {
+    "confirmedAllocations": 2,
+    "ownershipVerified": true,
+    "recoveredByActualApi": 2,
+    "applicationAndEgressContainersAbsent": true,
+    "managedVolumesAbsent": true
+  },
+  "observation": "Initial client timeout did not prove allocation absence; subsequent Docker and owned API reconciliation confirmed and removed both synthetic allocations."
+}

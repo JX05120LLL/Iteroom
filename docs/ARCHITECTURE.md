@@ -47,7 +47,7 @@ Cordis 组织 Host 内的插件、服务及可释放资源；图中是逻辑职�
 
 阶段退出条件包括：真实模型 → 自有只读工具 → 沙箱修改 → 测试 → 停止 → 重启恢复，而非只证明插件可注册。模型工具不得留下绕过 Iteroom 策略的宿主执行入口。来源：[DSH 架构](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md)、[Agent Loop](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/core/agent-loop/README.md)。上游 master 文档与固定版实现分别核对。
 
-2026-09-27 的 [R0 离线切片](r0/DSH-CONTRACT.md)已核对公开导出并合成候选配置；后续[运行切片](r0/DSH-RUNTIME.md)通过官方 CLI 真启动，在禁用宿主执行项和真实模型适配器后完成合成只读工具/模拟模型循环、guard 拒绝、错误、Agent 取消与已结束 Session 恢复。真实模型与沙箱仍未验证，Gate A 未完成。
+2026-09-27 的 [R0 离线切片](r0/DSH-CONTRACT.md)已核对公开导出并合成候选配置；后续[运行切片](r0/DSH-RUNTIME.md)通过官方 CLI 真启动，在禁用宿主执行项和真实模型适配器后完成合成只读工具/模拟模型循环、guard 拒绝、错误、Agent 取消与已结束 Session 恢复。[实际沙箱工具组合](r0/DSH-SANDBOX.md)复用同一 CLI 辅助接口，工具仅固定动作，实际 SDK 执行/返回/错误/父子收束与结束/取消会话恢复已验。取消前核对父子存活，停止只接受 ENOENT/僵尸；资源清单未捕获不能确认删除，归属日志与控制服务保留。2026-09-28 的[真实模型组合](r0/DSH-LIVE.md)补齐官方适配器经原 Loop 调用只读/沙箱工具、接收实际测试结果及重启不重放，在固定环境的 Gate A 范围内通过；产品未知执行恢复和真实提供方故障/取消仍未验。
 
 固定版 SDK 仅支持 initialize、session/prompt、shutdown，没有单任务取消 RPC，已有 sessionId 的 prompt 仍尝试 create 并报已存在。运行切片分别验证核心公开 Agent.cancel/whenIdle 与 agents.resume；目标 Host 应明确驱动创建、恢复与取消，并独立核对远端执行。DSH Session 恢复不能替代产品任务和副作用恢复。
 
@@ -55,13 +55,15 @@ Cordis 组织 Host 内的插件、服务及可释放资源；图中是逻辑职�
 
 以进程调用 `ocr delegate preview --format json` 和 `ocr delegate rule <path...> --format json`，显式传入受管仓库/快照上下文。CLI 使用参数数组调用、固定可执行文件和版本，限制时长与输出。解析 schema version、字段及路径，不相信输出路径天然安全。
 
-工作树模式在受管临时 Git 仓库中表示输入变更；提交/范围模式取得用户指定的准确修订及必要历史。不向沙箱直接挂载宿主 `.git`。如何构造这些输入是 Gate A 的接口验证项，不假定 Delegate 支持任意内存快照。
+工作树模式在受管临时 Git 仓库中表示输入变更；提交/范围模式取得用户指定的准确修订及必要历史。不向沙箱直接挂载宿主 `.git`。如何构造这些输入是 Gate B 的接口验证项，不假定 Delegate 支持任意内存快照。
 
 Delegate 只提供候选清单、排除原因和规则。同规则分组不等于语义依赖分组；上下文预算、diff 获取、审查推理、覆盖记录、代码定位及合并由 Iteroom 负责。上游默认排除的测试源码需要按任务补充；所有排除项可见。
 
 定位需比对固定快照中的文件和片段，重命名/删除需显示变更侧。找不到或存在多个匹配时不能伪造行号。模型过滤只影响候选质量，不能替代复现/测试证据。审查结果保存 OCR 版本、规则来源及规则哈希。完整 OCR 审查模式只作对照，不自动成为第二个主运行时。
 
-研究快照：`486022daaf14f7142275eddb9b3cacc3cc5dadfa`，尚未选择生产发行版本。来源：[Delegate 契约](https://github.com/alibaba/open-code-review/blob/486022daaf14f7142275eddb9b3cacc3cc5dadfa/cmd/opencodereview/delegate_cmd.go)。
+研究快照为 `486022daaf14f7142275eddb9b3cacc3cc5dadfa`。2026-09-27 的[独立探针](r0/OCR-DELEGATE.md)固定官方 v1.12.9（源提交 bccbc15f），校验 Windows amd64 二进制 SHA256 与实际版本。schema_version 严格为字符串 `"1"`，模式/修订/merge-base 和全部文件与独立 Git 清单比对；测试显式 include、规则覆盖及真实错误有证据。preview 删除默认排除，重命名不返回旧路径，须补充旧侧定位；正式快照接线仍未完成。进程参数数组、受控 HOME/USERPROFILE、时限/合并输出限额、进程树收束仅是 R0 执行边界，未改变原产品工具行为。
+
+2026-09-27 的[输入捕获扩展](r0/REVIEW-INPUT.md)只在受管合成仓库提供旧/新路径、Git blob/内容/diff 哈希与固定文本。range 使用唯一 merge-base，root 对空树，merge commit 对第一父；多最佳祖先/无共同历史拒绝。文本删除获得 old side 和规则但保持 pending_inference；binary/provider 排除可见，测试显式纳入。后续[固定副本](r0/FIXED-REVIEW-COPY.md)重建独立 objects/index/字节，CLI 改读副本并前后复验；配置/attributes 与外部存储保守拒绝。捕获不是原子的、副本未受 OS 只读保护，该 R0 模块不得直接接真实项目作为产品 WorkspaceManager。
 
 ## 5. OpenSandbox 接入
 
@@ -78,6 +80,8 @@ Delegate 只提供候选清单、排除原因和规则。同规则分组不等�
 网络模式显式配置：固定版配置类默认 host，而示例使用 bridge，不能依赖默认值。默认使用受限 bridge 和显式网络策略；DNS 过滤不等同数据包拦截，强化运行时与 egress 的兼容性单独验证。增强隔离选项可能需要额外权限，不以功能名称推断安全强度。部署诊断记录 active/degraded/unsupported；能力不足时拒绝需要该能力的任务。
 
 Windows 宿主优先验证 Docker/WSL2 上的 Linux 执行环境；路径、换行、文件位与依赖差异都属于验收范围。Windows 客体 profile 是另一个 KVM/QEMU 路线，不纳入 v1。
+
+独立[实际探针](r0/SANDBOX-RUNTIME.md)已安装 npm SDK 1.1.0、固定源码服务及 digest 镜像并验证基本链路。固定 execd v1.1.0 要求 command，不能使用 SDK 的 argv JSON；容器内使用逐参数 POSIX 引号转换并实测字面值。文件 mode 要传 755/644 数字，JS 0o755 被串行为 493 后拒绝。端口范围须至少 100 个。[生命周期探针](r0/SANDBOX-FAULTS.md)使用至少 60 秒 TTL；API 404 后仍等待容器/卷消失。创建超时保留 owner/未确认状态和控制服务，不能把应用容器暂未出现当作未分配。网络证据含同一公开 IPv4 目标 DNS/TCP 443 正向对照；降级拒绝有离线测试，全部协议/宿主端点隔离未验。以上限制未改变产品 API，DSH 沙箱工具尚未接线。
 
 来源：[平台架构](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/architecture/index.md)、[SDK](https://github.com/opensandbox-group/OpenSandbox/blob/main/sdks/sandbox/javascript/README.md)、[运行时](https://github.com/opensandbox-group/OpenSandbox/blob/main/docs/guides/secure-container.md)、[Windows 客体](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/guides/windows-sandbox.md)。
 
@@ -110,6 +114,8 @@ Task、Execution、Artifact 等产品记录首版拟存项目外 SQLite；大日
 跨多个文件不承诺单一原子事务。先保存目标文件可恢复副本与写回日志，再受控执行；中断时识别已写/未写项。恢复或回滚只在目标仍匹配本次已写哈希时执行，避免覆盖中途用户编辑。Git index 不自动修改，自动 commit/push 不在流程内。
 
 ## 8. 安全与技术验证门槛
+
+R0 独立[模型请求守卫](r0/MODEL-TRANSPORT.md)在 fetch 前限制固定端点/model、文本请求/无日志扩展、六次请求/输出上限；commit 成功后才发 HTTP，失败/取消不返还次数，禁止重定向。只经过离线与回环官方 adapter 协议测试；后续[私有磁盘计数](r0/MODEL-JOURNAL.md)已在受管目录/独立进程验证提交、重开、锁和写失败；用户已指定 DeepSeek 官方 deepseek-flash，真实适配器接线与金额约束待明确调用/费用授权后实施，不能称为产品预算/真实模型验收。
 
 Host 负责身份/来源校验、权限审批、路径真实解析、凭证过滤、预算和日志脱敏；OpenSandbox 提供实际部署的隔离机制。把这两者都验证后才声明受控执行。
 

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:50:48.295Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-sandbox-service-outage-ttl-and-network",
+  "gateC": "not_completed",
+  "modelCalled": false,
+  "userSourceRead": false,
+  "actualSandboxCreated": true,
+  "checks": {
+    "networkPolicyEnforced": true,
+    "restartWithoutReplay": true,
+    "cleanupFailureRecovered": true,
+    "ownedServiceStopped": true
+  },
+  "executions": [
+    {
+      "name": "deny-dns",
+      "executionIdSha256": "4873931009db3f47f5e176293734a5266d894f520f51486b2502388f1b76d59e",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 31,
+      "outputSha256": "f7cafd48718d2958d9ea24feac0baf5e66620cae933e60c5714166aa8df2ef1a"
+    },
+    {
+      "name": "allow-dns-control",
+      "executionIdSha256": "51fa99d0d1f18e4349854431ec3c4f89bb6722108a12e01a5e83ec10ac142d2e",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 29,
+      "outputSha256": "c7759e1153bdbc864b4b01c529b25fe4246bdb1b85d2f13120b5a484cf977a3d"
+    },
+    {
+      "name": "allow-tcp-control",
+      "executionIdSha256": "25b29a6622aba2ec5fde005bd42284cd82cb68adb5b65e184099ba20eab2e0ee",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 11,
+      "outputSha256": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93"
+    },
+    {
+      "name": "deny-direct-same-ip",
+      "executionIdSha256": "0dd95aec8b7bea3fc3aa5d9922370c2076764f048a385157845d1f6635a5904c",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 12,
+      "outputSha256": "38667e60226bf99701916900a2a265233dcc014e1206c173ade921d608824b53"
+    },
+    {
+      "name": "restart-sentinel",
+      "executionIdSha256": "d13662615368e8e4b16d42d339650e2b89a63b6bdd90d5e16994d7d5d500651d",
+      "exitCode": null,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "peakApplicationSandboxes": 1,
+  "unverified": [
+    "DSH-sandbox-tool-loop",
+    "real-model",
+    "other-platforms"
+  ],
+  "network": {
+    "status": "ok",
+    "enforcementMode": "dns+nft",
+    "deniedDns": true,
+    "allowedDns": true,
+    "allowedTcp": true,
+    "deniedIp": true,
+    "sameTargetSha256": "496bff7d9581e299d17cb239125ccfac4bd11684b48e082bbdcc8d798bee936d"
+  },
+  "restart": {
+    "executionIdSha256": "d13662615368e8e4b16d42d339650e2b89a63b6bdd90d5e16994d7d5d500651d",
+    "reconnected": true,
+    "runningBeforeInterrupt": true,
+    "startCount": 1,
+    "replayed": false
+  },
+  "cleanupFailure": {
+    "actualControlServiceOutage": true,
+    "deleteRequestFailed": true,
+    "resourceStillPresent": true,
+    "retryAfterRestart": true
+  },
+  "failedStage": "create-sandbox",
+  "allocationReconciliation": {
+    "matchingRuntimeAllocations": 0,
+    "performedAfterFailure": true
+  },
+  "service": {
+    "starts": 3,
+    "logBytes": 14946,
+    "logSha256": "52984a1189fb44549156cd4cdd215e92780f9b43cf0a43f174d3b688e9433e21",
+    "running": false
+  },
+  "status": "failed",
+  "errorCode": "UNEXPECTED_RESPONSE"
+}

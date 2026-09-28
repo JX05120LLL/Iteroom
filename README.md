@@ -4,7 +4,7 @@
 
 目标是让开发者通过文字理解、修改和审查代码：助手在独立环境中执行，提供补丁与真实验证证据，用户审阅后决定是否写回项目。白色方案 C 是产品视觉基线。
 
-> 当前仍是 DSH Web 扩展开发版，已有启动器、任务审阅和 Git 净变化证据。自有 Host、OCR、OpenSandbox、冲突检测及补丁接受流程尚未完成；npm 未发布。本轮重规划不代表新架构已经运行。
+> 当前仍是 DSH Web 扩展开发版，已有启动器、任务审阅和 Git 净变化证据。R0 三个技术兼容 Gate 已在固定版本与合成输入范围内验证；自有 Host、OCR/OpenSandbox 产品接线、冲突检测及补丁接受流程尚未完成，npm 未发布。
 
 ## 职责分工
 
@@ -27,9 +27,18 @@ v1 聚焦单用户、单项目、串行文字任务，先验证 TypeScript/Node.
 - [交付路线](docs/ROADMAP.md)：R0–R5、技术 Gate 和既有代码迁移。
 - [验收矩阵](docs/ACCEPTANCE.md)：真实流程、失败路径和发布门槛。
 - [当前状态](docs/STATUS.md)：代码事实、可运行入口与未验证能力。
-- [接续开发提示词](docs/NEXT_SESSION_PROMPT.md)：下一会话从 R0 Gate B 开始，先核对当前工作区和证据。
+- [接续开发提示词](docs/NEXT_SESSION_PROMPT.md)：从已完成的限定范围 R0 技术验证接续，先核对工作区与阶段边界。
 - [R0 离线契约检查](docs/r0/DSH-CONTRACT.md)：DSH 公开接口、Profile/Patch 配置合成与未验证边界。
 - [R0 运行检查](docs/r0/DSH-RUNTIME.md)：官方 CLI 真启动、自有合成只读工具、模拟循环、取消及会话恢复。
+- [R0 DSH 与实际沙箱](docs/r0/DSH-SANDBOX.md)：模拟模型经实际 Loop 调用远端工具，验证错误、取消及结束/取消会话恢复。
+- [R0 真实模型组合](docs/r0/DSH-LIVE.md)：官方模型经 DSH Loop 调用自有只读/实际沙箱工具，记录请求、用量、重启和清理证据。
+- [R0 模型传输准备](docs/r0/MODEL-TRANSPORT.md)及[私有计数磁盘验证](docs/r0/MODEL-JOURNAL.md)：请求约束、本机 HTTP/SSE、实际文件和独立进程的前置证据。
+- [R0 OCR Delegate](docs/r0/OCR-DELEGATE.md)：固定真实 CLI、三种合成 Git 输入、JSON/覆盖/失败路径与复验。
+- [R0 审查输入](docs/r0/REVIEW-INPUT.md)：旧/新侧与 diff、分叉/初始/合并提交、空输入及链接边界。
+- [R0 固定副本与 Gate B](docs/r0/FIXED-REVIEW-COPY.md)：限定平台内通过；保守 Git 边界及真实 CLI 证据。
+- [R0 实际沙箱](docs/r0/SANDBOX-RUNTIME.md)：Linux 容器文件/测试/取消/超时/清理。
+- [R0 生命周期与网络](docs/r0/SANDBOX-FAULTS.md)：TTL、控制服务重启、清理重试与带正向对照的网络策略实测。
+- [R0 Gate 汇总](docs/r0/GATES.md)：Gate A/B/C 在限定环境和合成输入范围内通过；v1 产品流程仍未完成。
 - [第三方复用](docs/DEPENDENCIES.md)：来源、接口、版本及许可证要求。
 - [领域术语](CONTEXT.md) · [架构决策](docs/adr/0001-own-harness-selective-reuse.md) · [协作约定](AGENTS.md)。
 - [方案 C 设计基线](docs/design-options/README.md)：白色主题、Logo 和独立通话页。
@@ -48,7 +57,7 @@ npm.cmd start -- D:\code\your-project --no-open
 
 当前 DSH 工具可能直接操作宿主项目，不能将此开发入口视为目标隔离模式。任务审阅只比较任务前后 Git 可见文件净变化，外部编辑可能混入；模型回答不算测试证据。数据位置、旧接口及限制见 [当前状态](docs/STATUS.md)。
 
-目标隔离修改模式将额外需要 OpenSandbox 服务、Docker 和任务镜像，模型请求也需要可用提供方；这些条件不会被 npm 启动器自动消除。Windows 的 Docker/WSL2 运行链路尚待验证，服务不可用时目标产品不应退回宿主执行。
+目标隔离修改模式将额外需要 OpenSandbox 服务、Docker 和任务镜像，模型请求也需要可用提供方；这些条件不会被 npm 启动器自动消除。独立 R0 探针已实际验证 Windows 宿主到 Linux Docker 的基本执行链路，尚未接产品入口；服务不可用时目标产品不应退回宿主执行。
 
 ## 当前开发检查
 
@@ -67,4 +76,4 @@ npm.cmd run test:web
 
 截图为已有界面资产，尚未展示目标审查/沙箱/接受补丁流程。独立通话页与麦克风、字幕、结束通话控制保持禁用，未接入语音服务。
 
-下一步是 [R0 兼容性验证](docs/ROADMAP.md)：先验证支持的 DSH 最小启动组合、OCR Delegate JSON 与 OpenSandbox 的执行/取消/清理，再逐阶段迁移。
+下一步按 [路线](docs/ROADMAP.md)设计并实施 R1 自有 Host，将已验证的核心接口接入真实任务与权限流程；R0 探针不自动成为产品能力。

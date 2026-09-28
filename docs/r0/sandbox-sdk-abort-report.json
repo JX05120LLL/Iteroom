@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:30:53.321Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-opensandbox-docker-runtime",
+  "gateC": "not_completed",
+  "actualSandboxCreated": true,
+  "modelCalled": false,
+  "userSourceRead": false,
+  "checks": {
+    "waitedForReadyAndHealth": true,
+    "actualLimitsNoHostBindsNoKey": true,
+    "literalArgvPreserved": true,
+    "importModifyTestExport": true,
+    "hostInputUnchanged": true,
+    "explicitDenyPolicy": true,
+    "backgroundDescendantsStopped": true,
+    "foregroundDescendantsStopped": true,
+    "timeoutDescendantsStopped": true,
+    "managedVolumesDeleted": true,
+    "deletedAndDockerConfirmed": true
+  },
+  "executions": [
+    {
+      "name": "literal-argv",
+      "executionIdSha256": "ad2586491f135a9cec5777cdde65b6a766f13efb4d264b7bc2eee3347aeee35f",
+      "commandSha256": "21684c9f2c4fb575756e45507a217063615709b888cae2bf6d909028b6754997",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "failing-node-test",
+      "executionIdSha256": "1434bf03786455a424ed14ac5ac0ee29aedb97c1a8994d00f86b9d575cf7a142",
+      "commandSha256": "456c49875e03289199fc14893605dba8a349cd64fecf269cef6732273bb857de",
+      "cwd": "/workspace",
+      "exitCode": 1,
+      "errorPresent": true,
+      "outputBytes": 841,
+      "outputSha256": "913bd7f05552a94839466ae322f90f1c7b47d4daefae7a6fa2642fc1dc6de988"
+    },
+    {
+      "name": "passing-node-test",
+      "executionIdSha256": "0c372b8ad40492395593ada4e84b39e2efa864b66a1da10b87a62075526c27be",
+      "commandSha256": "456c49875e03289199fc14893605dba8a349cd64fecf269cef6732273bb857de",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 139,
+      "outputSha256": "d11a99c3f4775d891f41dd1823a82adc0f655128a83435d7f9ed3bc2d979f89f"
+    },
+    {
+      "name": "background-parent-and-child",
+      "executionIdSha256": "d625a1a4902f7b0b86e1061e5d2f7b662038ad63717dc0532889b63c28843077",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": null,
+      "errorPresent": false,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-parent-and-child-stopped",
+      "executionIdSha256": "1d2e33d3e367e28662d7f8e7961d886663e224626fb84f0168c107e8513cb432",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "name": "foreground-parent-and-child",
+      "executionIdSha256": "5580a6de467aba21b02ed61ce207fb9ca270a76bffce7ec150966431fa2e2bda",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": -1,
+      "errorPresent": true,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-foreground-descendants-stopped",
+      "executionIdSha256": "75e9967f93c81fbbdf0a4db8cecfd1482da9a4640442704687a21ac088fca419",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "name": "command-timeout",
+      "executionIdSha256": "67e909d01d1ee2949aef10e3fc023aa9b19cc5b79e6c61ffb38dc24b0160eab7",
+      "commandSha256": "4ed94fc3f8a6d55ecf52804cce538235643467f1c6e5ee6a0c8d6be96ba4f8d2",
+      "cwd": "/workspace",
+      "exitCode": -1,
+      "errorPresent": true,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "confirm-timeout-descendants-stopped",
+      "executionIdSha256": "8b4087bd811da152edb22761c4d410c8bcd795e2b122ae0bc34fb7777803086c",
+      "commandSha256": "bdd7b5269bc4d264ad8f849303c287055265360d7ba1d398b0e4864344ddae42",
+      "cwd": "/workspace",
+      "exitCode": 0,
+      "errorPresent": false,
+      "outputBytes": 1,
+      "outputSha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    }
+  ],
+  "unverified": [
+    "ttl",
+    "control-service-restart",
+    "cleanup-failure-retry",
+    "full-network-policy-enforcement",
+    "DSH-sandbox-tool-loop"
+  ],
+  "images": {
+    "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/execd:v1.1.0": {
+      "digest": "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/execd@sha256:6cf7dba2f21f0b536e100563d841ac58a9f31c2b0a081b7ac76796a24d6f47e2",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 60323007
+    },
+    "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/egress:v1.1.7": {
+      "digest": "sandbox-registry.cn-zhangjiakou.cr.aliyuncs.com/opensandbox/egress@sha256:db7345d567b0970f384b8e3fa7a93a71b7f43d4b16bb2009de34096e9a87b3b5",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 132036591
+    },
+    "node:24-bookworm-slim": {
+      "digest": "node@sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6",
+      "os": "linux",
+      "arch": "amd64",
+      "bytes": 80828260
+    }
+  },
+  "allocationState": "Running",
+  "runtimeLimits": {
+    "memoryBytes": 536870912,
+    "nanoCpus": 1000000000,
+    "cpuQuota": 0,
+    "cpuPeriod": 0,
+    "pidsLimit": 128,
+    "mountTypes": [
+      "volume"
+    ],
+    "securityOpt": [
+      "no-new-privileges=true"
+    ]
+  },
+  "artifact": {
+    "path": "greet.mjs",
+    "inputSha256": "ca6b0820f136879563b49c249aa40c6ab142fbdff94317b3b3c9bd8e70839480",
+    "outputSha256": "c6b5e6448cc19663a45fd8aeeb8ab7489158185a213c3c9cfa40e15f7551a3f7",
+    "bytes": 56
+  },
+  "hostInput": {
+    "files": 2,
+    "beforeSha256": "d17a2678f996a2b0ccdf009770ff77ac11e20271000fae326f58e939b30aa82f",
+    "afterSha256": "d17a2678f996a2b0ccdf009770ff77ac11e20271000fae326f58e939b30aa82f"
+  },
+  "failedStage": "stream-disconnect",
+  "errorSummary": "OCR probe: client_disconnect_missing",
+  "status": "failed",
+  "errorCode": "client_disconnect_missing"
+}

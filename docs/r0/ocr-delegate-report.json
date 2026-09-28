@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T10:04:38.926Z",
+  "evidenceKind": "actual-cli-synthetic-git",
+  "gateB": "not_completed",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.14.0"
+  },
+  "pin": {
+    "version": "v1.12.9",
+    "sourceCommit": "bccbc15f785269400735d5255540c231e6c02b6d",
+    "asset": "opencodereview-windows-amd64.exe",
+    "sha256": "ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1",
+    "source": "https://github.com/alibaba/open-code-review/releases/tag/v1.12.9"
+  },
+  "modelCalled": false,
+  "sandboxDeployed": false,
+  "userSourceRead": false,
+  "modes": [
+    {
+      "mode": "workspace",
+      "schemaVersion": "1",
+      "gitCoverageMatches": true,
+      "repositoryUnchanged": true,
+      "renameSources": {
+        "src/renamed.ts": "src/original.ts"
+      },
+      "default": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 4,
+        "excludedCount": 3,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "default_path"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "withTestInclude": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 5,
+        "excludedCount": 2,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "testsIncluded": true,
+      "rulesComplete": true,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "test/greet.test.ts",
+            "src/untracked.ts"
+          ],
+          "ruleBytes": 3263,
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "mode": "commit",
+      "schemaVersion": "1",
+      "gitCoverageMatches": true,
+      "repositoryUnchanged": true,
+      "renameSources": {
+        "src/renamed.ts": "src/original.ts"
+      },
+      "default": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 4,
+        "excludedCount": 3,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "default_path"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "withTestInclude": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 5,
+        "excludedCount": 2,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "testsIncluded": true,
+      "rulesComplete": true,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "src/untracked.ts",
+            "test/greet.test.ts"
+          ],
+          "ruleBytes": 3263,
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "mode": "range",
+      "schemaVersion": "1",
+      "gitCoverageMatches": true,
+      "repositoryUnchanged": true,
+      "renameSources": {
+        "src/renamed.ts": "src/original.ts"
+      },
+      "default": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 4,
+        "excludedCount": 3,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "default_path"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "withTestInclude": {
+        "schemaVersion": "1",
+        "totalFiles": 7,
+        "reviewableCount": 5,
+        "excludedCount": 2,
+        "totalInsertions": 5,
+        "totalDeletions": 4,
+        "reviewable": [
+          {
+            "path": "src/added.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "src/greet.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          },
+          {
+            "path": "src/renamed.ts",
+            "status": "renamed",
+            "insertions": 0,
+            "deletions": 0
+          },
+          {
+            "path": "src/untracked.ts",
+            "status": "added",
+            "insertions": 1,
+            "deletions": 0
+          },
+          {
+            "path": "test/greet.test.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1
+          }
+        ],
+        "excluded": [
+          {
+            "path": "src/gone.ts",
+            "status": "deleted",
+            "insertions": 0,
+            "deletions": 1,
+            "exclude_reason": "deleted"
+          },
+          {
+            "path": "vendor/lib.ts",
+            "status": "modified",
+            "insertions": 1,
+            "deletions": 1,
+            "exclude_reason": "provider_directory"
+          }
+        ]
+      },
+      "testsIncluded": true,
+      "rulesComplete": true,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "src/untracked.ts",
+            "test/greet.test.ts"
+          ],
+          "ruleBytes": 3263,
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    }
+  ],
+  "negativeCases": [
+    {
+      "name": "invalid-rule-json",
+      "rejected": true,
+      "errorCode": "process_failed",
+      "exitCode": 1
+    },
+    {
+      "name": "missing-rule",
+      "rejected": true,
+      "errorCode": "process_failed",
+      "exitCode": 1
+    },
+    {
+      "name": "invalid-ref",
+      "rejected": true,
+      "errorCode": "process_failed",
+      "exitCode": 1
+    },
+    {
+      "name": "incomplete-range",
+      "rejected": true,
+      "errorCode": "process_failed",
+      "exitCode": 1
+    },
+    {
+      "name": "invalid-format",
+      "rejected": true,
+      "errorCode": "process_failed",
+      "exitCode": 1
+    }
+  ],
+  "unverified": [
+    "product-snapshot-to-delegate-integration",
+    "full-old-side-deletion-and-rename-diff-context",
+    "complex-branch-and-merge-inputs",
+    "linux-macos-arm64",
+    "product-review-coverage-and-findings",
+    "real-model",
+    "actual-sandbox"
+  ],
+  "versionConfirmed": true,
+  "gitVersion": "git version 2.47.1.windows.2",
+  "flagsConfirmed": true,
+  "status": "passed",
+  "syntheticRepositoryRemoved": true
+}

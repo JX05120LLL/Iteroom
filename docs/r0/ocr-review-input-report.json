@@ -1,0 +1,979 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T10:27:08.038Z",
+  "evidenceKind": "actual-cli-and-git-inputs",
+  "gateB": "not_completed",
+  "pin": {
+    "version": "v1.12.9",
+    "sourceCommit": "bccbc15f785269400735d5255540c231e6c02b6d",
+    "asset": "opencodereview-windows-amd64.exe",
+    "sha256": "ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1",
+    "source": "https://github.com/alibaba/open-code-review/releases/tag/v1.12.9"
+  },
+  "environment": {
+    "platform": "win32",
+    "node": "v24.14.0"
+  },
+  "actualCli": true,
+  "modelCalled": false,
+  "sandboxDeployed": false,
+  "userSourceRead": false,
+  "scenarios": [
+    {
+      "name": "workspace",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "workspace",
+        "outcome": "changes",
+        "baseKind": "head",
+        "inputSha256": "9873bcc4d8003ffef5eea098d765aa5ab39044d085af434c4033a78876332b16",
+        "basePresent": true,
+        "targetPresent": false,
+        "mergeBasePresent": false,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/added.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "523be8927a982009fae5bb5572c345d7d6926437164066690d8aa2125907a4e2"
+            },
+            "diffSha256": "2998ae34ae1a6ce322aecbe4e566090c6cc441c6cd5630b4bea30f12fb21ece7",
+            "diffBytes": 225
+          },
+          {
+            "status": "deleted",
+            "kind": "text",
+            "old": {
+              "path": "src/gone.ts",
+              "mode": "100644",
+              "bytes": 29,
+              "contentSha256": "c94c37720baff2f840a4daf83cd5f03ba5f35622954ec14490d59eaa8f6b66bd"
+            },
+            "new": null,
+            "diffSha256": "66c58b1c3c6d4aef2105c7d19eb7eb20230e8ab699be51acf7da141598d2c259",
+            "diffBytes": 229
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "e54df4efda6ec884e0958640ae0121247a50b4d6f62e04e65aeabfe3326fab7c"
+            },
+            "new": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "5437981489c658f218ca978469f8ad551dbcf2f420645095462fbd8758a4f7f6"
+            },
+            "diffSha256": "67bcd0f92eaf903199269bf31bc5a32ca1159ad64bb7d0149e9dee1448edd163",
+            "diffBytes": 249
+          },
+          {
+            "status": "renamed",
+            "kind": "text",
+            "old": {
+              "path": "src/original.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "new": {
+              "path": "src/renamed.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "diffSha256": "9d93aef8d036356dca4c476624e791254541813f64b6f3654f91e55d47eff851",
+            "diffBytes": 121
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "75ed9efa8e3819f5bdc114ced6059d1901755611e7f3e885851e1d706c4a7e9e"
+            },
+            "new": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "fe7c07b7f9b355c6f1633dd54b72d8551ad5150a8568416c47de5a9c9cdc0e99"
+            },
+            "diffSha256": "80b50579583e23491a502d3178680d8d00040c0e4f368c80db99ea9516caf77b",
+            "diffBytes": 275
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "478eafd861f56181d5817518aedc1433111006e7c8495c73f700e513ae31eb04"
+            },
+            "new": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "97495aaf9dce787d5f0b76c4b808e83f4fd0aabea82ae39a4d5f01856755fa1b"
+            },
+            "diffSha256": "81f5887df87567d5101880184ce6e004a2488067758435f6186527f1a61dc20c",
+            "diffBytes": 257
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/untracked.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "6634a4729f7f37387fb906b47dd9a432318e3c2d8908747b6bf6ee81934448ac"
+            },
+            "diffSha256": "7b9c68bfc3a036e7d5009d651ae475ee79969e978e39296be1db276746e70060",
+            "diffBytes": 237
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 4,
+        "defaultExcluded": 3,
+        "withTestsReviewable": 5,
+        "withTestsExcluded": 2
+      },
+      "coverage": [
+        {
+          "path": "src/added.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/gone.ts",
+          "side": "old",
+          "source": "iteroom-deletion-context",
+          "status": "pending_inference",
+          "ocrExcludeReason": "deleted"
+        },
+        {
+          "path": "src/greet.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/renamed.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "test/greet.test.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "vendor/lib.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "excluded",
+          "ocrExcludeReason": "provider_directory"
+        },
+        {
+          "path": "src/untracked.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "test/greet.test.ts",
+            "src/untracked.ts",
+            "src/gone.ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "name": "commit",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "commit",
+        "outcome": "changes",
+        "baseKind": "first_parent",
+        "inputSha256": "5c9037b7faaa592732cca0d9a8e4e6bec8dda5c1d78cef712d5da209b9e99ad3",
+        "basePresent": true,
+        "targetPresent": true,
+        "mergeBasePresent": false,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/added.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "523be8927a982009fae5bb5572c345d7d6926437164066690d8aa2125907a4e2"
+            },
+            "diffSha256": "2998ae34ae1a6ce322aecbe4e566090c6cc441c6cd5630b4bea30f12fb21ece7",
+            "diffBytes": 225
+          },
+          {
+            "status": "deleted",
+            "kind": "text",
+            "old": {
+              "path": "src/gone.ts",
+              "mode": "100644",
+              "bytes": 29,
+              "contentSha256": "c94c37720baff2f840a4daf83cd5f03ba5f35622954ec14490d59eaa8f6b66bd"
+            },
+            "new": null,
+            "diffSha256": "66c58b1c3c6d4aef2105c7d19eb7eb20230e8ab699be51acf7da141598d2c259",
+            "diffBytes": 229
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "e54df4efda6ec884e0958640ae0121247a50b4d6f62e04e65aeabfe3326fab7c"
+            },
+            "new": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "5437981489c658f218ca978469f8ad551dbcf2f420645095462fbd8758a4f7f6"
+            },
+            "diffSha256": "67bcd0f92eaf903199269bf31bc5a32ca1159ad64bb7d0149e9dee1448edd163",
+            "diffBytes": 249
+          },
+          {
+            "status": "renamed",
+            "kind": "text",
+            "old": {
+              "path": "src/original.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "new": {
+              "path": "src/renamed.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "diffSha256": "9d93aef8d036356dca4c476624e791254541813f64b6f3654f91e55d47eff851",
+            "diffBytes": 121
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/untracked.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "6634a4729f7f37387fb906b47dd9a432318e3c2d8908747b6bf6ee81934448ac"
+            },
+            "diffSha256": "7b9c68bfc3a036e7d5009d651ae475ee79969e978e39296be1db276746e70060",
+            "diffBytes": 237
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "75ed9efa8e3819f5bdc114ced6059d1901755611e7f3e885851e1d706c4a7e9e"
+            },
+            "new": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "fe7c07b7f9b355c6f1633dd54b72d8551ad5150a8568416c47de5a9c9cdc0e99"
+            },
+            "diffSha256": "80b50579583e23491a502d3178680d8d00040c0e4f368c80db99ea9516caf77b",
+            "diffBytes": 275
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "478eafd861f56181d5817518aedc1433111006e7c8495c73f700e513ae31eb04"
+            },
+            "new": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "97495aaf9dce787d5f0b76c4b808e83f4fd0aabea82ae39a4d5f01856755fa1b"
+            },
+            "diffSha256": "81f5887df87567d5101880184ce6e004a2488067758435f6186527f1a61dc20c",
+            "diffBytes": 257
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 4,
+        "defaultExcluded": 3,
+        "withTestsReviewable": 5,
+        "withTestsExcluded": 2
+      },
+      "coverage": [
+        {
+          "path": "src/added.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/gone.ts",
+          "side": "old",
+          "source": "iteroom-deletion-context",
+          "status": "pending_inference",
+          "ocrExcludeReason": "deleted"
+        },
+        {
+          "path": "src/greet.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/renamed.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/untracked.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "test/greet.test.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "vendor/lib.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "excluded",
+          "ocrExcludeReason": "provider_directory"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "src/untracked.ts",
+            "test/greet.test.ts",
+            "src/gone.ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "name": "divergent-range",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "range",
+        "outcome": "changes",
+        "baseKind": "merge_base",
+        "inputSha256": "d4785908aa4f8c216782f1d3f3b8c69313c511f7d55ecbf4ca672158310a0c4a",
+        "basePresent": true,
+        "targetPresent": true,
+        "mergeBasePresent": true,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/added.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "523be8927a982009fae5bb5572c345d7d6926437164066690d8aa2125907a4e2"
+            },
+            "diffSha256": "2998ae34ae1a6ce322aecbe4e566090c6cc441c6cd5630b4bea30f12fb21ece7",
+            "diffBytes": 225
+          },
+          {
+            "status": "deleted",
+            "kind": "text",
+            "old": {
+              "path": "src/gone.ts",
+              "mode": "100644",
+              "bytes": 29,
+              "contentSha256": "c94c37720baff2f840a4daf83cd5f03ba5f35622954ec14490d59eaa8f6b66bd"
+            },
+            "new": null,
+            "diffSha256": "66c58b1c3c6d4aef2105c7d19eb7eb20230e8ab699be51acf7da141598d2c259",
+            "diffBytes": 229
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "e54df4efda6ec884e0958640ae0121247a50b4d6f62e04e65aeabfe3326fab7c"
+            },
+            "new": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "5437981489c658f218ca978469f8ad551dbcf2f420645095462fbd8758a4f7f6"
+            },
+            "diffSha256": "67bcd0f92eaf903199269bf31bc5a32ca1159ad64bb7d0149e9dee1448edd163",
+            "diffBytes": 249
+          },
+          {
+            "status": "renamed",
+            "kind": "text",
+            "old": {
+              "path": "src/original.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "new": {
+              "path": "src/renamed.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "diffSha256": "9d93aef8d036356dca4c476624e791254541813f64b6f3654f91e55d47eff851",
+            "diffBytes": 121
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/untracked.ts",
+              "mode": "100644",
+              "bytes": 26,
+              "contentSha256": "6634a4729f7f37387fb906b47dd9a432318e3c2d8908747b6bf6ee81934448ac"
+            },
+            "diffSha256": "7b9c68bfc3a036e7d5009d651ae475ee79969e978e39296be1db276746e70060",
+            "diffBytes": 237
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "75ed9efa8e3819f5bdc114ced6059d1901755611e7f3e885851e1d706c4a7e9e"
+            },
+            "new": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "fe7c07b7f9b355c6f1633dd54b72d8551ad5150a8568416c47de5a9c9cdc0e99"
+            },
+            "diffSha256": "80b50579583e23491a502d3178680d8d00040c0e4f368c80db99ea9516caf77b",
+            "diffBytes": 275
+          },
+          {
+            "status": "modified",
+            "kind": "text",
+            "old": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "478eafd861f56181d5817518aedc1433111006e7c8495c73f700e513ae31eb04"
+            },
+            "new": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "97495aaf9dce787d5f0b76c4b808e83f4fd0aabea82ae39a4d5f01856755fa1b"
+            },
+            "diffSha256": "81f5887df87567d5101880184ce6e004a2488067758435f6186527f1a61dc20c",
+            "diffBytes": 257
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 4,
+        "defaultExcluded": 3,
+        "withTestsReviewable": 5,
+        "withTestsExcluded": 2
+      },
+      "coverage": [
+        {
+          "path": "src/added.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/gone.ts",
+          "side": "old",
+          "source": "iteroom-deletion-context",
+          "status": "pending_inference",
+          "ocrExcludeReason": "deleted"
+        },
+        {
+          "path": "src/greet.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/renamed.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/untracked.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "test/greet.test.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "vendor/lib.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "excluded",
+          "ocrExcludeReason": "provider_directory"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/added.ts",
+            "src/greet.ts",
+            "src/renamed.ts",
+            "src/untracked.ts",
+            "test/greet.test.ts",
+            "src/gone.ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "name": "root-commit",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "commit",
+        "outcome": "changes",
+        "baseKind": "empty_tree",
+        "inputSha256": "1fbfba167f5a847a6b2f397133985f318b6c86581270a6bd78abb684586a62ce",
+        "basePresent": true,
+        "targetPresent": true,
+        "mergeBasePresent": false,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/gone.ts",
+              "mode": "100644",
+              "bytes": 29,
+              "contentSha256": "c94c37720baff2f840a4daf83cd5f03ba5f35622954ec14490d59eaa8f6b66bd"
+            },
+            "diffSha256": "a8f5d8f264a984522144f2837d3480b7513d874c61221e692c0aa51ef5f6bc48",
+            "diffBytes": 225
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/greet.ts",
+              "mode": "100644",
+              "bytes": 30,
+              "contentSha256": "e54df4efda6ec884e0958640ae0121247a50b4d6f62e04e65aeabfe3326fab7c"
+            },
+            "diffSha256": "7aca79789534dc59c45b449a5186639d091787909d8ee6df6bdb42346b1a445c",
+            "diffBytes": 229
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/original.ts",
+              "mode": "100644",
+              "bytes": 480,
+              "contentSha256": "00e3419b4263d9c3dba374cc4e7cd394538a97305cb63ec834d1b4c04661f225"
+            },
+            "diffSha256": "05ebbbd2aa34902d4819b96865a2b6cf682b018327aae1cc5a60c573ae4890c9",
+            "diffBytes": 710
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "test/greet.test.ts",
+              "mode": "100644",
+              "bytes": 31,
+              "contentSha256": "75ed9efa8e3819f5bdc114ced6059d1901755611e7f3e885851e1d706c4a7e9e"
+            },
+            "diffSha256": "0252bc2429b0809d851811cc536a669d5296c695a3c3aa0d8ac4085ad3d37ff1",
+            "diffBytes": 248
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "vendor/lib.ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "478eafd861f56181d5817518aedc1433111006e7c8495c73f700e513ae31eb04"
+            },
+            "diffSha256": "1375e7baeaad13a831950abe34f51d87190b6cb14f8f4ff67378120318d02635",
+            "diffBytes": 234
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 3,
+        "defaultExcluded": 2,
+        "withTestsReviewable": 4,
+        "withTestsExcluded": 1
+      },
+      "coverage": [
+        {
+          "path": "src/gone.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/greet.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "src/original.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "test/greet.test.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        },
+        {
+          "path": "vendor/lib.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "excluded",
+          "ocrExcludeReason": "provider_directory"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/gone.ts",
+            "src/greet.ts",
+            "src/original.ts",
+            "test/greet.test.ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "name": "merge-commit",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "commit",
+        "outcome": "changes",
+        "baseKind": "first_parent",
+        "inputSha256": "b9ee72b6c9171939d75b7af50f4f68938eef186643c621c3ceaea966218daf07",
+        "basePresent": true,
+        "targetPresent": true,
+        "mergeBasePresent": false,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/source-only.ts",
+              "mode": "100644",
+              "bytes": 29,
+              "contentSha256": "85dd869e5a40d99c673f105a70023ee2b095f572de55f1440bba56a7a18ddbf6"
+            },
+            "diffSha256": "4356ce0f710fdf14dac06f13454b49b3c65a9e376fd19f28dba5b45d9a4e3db4",
+            "diffBytes": 246
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 1,
+        "defaultExcluded": 0,
+        "withTestsReviewable": 1,
+        "withTestsExcluded": 0
+      },
+      "coverage": [
+        {
+          "path": "src/source-only.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/source-only.ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    },
+    {
+      "name": "empty-workspace",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "workspace",
+        "outcome": "no_changes",
+        "baseKind": "head",
+        "inputSha256": "071b8421779af9276a01e3f5c1ff9b0113280e411c7059a17b471d4ca392aab2",
+        "basePresent": true,
+        "targetPresent": false,
+        "mergeBasePresent": false,
+        "entries": []
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 0,
+        "defaultExcluded": 0,
+        "withTestsReviewable": 0,
+        "withTestsExcluded": 0
+      },
+      "coverage": [],
+      "rulesSkippedForEmptyInput": true,
+      "rules": []
+    },
+    {
+      "name": "empty-commit",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "commit",
+        "outcome": "no_changes",
+        "baseKind": "first_parent",
+        "inputSha256": "95b477b2db903e36c4b4c4e421b1c3d76cc9b2ea417c2b52e27c04e166ec9150",
+        "basePresent": true,
+        "targetPresent": true,
+        "mergeBasePresent": false,
+        "entries": []
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 0,
+        "defaultExcluded": 0,
+        "withTestsReviewable": 0,
+        "withTestsExcluded": 0
+      },
+      "coverage": [],
+      "rulesSkippedForEmptyInput": true,
+      "rules": []
+    },
+    {
+      "name": "binary-and-unicode",
+      "coverageMatches": true,
+      "inputUnchanged": true,
+      "input": {
+        "schemaVersion": 1,
+        "mode": "workspace",
+        "outcome": "changes",
+        "baseKind": "head",
+        "inputSha256": "74888aa54d88e36aff5a3c21f4cb395732eb6ecce9a48da795600a2498b85158",
+        "basePresent": true,
+        "targetPresent": false,
+        "mergeBasePresent": false,
+        "entries": [
+          {
+            "status": "added",
+            "kind": "binary",
+            "old": null,
+            "new": {
+              "path": "src/binary.ts",
+              "mode": "100644",
+              "bytes": 6,
+              "contentSha256": "192345604f36cfa29999f86d1cb4805fa790075df3d053d566d3b9fb4d680cdc"
+            },
+            "diffSha256": "9c8f769a525f61218cd9f6a69abbcda7037a9cfe4da41a13e94be4fffcf8a86b",
+            "diffBytes": 226
+          },
+          {
+            "status": "added",
+            "kind": "text",
+            "old": null,
+            "new": {
+              "path": "src/中文 [1].ts",
+              "mode": "100644",
+              "bytes": 32,
+              "contentSha256": "3f45f478a4a8124fc7860521829523240bc0ce901daf3580535e762cae63cf21"
+            },
+            "diffSha256": "2e70bb0b232899c125d07534df8590e57f4596d24c2b19a9b283158e708a5490",
+            "diffBytes": 247
+          }
+        ]
+      },
+      "ocr": {
+        "schemaVersion": "1",
+        "defaultReviewable": 1,
+        "defaultExcluded": 1,
+        "withTestsReviewable": 1,
+        "withTestsExcluded": 1
+      },
+      "coverage": [
+        {
+          "path": "src/binary.ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "excluded",
+          "ocrExcludeReason": "binary"
+        },
+        {
+          "path": "src/中文 [1].ts",
+          "side": "new",
+          "source": "ocr-delegate",
+          "status": "pending_inference"
+        }
+      ],
+      "rulesSkippedForEmptyInput": false,
+      "rules": [
+        {
+          "groupId": 1,
+          "source": "system",
+          "pattern": "**/*.{ts,js,tsx,jsx,mjs,cjs}",
+          "files": [
+            "src/中文 [1].ts"
+          ],
+          "ruleSha256": "fb1f105939a017e6e3a7ee45f66d464205fcea52a82c687750f46dee3bc84fdc"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "name": "actual-project-refused",
+      "errorCode": "unmanaged_repository",
+      "rejectedBeforeDelegate": true
+    },
+    {
+      "name": "oversized-input",
+      "errorCode": "input_limit",
+      "rejectedBeforeDelegate": true
+    },
+    {
+      "name": "staged-symlink",
+      "errorCode": "unsupported_git_mode",
+      "rejectedBeforeDelegate": true
+    },
+    {
+      "name": "multiple-merge-bases",
+      "errorCode": "ambiguous_merge_base",
+      "rejectedBeforeDelegate": true
+    },
+    {
+      "name": "unrelated-history",
+      "errorCode": "unrelated_history",
+      "rejectedBeforeDelegate": true
+    }
+  ],
+  "unverified": [
+    "atomic-product-snapshot-and-delegate-integration",
+    "unborn-workspace-and-git-attribute-filters",
+    "finding-inference-and-location",
+    "cross-platform-distribution",
+    "real-model",
+    "actual-sandbox"
+  ],
+  "gitVersion": "git version 2.47.1.windows.2",
+  "status": "passed",
+  "cliCalls": 23,
+  "syntheticRepositoryRemoved": true
+}

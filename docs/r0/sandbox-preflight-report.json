@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T11:07:17.678Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "actual-installed-sdk-and-runtime-preflight",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.14.0"
+  },
+  "gateC": "not_completed",
+  "sdkInstalled": true,
+  "serverInstalled": true,
+  "dockerAvailable": true,
+  "actualSandboxCreated": false,
+  "modelCalled": false,
+  "userSourceRead": false,
+  "unverified": [
+    "image-digests",
+    "create-ready-import-edit-test-export-delete",
+    "foreground-background-descendant-cancellation",
+    "disconnect-ttl-server-restart-cleanup-failure",
+    "actual-network-and-mount-isolation"
+  ],
+  "sdkVersion": "1.1.0",
+  "sdkPublicContracts": true,
+  "sdkTelemetryDisabled": true,
+  "serverConfiguration": {
+    "version": "0.1.0.dev1+g4a5619524",
+    "loopback": true,
+    "port": 3088,
+    "authenticated": true,
+    "networkMode": "bridge",
+    "publishLoopback": true,
+    "hostMountsAllowed": false,
+    "noNewPrivileges": true,
+    "pidsLimit": 128,
+    "portRangeSize": 101,
+    "egressMode": "dns+nft"
+  },
+  "dockerVersion": "29.4.0",
+  "status": "ready_for_poc"
+}

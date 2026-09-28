@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-28T07:25:13.182Z",
+  "pin": {
+    "sourceCommit": "4a5619524650ff7c2cbaf59626df822fce72b161",
+    "sdkVersion": "1.1.0",
+    "sdkIntegrity": "sha512-Q2d0l8UYajN72AHQxYAU8BCXQxhTyHOJF/5b06A53kAZTcsCmNcQnKaoxAATgH15SCSGFtxuje42DHzrjwYDYA=="
+  },
+  "evidenceKind": "official-dsh-cli-mock-model-actual-sandbox-tool",
+  "gateA": "not_completed",
+  "actualModel": false,
+  "actualSandbox": true,
+  "userSourceRead": false,
+  "cleanup": {
+    "runtimeAbsent": true,
+    "resourceInventoryCaptured": true,
+    "serviceStopped": true
+  },
+  "unverified": [
+    "real-model-tool-loop",
+    "product-permission-approval",
+    "product-crash-or-unknown-execution-recovery",
+    "browser",
+    "release"
+  ],
+  "inventory": [
+    {
+      "name": "@deepseek-ai/dsh",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/cordis",
+      "version": "4.0.2"
+    },
+    {
+      "name": "@deepseek-ai/dsh-sdk-minimal",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-agent",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-agent-loop",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-session",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-session-persistence-jsonl",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-llm",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-tools",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-system-prompt",
+      "version": "0.1.5-rc.3"
+    },
+    {
+      "name": "@deepseek-ai/dsh-session-projection",
+      "version": "0.1.5-rc.3"
+    }
+  ],
+  "toolRoster": [
+    "iteroom_sandbox_probe"
+  ],
+  "workspaceUnchanged": true,
+  "inputSha256": "9a5cdad8f93b517dae8e1f6449336862584dcab2edb42b1a23b295dab57f2376",
+  "processExitCodes": [
+    0,
+    0
+  ],
+  "repair": {
+    "modelCalls": 2,
+    "toolExecutions": 1,
+    "guardDenials": 0,
+    "executions": [
+      {
+        "name": "repair-test",
+        "executionIdSha256": "6af491ed1a2a961dba250a4d0c6825ebe4a975987f0093a7122b4f9b9d1ebe84",
+        "exitCode": 0,
+        "outputBytes": 140,
+        "outputSha256": "1fbd10e23c24cc0a6cae0d7e76157e479021922f4fa16c35e7923724c4348682",
+        "errorPresent": false
+      }
+    ],
+    "remoteExitCode": 0,
+    "nextStepSawResult": true,
+    "turnEnd": "completed",
+    "toolResultIsError": false
+  },
+  "failure": {
+    "modelCalls": 2,
+    "toolExecutions": 1,
+    "guardDenials": 0,
+    "executions": [
+      {
+        "name": "explicit-failure",
+        "executionIdSha256": "43c0619a37e8be308f57c191b0a792e215c9b34ce3e082344969b4b30e9c140d",
+        "exitCode": 7,
+        "outputBytes": 24,
+        "outputSha256": "b27975ff4a534e6bdd06727de7d53a2d28d665f440ece5a8a594eb666b817661",
+        "errorPresent": true
+      }
+    ],
+    "remoteExitCode": 7,
+    "nextStepSawError": true,
+    "turnEnd": "completed",
+    "toolResultIsError": true
+  },
+  "denied": {
+    "modelCalls": 2,
+    "toolExecutions": 0,
+    "guardDenials": 1,
+    "turnEnd": "completed",
+    "toolResultIsError": true
+  },
+  "cancel": {
+    "modelCalls": 1,
+    "toolExecutions": 1,
+    "guardDenials": 0,
+    "executions": [
+      {
+        "name": "cancel-parent-and-child",
+        "executionIdSha256": "5040d45df404a9634637212278f2636f066c861222461e69e634d3fefe461991",
+        "exitCode": null,
+        "outputBytes": 0,
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "errorPresent": false
+      },
+      {
+        "name": "confirm-cancel-parent-and-child-alive",
+        "executionIdSha256": "20c27b72e9b8cee60775936fc4e0579daba3a824c8d86c7394ff8b7b2950864c",
+        "exitCode": 0,
+        "outputBytes": 0,
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "errorPresent": false
+      },
+      {
+        "name": "confirm-cancel-descendants",
+        "executionIdSha256": "5814b0686849013a6ae4c90262d9736b89f88d972fc7e5bfc81a6fbe950e33e2",
+        "exitCode": 0,
+        "outputBytes": 0,
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "errorPresent": false
+      }
+    ],
+    "parentAndChildAliveBeforeCancel": true,
+    "runningBeforeCancel": true,
+    "signalObserved": true,
+    "remoteStopped": true,
+    "descendantsStopped": true,
+    "whenIdleResolved": true,
+    "turnEnd": "aborted",
+    "toolResultIsError": true
+  },
+  "restart": {
+    "modelCalls": 2,
+    "toolExecutions": 0,
+    "guardDenials": 0,
+    "historySawTool": true,
+    "historyPreserved": true,
+    "remoteExecutionCountUnchanged": true,
+    "remoteActionCount": 3,
+    "startCount": 1,
+    "cancelledDescendantsStillStopped": true
+  },
+  "persistence": {
+    "sessions": 4,
+    "contiguousSequences": true
+  },
+  "service": {
+    "starts": 1,
+    "logBytes": 13320,
+    "logSha256": "a4714db5d72873fd8ac02b5f02de0636891309010c4b4011ac22082b66f32ff3",
+    "running": false
+  },
+  "status": "passed"
+}

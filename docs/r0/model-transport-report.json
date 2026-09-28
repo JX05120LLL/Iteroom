@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T13:43:10.023Z",
+  "evidenceKind": "fixed-official-adapter-local-synthetic-http-sse",
+  "adapterVersion": "0.1.5-rc.3",
+  "actualModel": false,
+  "gateA": "not_completed",
+  "userSourceRead": false,
+  "credentialsRead": false,
+  "checks": {
+    "boundedOutput": true,
+    "thinkingDisabled": true,
+    "textSseParsed": true,
+    "httpAuthErrorPreserved": true,
+    "abortAttemptRetained": true,
+    "clientDisconnectObserved": true,
+    "loopbackOnly": true,
+    "serverStopped": true,
+    "abortedRequestClosed": true
+  },
+  "requests": 3,
+  "unverified": [
+    "real-provider",
+    "real-model-tool-loop",
+    "monetary-budget",
+    "live-runner-journal"
+  ],
+  "lastRequestSha256": "6767825f66142906398e5ebd06e3d8e154e1044065dc89cf1d9dc8211a2720f8",
+  "reservedAttempts": 3,
+  "status": "passed"
+}
