@@ -1,5 +1,9 @@
 import { isAbsolute, relative, sep } from 'node:path'
 import { TaskStore, defaultTaskDataHome } from './host/task-store.js'
+import { ManagedTaskStore } from './host/managed-task-store.js'
+import { createManagedTaskRoutes } from './host/managed-task-route.js'
+import { ManagedTaskCoordinator } from './host/managed-task-coordinator.js'
+import { loadManagedModelKey } from './host/managed-model-key.js'
 
 export const inject = ['connection', 'sessionController']
 
@@ -22,6 +26,15 @@ function insideWorkspace(workspace, path) {
 /** Product task evidence beside DSH Sessions; DSH still owns execution and history. */
 export function apply(ctx) {
   const store = new TaskStore(defaultTaskDataHome())
+  const managedTasks = new ManagedTaskStore(defaultTaskDataHome(), process.cwd())
+  const managedCoordinator = new ManagedTaskCoordinator(managedTasks, {
+    modelKey: () => loadManagedModelKey(process.cwd()),
+    engineLimits: {
+      maxRequests: Number(process.env.ITEROOM_MANAGED_MAX_REQUESTS ?? 3),
+      maxOutputTokens: Number(process.env.ITEROOM_MANAGED_MAX_OUTPUT_TOKENS ?? 256),
+    },
+  })
+  ctx.effect(() => () => managedCoordinator.dispose(), 'iteroom: stop managed read-only engine')
 
   ctx.on('agent/pre-step', async ({ agent, turn, signal }, next) => {
     const decision = await next()
@@ -51,6 +64,10 @@ export function apply(ctx) {
     requestBody: 'buffered',
     fetch: async () => json({ cwd: process.cwd() }),
   }), 'iteroom: authenticated launch project route')
+
+  for (const route of createManagedTaskRoutes(managedTasks, managedCoordinator)) {
+    ctx.effect(() => ctx.connection.fetch.register(route), 'iteroom: authenticated managed task entry')
+  }
 
   ctx.effect(() => ctx.connection.fetch.register({
     path: '/api/iteroom/tasks',

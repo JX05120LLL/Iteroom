@@ -218,6 +218,77 @@ async function main() {
     assert.equal(projectResponse.headers.get('cache-control'), 'no-store', 'project path is not cached')
     assert.deepEqual(await projectResponse.json(), { cwd }, 'project route identifies the launch directory')
 
+    const managedUrl = `${browser.origin}/api/iteroom/managed-tasks`
+    const managedInput = { requestId: randomUUID(), kind: 'understand', objective: 'Explain the synthetic README', paths: ['README.md'] }
+    assert.equal((await fetch(managedUrl)).status, 401, 'managed task list requires authentication')
+    assert.equal((await fetch(managedUrl, { headers: { cookie: browser.cookie, origin: 'http://foreign.example' } })).status, 403,
+      'managed task list refuses foreign Origin')
+    const managedPost = (cookie, origin, payload = managedInput) => fetch(`${managedUrl}/create`, {
+      method: 'POST', headers: { cookie, origin, 'content-type': 'application/json' }, body: JSON.stringify(payload),
+    })
+    assert.equal((await managedPost('', browser.origin)).status, 401, 'managed task creation requires authentication')
+    assert.equal((await managedPost(browser.cookie, 'http://foreign.example')).status, 403, 'managed task creation refuses foreign Origin')
+    const oversized = await fetch(`${managedUrl}/create`, {
+      method: 'POST',
+      headers: { cookie: browser.cookie, origin: browser.origin, 'content-type': 'application/json' },
+      body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(8193)); controller.close() } }),
+      duplex: 'half',
+    })
+    assert.equal(oversized.status, 413, 'chunked body is bounded by the managed route')
+    const beforeManaged = await readFile(join(cwd, 'README.md'), 'utf8')
+    const modelRequestsBeforeManaged = stub.requests.length
+    const managedCreated = await managedPost(browser.cookie, browser.origin)
+    assert.equal(managedCreated.status, 201, `managed task is registered: ${await managedCreated.clone().text()}`)
+    const managed = (await managedCreated.json()).task
+    assert.equal(managed.status, 'queued')
+    assert.equal(managed.engineStatus, 'not_started')
+    assert.equal((await managedPost(browser.cookie, browser.origin)).status, 200, 'retry does not create a second task')
+    assert.equal((await managedPost(browser.cookie, browser.origin, { ...managedInput, requestId: randomUUID() })).status, 409,
+      'a second active task is refused')
+    assert.equal(await readFile(join(cwd, 'README.md'), 'utf8'), beforeManaged, 'registration does not change the project')
+    assert.equal(stub.requests.length, modelRequestsBeforeManaged, 'registration does not call the model')
+    const managedRead = (cookie, origin, payload = { taskId: managed.id, path: 'README.md' }) => fetch(`${managedUrl}/read`, {
+      method: 'POST', headers: { cookie, origin, 'content-type': 'application/json' }, body: JSON.stringify(payload),
+    })
+    assert.equal((await managedRead('', browser.origin)).status, 401, 'managed read requires authentication')
+    assert.equal((await managedRead(browser.cookie, 'http://foreign.example')).status, 403, 'managed read refuses foreign Origin')
+    assert.equal((await managedRead(browser.cookie, browser.origin, { taskId: managed.id, path: '.git/config' })).status, 403,
+      'managed read refuses an unselected sensitive path')
+    const managedFileResponse = await managedRead(browser.cookie, browser.origin)
+    assert.equal(managedFileResponse.status, 200, `managed file read: ${await managedFileResponse.clone().text()}`)
+    assert.equal(managedFileResponse.headers.get('cache-control'), 'no-store')
+    const managedFile = await managedFileResponse.json()
+    assert.equal(managedFile.text, beforeManaged)
+    assert.match(managedFile.sha256, /^[0-9a-f]{64}$/)
+    assert.equal(await readFile(join(cwd, 'README.md'), 'utf8'), beforeManaged, 'managed read does not change the project')
+    assert.equal(stub.requests.length, modelRequestsBeforeManaged, 'managed read does not call the model')
+    const snapshotPost = (cookie, origin, payload = { taskId: managed.id }) => fetch(`${managedUrl}/snapshot`, {
+      method: 'POST', headers: { cookie, origin, 'content-type': 'application/json' }, body: JSON.stringify(payload),
+    })
+    assert.equal((await snapshotPost('', browser.origin)).status, 401, 'snapshot capture requires authentication')
+    assert.equal((await snapshotPost(browser.cookie, 'http://foreign.example')).status, 403, 'snapshot capture refuses foreign Origin')
+    const snapshotResponse = await snapshotPost(browser.cookie, browser.origin)
+    assert.equal(snapshotResponse.status, 200, `snapshot capture: ${await snapshotResponse.clone().text()}`)
+    const snapshot = (await snapshotResponse.json()).snapshot
+    assert.equal(snapshot.files[0].sha256, managedFile.sha256, 'snapshot fixes the selected observed bytes')
+    const snapshotSourceUrl = `${managedUrl}/source?taskId=${encodeURIComponent(managed.id)}&path=README.md`
+    assert.equal((await fetch(snapshotSourceUrl)).status, 401, 'snapshot source requires authentication')
+    assert.equal((await fetch(snapshotSourceUrl, { headers: { cookie: browser.cookie, origin: 'http://foreign.example' } })).status, 403,
+      'snapshot source refuses foreign Origin')
+    const sourceResponse = await fetch(snapshotSourceUrl, { headers: { cookie: browser.cookie, origin: browser.origin } })
+    assert.equal(sourceResponse.status, 200)
+    assert.equal((await sourceResponse.json()).text, beforeManaged)
+    const runPost = (action, cookie, origin) => fetch(`${managedUrl}/${action}`, {
+      method: 'POST', headers: { cookie, origin, 'content-type': 'application/json' },
+      body: JSON.stringify({ taskId: managed.id, requestId: randomUUID() }),
+    })
+    assert.equal((await runPost('start', '', browser.origin)).status, 401, 'managed run requires authentication')
+    assert.equal((await runPost('start', browser.cookie, 'http://foreign.example')).status, 403,
+      'managed run refuses foreign Origin before any model action')
+    assert.equal((await runPost('cancel', '', browser.origin)).status, 401, 'managed cancel requires authentication')
+    assert.equal(await readFile(join(cwd, 'README.md'), 'utf8'), beforeManaged, 'snapshot capture does not change the project')
+    assert.equal(stub.requests.length, modelRequestsBeforeManaged, 'snapshot capture does not call the model')
+
     const created = await rpc(browser, 'create', { cwd })
     assert.ok(typeof created.sessionId === 'string' && created.sessionId, 'session created in sample repository')
     assert.deepEqual(await tasks(browser, created.sessionId), [], 'new session has no task records')
@@ -277,7 +348,15 @@ async function main() {
     const recoveredWrite = await tasks(reopened, writeSession.sessionId)
     assert.ok(recoveredWrite.some((entry) => entry.id === writeTask.id && entry.changes.some((change) => change.path === 'smoke-result.txt')),
       'the actual file diff survives Web restart')
-    console.log('Web smoke passed: authenticated project/session routes, default workspace, local model and DSH write tool, actual Diff, dirty-workspace attribution, restart recovery.')
+    const managedRecovered = await fetch(`${reopened.origin}/api/iteroom/managed-tasks?taskId=${managed.id}`, {
+      headers: { cookie: reopened.cookie, origin: reopened.origin },
+    })
+    assert.equal(managedRecovered.status, 200, 'managed task survives Web restart')
+    const recoveredManagedTask = (await managedRecovered.json()).task
+    assert.equal(recoveredManagedTask.id, managed.id)
+    assert.equal(recoveredManagedTask.readObservations[0].sha256, managedFile.sha256, 'read hash survives Web restart')
+    assert.equal(recoveredManagedTask.snapshotId, snapshot.id, 'fixed snapshot linkage survives Web restart')
+    console.log('Web smoke passed: authenticated managed task entry/read/snapshot, no model request on managed routes, project/session routes, local model stub, actual Diff, restart recovery.')
   } finally {
     if (runtime) await stopIteroom(runtime)
     await stub.close()

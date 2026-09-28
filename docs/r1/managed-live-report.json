@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-28",
+  "environment": {
+    "host": "Windows",
+    "node": "v24.14.0",
+    "dsh": "0.1.5-rc.3",
+    "model": "deepseek-flash",
+    "input": "one-line synthetic Git repository"
+  },
+  "authorizedLimits": {
+    "requests": 4,
+    "outputTokensPerRequest": 512,
+    "costCny": 5
+  },
+  "observed": {
+    "requestsReserved": 2,
+    "taskStatus": "completed",
+    "turnEnd": "completed",
+    "readToolCalls": 1,
+    "readToolResults": 1,
+    "answerMentionsExpectedValue": true,
+    "reference": "src/example.ts:1",
+    "referenceMatchesFixedSnapshot": true,
+    "gitCleanBefore": true,
+    "gitCleanAfter": true,
+    "sourceHashUnchanged": true,
+    "requestsReservedAfterHostRestart": 2,
+    "browserAnswerAndSourceVisible": true,
+    "browserViewport390By844Observed": true,
+    "serverDraftEvents": 1,
+    "browserIntermediateDraftObserved": false
+  },
+  "notVerified": [
+    "provider bill or hard CNY spend limit",
+    "live provider disconnect",
+    "real user source code",
+    "clean package installation",
+    "other host platforms"
+  ]
+}

@@ -13,6 +13,16 @@
     "lib/client.js",
     "lib/host/task-store.js",
     "lib/host/workspace-evidence.js",
+    "lib/host/managed-task-store.js",
+    "lib/host/managed-task-route.js",
+    "lib/host/managed-read-scope.js",
+    "lib/host/managed-snapshot.js",
+    "lib/host/managed-engine-plugin.js",
+    "lib/host/managed-engine-profile.js",
+    "lib/host/managed-engine-runner.js",
+    "lib/host/managed-model-guard.js",
+    "lib/host/managed-task-coordinator.js",
+    "lib/host/managed-model-key.js",
     "iteroom.patch.yml"
   ],
   "engines": {
@@ -39,13 +49,15 @@
     "start": "node bin/iteroom.mjs",
     "review": "node scripts/review.mjs",
     "check": "tsc --noEmit",
-    "test": "node --test test/launcher.test.js test/task-store.test.js test/workspace-evidence.test.js",
+    "test": "node --test test/launcher.test.js test/task-store.test.js test/workspace-evidence.test.js test/managed-task-store.test.js test/managed-task-route.test.js test/managed-read-scope.test.js test/managed-snapshot.test.js test/managed-engine.test.js test/managed-model-guard.test.js test/managed-task-coordinator.test.js test/managed-model-key.test.js test/managed-crash-recovery.test.js",
     "test:web": "node test/web-smoke.mjs",
     "test:launcher": "node --test test/launcher.test.js"
   },
   "dependencies": {
     "@deepseek-ai/cordis-plugin-group": "1.0.2",
-    "@deepseek-ai/dsh": "0.1.5-rc.3"
+    "@deepseek-ai/dsh": "0.1.5-rc.3",
+    "@deepseek-ai/dsh-llm-deepseek": "0.1.5-rc.3",
+    "@deepseek-ai/dsh-tools": "0.1.5-rc.3"
   },
   "devDependencies": {
     "@types/react": "18.3.28",

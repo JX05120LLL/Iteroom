@@ -1,6 +1,6 @@
 # Iteroom 目标架构
 
-> 2026-09-26 · 目标设计，尚未实现。产品范围见 [PRD](PRD.md)，现状见 [STATUS](STATUS.md)。
+> 2026-09-26 · 目标设计；R0 技术 Gate 与 R1 受管只读退出条件已在固定环境/合成输入范围内通过，完整产品仍未完成。产品范围见 [PRD](PRD.md)，现状见 [STATUS](STATUS.md)。
 
 ## 1. 总体结构
 
@@ -51,6 +51,10 @@ Cordis 组织 Host 内的插件、服务及可释放资源；图中是逻辑职�
 
 固定版 SDK 仅支持 initialize、session/prompt、shutdown，没有单任务取消 RPC，已有 sessionId 的 prompt 仍尝试 create 并报已存在。运行切片分别验证核心公开 Agent.cancel/whenIdle 与 agents.resume；目标 Host 应明确驱动创建、恢复与取消，并独立核对远端执行。DSH Session 恢复不能替代产品任务和副作用恢复。
 
+R1 的[受管只读链路](r1/READONLY-LIVE.md)已由 Iteroom Host 插件为每个任务创建独立 `sdk-minimal` CLI/`DSH_HOME`，Patch 禁用宿主文件修改与 Shell/进程工具，只注册 `iteroom_read_snapshot`。Host 先固定选定文本，工具每次按任务/清单/哈希读取，DSH 仍拥有原 Agent Loop 和 Session；任务记录保存 `taskId=sessionId`、状态、来源与事件游标。官方模型适配器的公开 `prepareCall` 流经子进程第 4 管道转发文本增量，Host 限额、持久化并轮询展示未核实草稿；真实模型已产生服务端增量，但浏览器生成中间帧显示待验。进程取消需等待退出，重启不重发同一任务；Windows 合成强制结束 Host 后 CLI 退出、任务转 interrupted 的故障注入通过，不外推真实提供方或其他平台。前两轮真实模型失败后修正返回范围裁剪/行数提示；第三轮用 2 次真实请求完成准确回答和固定引用，重启后未重发且合成仓库未变，故 R1 的受管只读退出条件在声明范围内通过。现有 Web Profile 仍作为认证页面载体并保留旧完整开发入口；独立发行 Host 尚未完成，不能声称全量 Web Profile 已只读。
+
+受管任务默认每任务最多预留 3 次请求、每次最多 256 输出 tokens；Host 可用 `ITEROOM_MANAGED_MAX_REQUESTS`（1–4）与 `ITEROOM_MANAGED_MAX_OUTPUT_TOKENS`（1–512）在启动时显式收紧或提高上限，子进程和发送前守卫取同一值。无效配置拒绝启动。计数按任务持久化，不能作为提供方账单或人民币硬消费限额。
+
 ## 4. OpenCodeReview 接入
 
 以进程调用 `ocr delegate preview --format json` 和 `ocr delegate rule <path...> --format json`，显式传入受管仓库/快照上下文。CLI 使用参数数组调用、固定可执行文件和版本，限制时长与输出。解析 schema version、字段及路径，不相信输出路径天然安全。
@@ -99,9 +103,15 @@ Windows 宿主优先验证 Docker/WSL2 上的 Linux 执行环境；路径、换�
 | Acceptance | 用户决策、写回前后哈希、恢复信息 | 宿主实际写回记录 |
 | Session | 模型/工具对话事件 | DSH 历史 |
 
-Task、Execution、Artifact 等产品记录首版拟存项目外 SQLite；大日志/快照/补丁存受管文件目录，以哈希关联。DSH Session 先保留兼容持久化实现。当前 JSON 文件不是该存储已经落地的证据；新旧数据隔离版本化。
+Task、Execution、Artifact 等完整产品记录仍拟存项目外 SQLite；大日志/快照/补丁存受管文件目录，以哈希关联。DSH Session 先保留兼容持久化实现。当前 R1 的[受管任务入口](r1/TASK-ENTRY.md)存项目外 `managed-tasks-v1` JSON：任务元数据、读取摘要、快照关联、受管引擎状态、已校验引用及最多 32 条单调事件；独占锁与同目录替换保护写入。旧记录缺新增字段时兼容读取，不迁移或删除旧 DSH 任务证据。该有限 JSON 文件不是完整产品存储。
 
 产品 API 目标动作是创建任务、追加输入、获取详情/事件、批准权限、取消、接受/放弃及删除历史。写动作带 requestId；权限票据不能由模型生成。确切 HTTP 路径/schema 在对应切片实现时冻结，现有只读接口不会被本文假称为完整产品 API。
+
+R1-1 切片冻结 `GET /api/iteroom/managed-tasks[?taskId=...]` 与 `POST /api/iteroom/managed-tasks/create`。现有 DSH Connection 承载认证和来源检查；创建路由另核对 Host/Origin 并流式限制 8 KiB。客户端不能选择项目根。该段只描述登记切片；当前启动动作与模型调用见[受管只读实测](r1/READONLY-LIVE.md)。
+
+R1-2 新增 `POST /api/iteroom/managed-tasks/read`，只接受已选文件，并在读取前后检查普通文件、真实路径、符号/硬链接、大小与文件身份；每文件最多 256 KiB，严格 UTF-8。响应正文只回到本机已认证的 Web 请求；项目外 Store 持久化 SHA-256/行数/字节数，重复内容幂等，变化拒绝。读取与路径检查不是 OS 原子操作，该历史切片的摘要也不保存原始字节；R1-3 已补固定副本。没有修改旧 DSH 宿主工具的权限。
+
+R1-3 新增 `POST /api/iteroom/managed-tasks/snapshot`：从受限读取固定任务选定文本至项目外目录，持久化清单哈希 `snapshotId`。当前独立引擎只通过 `readManagedSnapshotFile` 并按文件哈希复核副本；损坏不回退当前工作树。此为应用层固定输入，多文件采集非 OS 原子；旧 Web Profile 仍有宿主工具。
 
 事件以 taskId + 递增 seq 关联并支持游标重连；持久化事实后再发布。重复事件幂等投影，客户端游标不足时拉取完整状态。跨进程无 exactly-once 保证：副作用按 executionId 和实际状态核对；不确定时转 interrupted 而非自动重试。
 

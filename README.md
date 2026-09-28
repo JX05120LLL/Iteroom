@@ -4,7 +4,7 @@
 
 目标是让开发者通过文字理解、修改和审查代码：助手在独立环境中执行，提供补丁与真实验证证据，用户审阅后决定是否写回项目。白色方案 C 是产品视觉基线。
 
-> 当前仍是 DSH Web 扩展开发版，已有启动器、任务审阅和 Git 净变化证据。R0 三个技术兼容 Gate 已在固定版本与合成输入范围内验证；自有 Host、OCR/OpenSandbox 产品接线、冲突检测及补丁接受流程尚未完成，npm 未发布。
+> 当前仍是 DSH Web 扩展开发版。R0 三个技术兼容 Gate 已在固定版本与合成输入范围内验证。R1 独立“代码理解”受管路径在 Windows/合成代码范围内完成真实模型、固定引用、无写入和重启不重发验收；旧 DSH Web 开发入口仍具备宿主工具能力，不能视为全产品只读。OCR/OpenSandbox 产品接线、冲突检测及补丁接受流程尚未完成，npm 未发布。
 
 ## 职责分工
 
@@ -27,7 +27,7 @@ v1 聚焦单用户、单项目、串行文字任务，先验证 TypeScript/Node.
 - [交付路线](docs/ROADMAP.md)：R0–R5、技术 Gate 和既有代码迁移。
 - [验收矩阵](docs/ACCEPTANCE.md)：真实流程、失败路径和发布门槛。
 - [当前状态](docs/STATUS.md)：代码事实、可运行入口与未验证能力。
-- [接续开发提示词](docs/NEXT_SESSION_PROMPT.md)：从已完成的限定范围 R0 技术验证接续，先核对工作区与阶段边界。
+- [接续开发提示词](docs/NEXT_SESSION_PROMPT.md)：从限定范围 R1 只读验收接续，先核对工作区与 R2 阶段边界。
 - [R0 离线契约检查](docs/r0/DSH-CONTRACT.md)：DSH 公开接口、Profile/Patch 配置合成与未验证边界。
 - [R0 运行检查](docs/r0/DSH-RUNTIME.md)：官方 CLI 真启动、自有合成只读工具、模拟循环、取消及会话恢复。
 - [R0 DSH 与实际沙箱](docs/r0/DSH-SANDBOX.md)：模拟模型经实际 Loop 调用远端工具，验证错误、取消及结束/取消会话恢复。
@@ -39,6 +39,10 @@ v1 聚焦单用户、单项目、串行文字任务，先验证 TypeScript/Node.
 - [R0 实际沙箱](docs/r0/SANDBOX-RUNTIME.md)：Linux 容器文件/测试/取消/超时/清理。
 - [R0 生命周期与网络](docs/r0/SANDBOX-FAULTS.md)：TTL、控制服务重启、清理重试与带正向对照的网络策略实测。
 - [R0 Gate 汇总](docs/r0/GATES.md)：Gate A/B/C 在限定环境和合成输入范围内通过；v1 产品流程仍未完成。
+- [R1-1 受管任务入口](docs/r1/TASK-ENTRY.md)：版本化任务记录、请求去重、单项目串行及认证接口；任务只登记、不执行。
+- [R1-2 受限文件读取](docs/r1/READ-SCOPE.md)：仅读取任务选定的本机 UTF-8 普通文件并记录内容哈希。
+- [R1-3 固定输入](docs/r1/INPUT-SNAPSHOT.md)：保存选定文件的项目外副本，读时核对任务关联与哈希。
+- [R1 受管只读实测](docs/r1/READONLY-LIVE.md)：独立引擎、前两轮失败、第三轮真实完成、重启与限定范围验收。
 - [第三方复用](docs/DEPENDENCIES.md)：来源、接口、版本及许可证要求。
 - [领域术语](CONTEXT.md) · [架构决策](docs/adr/0001-own-harness-selective-reuse.md) · [协作约定](AGENTS.md)。
 - [方案 C 设计基线](docs/design-options/README.md)：白色主题、Logo 和独立通话页。
@@ -53,7 +57,9 @@ npm.cmd run build
 npm.cmd start -- D:\code\your-project --no-open
 ~~~
 
-把示例路径换成实际目录；不传路径时使用执行目录，移除 `--no-open` 可尝试打开浏览器。文字任务需在现有 DSH 页面配置模型。当前入口使用固定 `@deepseek-ai/dsh@0.1.5-rc.3` 的 Web Profile 和 `iteroom.patch.yml`，尚未收敛到目标最小组合。
+把示例路径换成实际目录；不传路径时使用执行目录，移除 `--no-open` 可尝试打开浏览器。独立“代码理解”面板使用本机 `DEEPSEEK_API_KEY` 或指向项目外配置的 `ITEROOM_MODEL_KEY_FILE`，不会读取 DSH Web 设置中的密钥。只有点击“固定输入并开始理解”才会发送任务选定的代码片段。当前入口仍使用固定 `@deepseek-ai/dsh@0.1.5-rc.3` 的 Web Profile 作认证页面载体；Iteroom 插件拥有受管任务/快照/权限和结果，另启最小 `sdk-minimal` 引擎。独立发行 Host 与旧开发入口替换尚未完成。
+
+受管任务默认最多预留 3 次模型请求、每次最多 256 输出 tokens。本机可通过 `ITEROOM_MANAGED_MAX_REQUESTS`（1–4）和 `ITEROOM_MANAGED_MAX_OUTPUT_TOKENS`（1–512）显式调整；配置无效会拒绝启动。限制按任务持久计数，不能替代服务商账单或人民币硬消费限额。DSH Web 的首次密钥提示与受管面板当前仍是两套配置流程，使用项目外 Key 时可选择“稍后配置”进入受管面板。
 
 当前 DSH 工具可能直接操作宿主项目，不能将此开发入口视为目标隔离模式。任务审阅只比较任务前后 Git 可见文件净变化，外部编辑可能混入；模型回答不算测试证据。数据位置、旧接口及限制见 [当前状态](docs/STATUS.md)。
 
@@ -76,4 +82,4 @@ npm.cmd run test:web
 
 截图为已有界面资产，尚未展示目标审查/沙箱/接受补丁流程。独立通话页与麦克风、字幕、结束通话控制保持禁用，未接入语音服务。
 
-下一步按 [路线](docs/ROADMAP.md)设计并实施 R1 自有 Host，将已验证的核心接口接入真实任务与权限流程；R0 探针不自动成为产品能力。
+下一步按 [路线](docs/ROADMAP.md)规划 R2 的最小隔离修改与验证切片。旧 DSH Web 入口与宿主工具仍按原行为运行；R1 受管只读结果不能外推为完整产品能力。
