@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "synthetic-model-actual-dsh-loop-opensandbox-then-accept",
+  "modelRequests": 0,
+  "sandboxTestExitCode": 0,
+  "sandboxCleaned": true,
+  "hostUnchangedBeforeAccept": true,
+  "patchApplicable": true,
+  "acceptedStatus": "completed",
+  "hostSourceChangedAfterAccept": true,
+  "gitHeadUnchangedAfterAccept": true,
+  "gitIndexUnchangedAfterAccept": true,
+  "ownedServiceStopped": true
+}

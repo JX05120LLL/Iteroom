@@ -48,6 +48,7 @@ export class ManagedTaskCoordinator {
     await this.initialize()
     if (!REQUEST_ID.test(requestId)) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
     const task = await this.store.get(taskId)
+    if (task.kind !== 'understand') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
     if (task.status !== 'queued') {
       if (this.jobs.has(taskId) && task.startRequestId === requestId) return task
       throw new TaskEntryError('RUN_ALREADY_STARTED', 409)
@@ -85,6 +86,7 @@ export class ManagedTaskCoordinator {
     await this.initialize()
     if (!REQUEST_ID.test(requestId)) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
     const task = await this.store.get(taskId)
+    if (task.kind !== 'understand') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
     if (['completed', 'failed', 'cancelled', 'interrupted'].includes(task.status)) return task
     const job = this.jobs.get(taskId)
     if (!job) {
@@ -106,7 +108,7 @@ export class ManagedTaskCoordinator {
 
   async recoverOrphans() {
     for (const task of await this.store.list()) {
-      if ((task.status === 'running' || task.status === 'cancelling') && !this.jobs.has(task.id)) {
+      if (task.kind === 'understand' && (task.status === 'running' || task.status === 'cancelling') && !this.jobs.has(task.id)) {
         await storeAction(() => this.store.failRun(task.id, 'ENGINE_OWNER_LOST', 'interrupted'))
       }
     }

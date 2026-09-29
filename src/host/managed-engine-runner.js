@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { lstat, mkdir, realpath, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, sep } from 'node:path'
 import { TaskEntryError } from './managed-task-store.js'
-import { managedEnginePatch } from './managed-engine-profile.js'
+import { managedEnginePatch, managedModifyPatch } from './managed-engine-profile.js'
 
 const require = createRequire(import.meta.url)
 const cli = join(dirname(require.resolve('@deepseek-ai/dsh/package.json')), 'lib/bin.js')
@@ -248,5 +248,71 @@ export async function runManagedUnderstand({ store, taskId, provider, model, mod
     if (await rpc.shutdown() !== 0) throw new TaskEntryError('ENGINE_EXIT_FAILED', 503)
     await progress.drain()
     return result
+  } finally { await rpc.dispose(); await progress.dispose() }
+}
+
+/** One isolated edit attempt. The Host owns allocation, verification and artifact export. */
+export async function runManagedModify({ store, taskId, sandboxId, sandboxKey, provider, model, modelKey,
+  mockAdapterPath, signal, onReady, maxRequests = 4, maxOutputTokens = 512, timeoutMs = 120000 } = {}) {
+  if (!store || !Number.isSafeInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 120000
+    || !Number.isSafeInteger(maxRequests) || maxRequests < 1 || maxRequests > 4
+    || !Number.isSafeInteger(maxOutputTokens) || maxOutputTokens < 1 || maxOutputTokens > 512
+    || typeof sandboxKey !== 'string' || !sandboxKey) throw new TaskEntryError('ENGINE_CONFIG_INVALID', 400)
+  if (mockAdapterPath) {
+    if (provider !== 'iteroom-r2-mock' || model !== 'synthetic' || !isAbsolute(mockAdapterPath)) {
+      throw new TaskEntryError('ENGINE_CONFIG_INVALID', 400)
+    }
+  } else if (provider !== 'deepseek' || model !== 'deepseek-flash'
+    || typeof modelKey !== 'string' || !modelKey) throw new TaskEntryError('MODEL_NOT_CONFIGURED', 503)
+  const task = await store.get(taskId)
+  if (task.kind !== 'modify' || task.sandboxId !== sandboxId || !task.snapshotId) {
+    throw new TaskEntryError('SANDBOX_TASK_INVALID', 409)
+  }
+  const location = await store.location()
+  const root = join(store.dataHome, 'managed-engine-v1')
+  await mkdir(root, { recursive: true, mode: 0o700 })
+  const rootInfo = await lstat(root)
+  if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink()
+    || within(location.project, await realpath(root))) throw new TaskEntryError('ENGINE_LOCATION_UNSAFE', 503)
+  const home = join(root, task.id)
+  try { await mkdir(home, { mode: 0o700 }) }
+  catch (error) {
+    if (error.code === 'EEXIST') throw new TaskEntryError('ENGINE_ALREADY_ATTEMPTED', 409)
+    throw error
+  }
+  await writeFile(join(home, 'managed.patch.yml'), managedModifyPatch({ dataHome: store.dataHome,
+    projectRoot: location.project, taskId, sandboxId, mockAdapterPath }), { flag: 'wx', mode: 0o600 })
+  const selected = task.paths.map(path => `${path} (${task.readObservations?.find(item => item.path === path)?.lineCount ?? '?'} lines)`)
+  const env = { DSH_HOME: home,
+    DSH_SYSTEM_PROMPT: 'You are Iteroom, working only in an isolated sandbox. Read the fixed selected source and test. Replace the selected non-test file with the smallest correction, then call iteroom_run_tests. Report the actual execution result briefly. Do not claim the host project changed. Do not run unrelated commands.',
+    ITEROOM_SANDBOX_API_KEY: sandboxKey,
+    ITEROOM_MODEL_MAX_REQUESTS: String(maxRequests), ITEROOM_MODEL_MAX_OUTPUT_TOKENS: String(maxOutputTokens) }
+  for (const [key, value] of Object.entries(process.env)) {
+    if (/^(path|systemroot|windir|comspec|pathext|temp|tmp)$/i.test(key)) env[key] = value
+  }
+  if (modelKey) env.DEEPSEEK_API_KEY = modelKey
+  const child = spawn(process.execPath, [cli, '--profile', 'sdk-minimal', '--patch', join(home, 'managed.patch.yml')], {
+    cwd: location.project, env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
+  })
+  const rpc = client(child, timeoutMs, signal)
+  const progress = progressPipe(child)
+  try {
+    const hello = await rpc.request('initialize', { cwd: location.project, provider, model,
+      maxTokens: maxOutputTokens })
+    if (hello?.serverInfo?.name !== 'deepseek-harness-sdk-runtime') throw new TaskEntryError('ENGINE_IDENTITY_INVALID', 503)
+    const receipt = await rpc.request('session/prompt', { sessionId: task.id,
+      contentBlocks: [{ type: 'text', text: `${task.objective}\nSelected fixed paths: ${selected.join(', ')}. Read source and test first. Use only the offered sandbox tools. Call iteroom_run_tests after the edit. Keep the final answer short.` }] })
+    if (typeof receipt?.messageId !== 'string') throw new TaskEntryError('ENGINE_PROMPT_UNACKNOWLEDGED', 503)
+    await onReady?.()
+    const events = await rpc.waitTurn(task.id)
+    const end = events.findLast(event => event.type === 'turn/end')
+    if (end?.data?.reason?.kind !== 'completed') throw new TaskEntryError('ENGINE_TURN_FAILED', 503)
+    const answer = events.filter(event => event.type === 'assistant/message')
+      .map(event => event.data?.message?.content?.filter(block => block.type === 'text').map(block => block.text).join(''))
+      .filter(Boolean).at(-1) ?? ''
+    if (Buffer.byteLength(answer) > MAX_ANSWER_BYTES) throw new TaskEntryError('ENGINE_ANSWER_INVALID', 503)
+    if (await rpc.shutdown() !== 0) throw new TaskEntryError('ENGINE_EXIT_FAILED', 503)
+    await progress.drain()
+    return { sessionId: task.id, turnEnd: 'completed', answer }
   } finally { await rpc.dispose(); await progress.dispose() }
 }

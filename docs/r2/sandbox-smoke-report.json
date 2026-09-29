@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "actual-opensandbox-no-model",
+  "sandboxCreated": true,
+  "executionCount": 4,
+  "baselineExitCode": 1,
+  "fixedExitCode": 0,
+  "changeCount": 1,
+  "patchSha256": "e64a2851158bf92f12a35ae09a8fba029012adb44aa8641a20e55f5a57399f97",
+  "hostUnchanged": true,
+  "injectedFailure": "SANDBOX_EXECUTION_UNKNOWN",
+  "injectedStatus": "interrupted",
+  "inFlightResult": "returned",
+  "inFlightStatus": "interrupted",
+  "inFlightExitCode": null,
+  "sandboxCleaned": true,
+  "serviceStopped": true
+}

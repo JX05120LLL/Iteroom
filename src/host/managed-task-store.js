@@ -5,9 +5,10 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 const VERSION = 1
 const ID = /^[A-Za-z0-9._:-]{1,100}$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'interrupted'])
-const ACTIVE = new Set(['queued', 'running', 'cancelling'])
-const EVENT_TYPES = new Set(['baseline', 'created', 'snapshot', 'started', 'running', 'cancelling', 'completed', 'failed', 'cancelled', 'interrupted', 'draft'])
+const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'interrupted', 'awaiting_review', 'discarded'])
+const ACTIVE = new Set(['queued', 'running', 'cancelling', 'applying', 'deleting'])
+const EVENT_TYPES = new Set(['baseline', 'created', 'snapshot', 'started', 'running', 'cancelling', 'completed', 'failed', 'cancelled', 'interrupted', 'discarded', 'applying', 'acceptance', 'deleting', 'draft', 'sandbox', 'execution', 'artifact'])
+const EXTERNAL_ID = /^[A-Za-z0-9._:-]{8,128}$/
 
 export class TaskEntryError extends Error {
   constructor(code, status) { super(code); this.code = code; this.status = status }
@@ -36,7 +37,7 @@ async function prospectiveRealpath(path) {
 function validateInput(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).sort().join(',') !== 'kind,objective,paths,requestId'
-    || !ID.test(value.requestId) || value.kind !== 'understand'
+    || !ID.test(value.requestId) || !['understand', 'modify'].includes(value.kind)
     || typeof value.objective !== 'string' || value.objective !== value.objective.trim()
     || value.objective.length < 1 || value.objective.length > 500
     || !Array.isArray(value.paths) || value.paths.length < 1 || value.paths.length > 16) {
@@ -45,7 +46,8 @@ function validateInput(value) {
   const unique = new Set()
   for (const path of value.paths) {
     if (typeof path !== 'string' || path.length < 1 || path.length > 240 || path.includes('\\')
-      || path.startsWith('/') || /^[A-Za-z]:/.test(path)) throw new TaskEntryError('INVALID_TASK_INPUT', 400)
+      || path.startsWith('/') || /^[A-Za-z]:/.test(path)
+      || value.kind === 'modify' && !/^[A-Za-z0-9._/-]+$/.test(path)) throw new TaskEntryError('INVALID_TASK_INPUT', 400)
     const segments = path.split('/')
     if (segments.some(segment => !segment || segment === '.' || segment === '..'
       || /[\u0000-\u001f\u007f<>:"|?*]/.test(segment) || /[. ]$/.test(segment)
@@ -56,7 +58,7 @@ function validateInput(value) {
     }
     unique.add(path.toLowerCase())
   }
-  return { requestId: value.requestId, kind: 'understand', objective: value.objective, paths: [...value.paths] }
+  return { requestId: value.requestId, kind: value.kind, objective: value.objective, paths: [...value.paths] }
 }
 
 function sameInput(task, input) {
@@ -73,14 +75,17 @@ function appendEvent(task, type, previousStatus = task.status, text) {
 }
 
 function validStoredTask(task, projectId) {
+  const cancelledBeforeStart = task?.kind === 'modify' && ['cancelled', 'deleting'].includes(task.status)
+    && task.engineStatus === 'not_started' && task.sessionId === null
+    && task.startRequestId === undefined && task.startedAt === undefined
   if (!task || task.version !== VERSION || !UUID.test(task.id) || task.projectId !== projectId
     || !ACTIVE.has(task.status) && !TERMINAL.has(task.status)
     || !['not_started', 'starting', 'running', 'completed', 'failed', 'cancelled', 'interrupted'].includes(task.engineStatus)
     || task.sessionId !== null && task.sessionId !== task.id
-    || !Array.isArray(task.executionIds) || task.executionIds.length !== 0
+    || !Array.isArray(task.executionIds) || (task.kind !== 'modify' && task.executionIds.length !== 0)
     || typeof task.createdAt !== 'string' || !Number.isFinite(Date.parse(task.createdAt))) return false
   if (task.status === 'queued' && (task.engineStatus !== 'not_started' || task.sessionId !== null)
-    || task.status !== 'queued' && (!ID.test(task.startRequestId) || task.sessionId !== task.id
+    || task.status !== 'queued' && !cancelledBeforeStart && (!ID.test(task.startRequestId) || task.sessionId !== task.id
       || typeof task.startedAt !== 'string' || !Number.isFinite(Date.parse(task.startedAt)))
     || TERMINAL.has(task.status) && (typeof task.endedAt !== 'string' || !Number.isFinite(Date.parse(task.endedAt)))) return false
   if (task.answer !== undefined && (typeof task.answer !== 'string' || Buffer.byteLength(task.answer) > 65536)
@@ -116,8 +121,51 @@ function validStoredTask(task, projectId) {
     || item.snapshotId !== task.snapshotId || !/^[0-9a-f]{64}$/.test(item.sha256)
     || !Number.isSafeInteger(item.startLine) || item.startLine < 1
     || !Number.isSafeInteger(item.endLine) || item.endLine < item.startLine)) return false
-  if (task.status === 'completed' && (task.engineStatus !== 'completed' || !task.answer
+  if (task.kind === 'understand' && task.status === 'completed' && (task.engineStatus !== 'completed' || !task.answer
     || !task.references?.length || task.failureCode !== undefined)) return false
+  if (task.kind === 'understand' && (task.status === 'awaiting_review' || task.sandboxId !== undefined
+    || task.executions !== undefined || task.artifactId !== undefined)) return false
+  if (task.kind === 'modify') {
+    if (task.answer !== undefined || task.references !== undefined
+      || task.draft !== undefined) return false
+    if (task.acceptance !== undefined && (!task.acceptance || !ID.test(task.acceptance.requestId)
+      || !['accept', 'rollback'].includes(task.acceptance.mode)
+      || task.acceptance.recoveryRequestId !== undefined && !ID.test(task.acceptance.recoveryRequestId)
+      || !Array.isArray(task.acceptance.entries) || task.acceptance.entries.length < 1
+      || task.acceptance.entries.length > task.paths.length
+      || new Set(task.acceptance.entries.map(item => item.path)).size !== task.acceptance.entries.length
+      || task.acceptance.entries.some(item => !task.paths.includes(item.path)
+        || !/^[0-9a-f]{64}$/.test(item.beforeSha256) || !/^[0-9a-f]{64}$/.test(item.afterSha256)
+        || !['pending', 'writing', 'written', 'rolled_back'].includes(item.state)))) return false
+    if (task.discardRequestId !== undefined && !ID.test(task.discardRequestId)) return false
+    if (task.deleteRequestId !== undefined && !ID.test(task.deleteRequestId)) return false
+    if (['applying', 'completed', 'discarded'].includes(task.status) && !task.acceptance
+      && task.status !== 'discarded') return false
+    if (task.status === 'applying' && task.sandboxStatus !== 'cleaned') return false
+    if (task.sandboxId !== undefined && !EXTERNAL_ID.test(task.sandboxId)
+      || task.sandboxAllocationPending !== undefined && typeof task.sandboxAllocationPending !== 'boolean'
+      || task.sandboxId && task.sandboxAllocationPending
+      || task.sandboxStatus !== undefined && !['allocating', 'allocated', 'stopping', 'cleaned', 'cleanup_pending'].includes(task.sandboxStatus)) return false
+    if (task.executions !== undefined) {
+      if (!Array.isArray(task.executions) || task.executions.length > 32) return false
+      if (task.executions.some(item => !item || !EXTERNAL_ID.test(item.id)
+        || !['edit', 'test'].includes(item.kind) || typeof item.command !== 'string'
+        || !item.command || Buffer.byteLength(item.command) > 4096 || item.cwd !== '/workspace'
+        || !['running', 'completed', 'failed', 'timeout', 'interrupted', 'unknown'].includes(item.status)
+        || item.status !== 'running' && (!/^[0-9a-f]{64}$/.test(item.outputSha256)
+          || !Number.isSafeInteger(item.outputBytes) || item.outputBytes < 0 || item.outputBytes > 65536)
+        || item.outputExcerpt !== undefined && (typeof item.outputExcerpt !== 'string'
+          || Buffer.byteLength(item.outputExcerpt) > 8192)
+        || item.exitCode !== undefined && item.exitCode !== null
+          && (!Number.isSafeInteger(item.exitCode) || item.exitCode < 0 || item.exitCode > 255))) return false
+      if (JSON.stringify(task.executionIds) !== JSON.stringify(task.executions.map(item => item.id))) return false
+    }
+    if (task.status === 'awaiting_review' && (task.engineStatus !== 'completed'
+      || task.sandboxStatus !== 'cleaned' || !/^[0-9a-f]{64}$/.test(task.artifactId)
+      || !Number.isSafeInteger(task.changeCount) || task.changeCount < 1
+      || !task.executions?.some(item => item.id === task.verificationId && item.kind === 'test'
+        && ['completed', 'failed'].includes(item.status)))) return false
+  }
   return true
 }
 
@@ -195,7 +243,10 @@ export class ManagedTaskStore {
         if (!sameInput(previous, input)) throw new TaskEntryError('REQUEST_ID_CONFLICT', 409)
         return { created: false, task: previous }
       }
-      if (state.tasks.some(task => ACTIVE.has(task.status))) throw new TaskEntryError('ACTIVE_TASK_EXISTS', 409)
+      if (state.tasks.some(task => ACTIVE.has(task.status) || task.sandboxStatus === 'cleanup_pending'
+        || task.status === 'interrupted' && task.acceptance)) {
+        throw new TaskEntryError('ACTIVE_TASK_EXISTS', 409)
+      }
       if (state.tasks.length >= 100) throw new TaskEntryError('TASK_STORE_FULL', 409)
       const task = { version: VERSION, id: randomUUID(), projectId: location.projectId,
         requestId: input.requestId, kind: input.kind, objective: input.objective, paths: input.paths,
@@ -330,9 +381,26 @@ export class ManagedTaskStore {
     }
   }
 
-  async claimRun(id, requestId) {
+  async claimRun(id, requestId) { return this.claim(id, requestId, 'understand') }
+
+  async claimModify(id, requestId) { return this.claim(id, requestId, 'modify') }
+
+  async cancelQueuedModify(id) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
+      if (task.status === 'cancelled' && task.engineStatus === 'not_started') {
+        return { changed: false, value: task }
+      }
+      if (task.status !== 'queued') throw new TaskEntryError('RUN_STATE_CONFLICT', 409)
+      task.status = 'cancelled'; task.endedAt = new Date().toISOString()
+      return { changed: true, value: task }
+    })
+  }
+
+  async claim(id, requestId, kind) {
     if (!ID.test(requestId)) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
     return this.updateTask(id, task => {
+      if (task.kind !== kind) throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
       if (task.status !== 'queued') {
         if (ACTIVE.has(task.status) && task.startRequestId === requestId) {
           return { changed: false, value: { created: false, task } }
@@ -341,8 +409,177 @@ export class ManagedTaskStore {
       }
       if (!task.snapshotId) throw new TaskEntryError('SNAPSHOT_NOT_READY', 409)
       task.status = 'running'; task.engineStatus = 'starting'; task.sessionId = task.id
+      if (kind === 'modify') { task.sandboxAllocationPending = true; task.sandboxStatus = 'allocating' }
       task.startRequestId = requestId; task.startedAt = new Date().toISOString()
       return { changed: true, value: { created: true, task } }
+    })
+  }
+
+  async recordSandbox(id, sandboxId) {
+    if (!EXTERNAL_ID.test(sandboxId)) throw new TaskEntryError('SANDBOX_ID_INVALID', 400)
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || !['running', 'cancelling'].includes(task.status)
+        && !(task.status === 'interrupted' && task.sandboxAllocationPending)
+        || task.sandboxId && task.sandboxId !== sandboxId) {
+        throw new TaskEntryError('SANDBOX_STATE_CONFLICT', 409)
+      }
+      if (task.sandboxId === sandboxId) return { changed: false, value: task }
+      task.sandboxId = sandboxId; task.sandboxStatus = 'allocated'; task.sandboxAllocationPending = false
+      return { changed: true, eventType: 'sandbox', value: task }
+    })
+  }
+
+  async markSandboxCleaned(id) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || !task.sandboxId && !task.sandboxAllocationPending) {
+        throw new TaskEntryError('SANDBOX_STATE_CONFLICT', 409)
+      }
+      if (task.sandboxStatus === 'cleaned') return { changed: false, value: task }
+      task.sandboxStatus = 'cleaned'; task.sandboxAllocationPending = false
+      for (const entry of task.executions ?? []) {
+        if (entry.status !== 'running') continue
+        entry.status = 'interrupted'; entry.exitCode = null
+        entry.outputSha256 = createHash('sha256').update('').digest('hex')
+        entry.outputBytes = 0; entry.outputExcerpt = ''
+      }
+      return { changed: true, eventType: 'sandbox', value: task }
+    })
+  }
+
+  async markSandboxStopping(id) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || !task.sandboxId
+        || !['allocated', 'stopping', 'cleanup_pending'].includes(task.sandboxStatus)) {
+        throw new TaskEntryError('SANDBOX_STATE_CONFLICT', 409)
+      }
+      if (task.sandboxStatus === 'stopping') return { changed: false, value: task }
+      task.sandboxStatus = 'stopping'
+      return { changed: true, eventType: 'sandbox', value: task }
+    })
+  }
+
+  async markSandboxCleanupPending(id) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || !task.sandboxId && !task.sandboxAllocationPending || task.sandboxStatus === 'cleaned') {
+        throw new TaskEntryError('SANDBOX_STATE_CONFLICT', 409)
+      }
+      if (task.sandboxStatus === 'cleanup_pending') return { changed: false, value: task }
+      task.sandboxStatus = 'cleanup_pending'
+      return { changed: true, eventType: 'sandbox', value: task }
+    })
+  }
+
+  async recordExecutionStart(id, entry) {
+    if (!entry || !EXTERNAL_ID.test(entry.id) || !['edit', 'test'].includes(entry.kind)
+      || typeof entry.command !== 'string' || !entry.command || Buffer.byteLength(entry.command) > 4096
+      || entry.cwd !== '/workspace') throw new TaskEntryError('EXECUTION_INVALID', 400)
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || task.status !== 'running' || task.sandboxStatus !== 'allocated'
+        || task.executionIds.includes(entry.id) || task.executionIds.length >= 32) {
+        throw new TaskEntryError('EXECUTION_STATE_CONFLICT', 409)
+      }
+      task.executionIds.push(entry.id)
+      task.executions = [...(task.executions ?? []), { ...entry, status: 'running' }]
+      return { changed: true, eventType: 'execution', value: task }
+    })
+  }
+
+  async finishExecution(id, executionId, result) {
+    if (!EXTERNAL_ID.test(executionId) || !result
+      || !['completed', 'failed', 'timeout', 'interrupted', 'unknown'].includes(result.status)
+      || result.status === 'completed' && result.exitCode !== 0
+      || result.status === 'failed' && (!Number.isSafeInteger(result.exitCode) || result.exitCode === 0)
+      || !/^[0-9a-f]{64}$/.test(result.outputSha256)
+      || !Number.isSafeInteger(result.outputBytes) || result.outputBytes < 0 || result.outputBytes > 65536
+      || result.outputExcerpt !== undefined && (typeof result.outputExcerpt !== 'string'
+        || Buffer.byteLength(result.outputExcerpt) > 8192)) {
+      throw new TaskEntryError('EXECUTION_INVALID', 400)
+    }
+    return this.updateTask(id, task => {
+      const entry = task.executions?.find(item => item.id === executionId)
+      if (!entry || entry.status !== 'running') throw new TaskEntryError('EXECUTION_STATE_CONFLICT', 409)
+      Object.assign(entry, result)
+      return { changed: true, eventType: 'execution', value: task }
+    })
+  }
+
+  async finishModify(id, result) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || task.status !== 'running' || task.sandboxStatus !== 'cleaned'
+        || !/^[0-9a-f]{64}$/.test(result?.artifactId)
+        || !Number.isSafeInteger(result.changeCount) || result.changeCount < 1
+        || !task.executions?.some(item => item.id === result.verificationId && item.kind === 'test'
+          && ['completed', 'failed'].includes(item.status))) throw new TaskEntryError('MODIFY_RESULT_INVALID', 409)
+      task.status = 'awaiting_review'; task.engineStatus = 'completed'; task.endedAt = new Date().toISOString()
+      task.artifactId = result.artifactId; task.changeCount = result.changeCount
+      task.verificationId = result.verificationId
+      return { changed: true, eventType: 'artifact', value: task }
+    })
+  }
+
+  async beginAcceptance(id, requestId, entries) {
+    if (!ID.test(requestId) || !Array.isArray(entries)) throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || task.status !== 'awaiting_review') throw new TaskEntryError('ACCEPT_STATE_CONFLICT', 409)
+      task.acceptance = { requestId, mode: 'accept', entries: entries.map(entry => ({ ...entry, state: 'pending' })) }
+      task.status = 'applying'
+      return { changed: true, eventType: 'acceptance', value: task }
+    })
+  }
+
+  async discardArtifact(id, requestId) {
+    if (!ID.test(requestId)) throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify') throw new TaskEntryError('ACCEPT_STATE_CONFLICT', 409)
+      if (task.status === 'discarded' && task.discardRequestId === requestId) return { changed: false, value: task }
+      if (task.status !== 'awaiting_review') throw new TaskEntryError('ACCEPT_STATE_CONFLICT', 409)
+      task.status = 'discarded'; task.discardRequestId = requestId; task.endedAt = new Date().toISOString()
+      return { changed: true, value: task }
+    })
+  }
+
+  async markHistoryDeleting(id, requestId) {
+    if (!ID.test(requestId)) throw new TaskEntryError('INVALID_HISTORY_INPUT', 400)
+    return this.updateTask(id, task => {
+      if (task.status === 'deleting' && task.deleteRequestId === requestId) return { changed: false, value: task }
+      if (['queued', 'running', 'cancelling', 'applying', 'deleting'].includes(task.status)
+        || task.sandboxStatus === 'cleanup_pending' || task.status === 'interrupted' && task.acceptance) {
+        throw new TaskEntryError('HISTORY_ACTIVE', 409)
+      }
+      task.status = 'deleting'; task.deleteRequestId = requestId
+      return { changed: true, value: task }
+    })
+  }
+
+  async forgetHistory(id, requestId) {
+    if (!ID.test(requestId)) throw new TaskEntryError('INVALID_HISTORY_INPUT', 400)
+    const location = await this.location()
+    let lock
+    try { lock = await open(`${location.file}.lock`, 'wx', 0o600) }
+    catch (error) {
+      if (error.code === 'EEXIST') throw new TaskEntryError('TASK_STORE_BUSY', 503)
+      throw error
+    }
+    try {
+      const state = await this.load(location)
+      const index = state.tasks.findIndex(task => task.id === id)
+      if (index < 0) throw new TaskEntryError('TASK_NOT_FOUND', 404)
+      if (state.tasks[index].status !== 'deleting' || state.tasks[index].deleteRequestId !== requestId) {
+        throw new TaskEntryError('HISTORY_ACTIVE', 409)
+      }
+      state.tasks.splice(index, 1)
+      await this.save(location, state)
+    } finally {
+      await lock.close()
+      await rm(`${location.file}.lock`, { force: true })
+    }
+  }
+
+  async updateAcceptance(id, action) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'modify' || !task.acceptance) throw new TaskEntryError('ACCEPT_STATE_CONFLICT', 409)
+      action(task)
+      return { changed: true, eventType: 'acceptance', value: task }
     })
   }
 

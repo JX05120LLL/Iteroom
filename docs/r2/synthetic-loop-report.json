@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "synthetic-dsh-model-actual-opensandbox",
+  "modelCalled": false,
+  "taskStatus": "awaiting_review",
+  "sandboxStatus": "cleaned",
+  "requestCount": 0,
+  "executionStates": [{ "kind": "test", "status": "completed", "exitCode": 0 }],
+  "hostUnchanged": true,
+  "patchSha256": "e64a2851158bf92f12a35ae09a8fba029012adb44aa8641a20e55f5a57399f97",
+  "changeCount": 1,
+  "patchApplicable": true,
+  "serviceStopped": true
+}

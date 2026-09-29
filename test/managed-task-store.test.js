@@ -50,7 +50,7 @@ test('invalid task input and unsafe paths are refused without creating a record'
     'id_ed25519', 'src/secrets.json', '.aws/credentials', 'private.pem', 'README.md:secret', 'CON.txt', 'file.', 'file ', 'line\u0000break']) {
     await assert.rejects(store.create({ ...input, paths: [path] }), { code: 'INVALID_TASK_INPUT' }, path)
   }
-  for (const invalid of [{ ...input, kind: 'modify' }, { ...input, objective: '' }, { ...input, paths: [] },
+  for (const invalid of [{ ...input, kind: 'review' }, { ...input, objective: '' }, { ...input, paths: [] },
     { ...input, requestId: '../bad' }, { ...input, extra: 'not allowed' }, { ...input, paths: ['README.md', 'README.md'] },
     { ...input, paths: ['README.md', 'readme.md'] }]) {
     await assert.rejects(store.create(invalid), { code: 'INVALID_TASK_INPUT' })

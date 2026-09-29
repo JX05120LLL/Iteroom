@@ -3,6 +3,9 @@ import { readManagedFile } from './managed-read-scope.js'
 import { captureManagedSnapshot } from './managed-snapshot.js'
 import { readManagedSnapshotFile } from './managed-snapshot.js'
 import { ManagedTaskCoordinator } from './managed-task-coordinator.js'
+import { readManagedArtifact } from './managed-artifact.js'
+import { ManagedAcceptance } from './managed-acceptance.js'
+import { ManagedHistory } from './managed-history.js'
 
 const MAX_BODY_BYTES = 8192
 const headers = { 'Cache-Control': 'no-store', 'Content-Type': 'application/json; charset=utf-8', 'X-Content-Type-Options': 'nosniff' }
@@ -43,11 +46,15 @@ function safeResponse(error) {
 }
 
 /** The fixed carrier buffers GET bodies, so the bounded POST has a distinct streaming path. */
-export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoordinator(store)) {
+export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoordinator(store), modifyCoordinator,
+  acceptance = modifyCoordinator ? new ManagedAcceptance(store) : undefined,
+  history = modifyCoordinator ? new ManagedHistory(store) : undefined) {
   return [{ path: '/api/iteroom/managed-tasks', methods: ['GET'], requestBody: 'buffered',
     fetch: async request => {
       try {
         await coordinator.initialize?.()
+        await modifyCoordinator?.initialize?.()
+        await acceptance?.initialize?.()
         const params = new URL(request.url).searchParams
         if ([...params.keys()].some(key => key !== 'taskId') || params.getAll('taskId').length > 1) {
           throw new TaskEntryError('INVALID_TASK_ID', 400)
@@ -135,5 +142,95 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
         return json({ task: await execute(input.taskId, input.requestId) }, action === 'start' ? 202 : 200)
       } catch (error) { return safeResponse(error) }
     },
-  }))]
+  })),
+  ...(modifyCoordinator ? [
+    { path: '/api/iteroom/managed-tasks/history/delete', methods: ['POST'], requestBody: 'streaming',
+      fetch: async request => {
+        try {
+          if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+          if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+            throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+          }
+          if (new URL(request.url).search) throw new TaskEntryError('INVALID_HISTORY_INPUT', 400)
+          const input = await boundedJson(request)
+          if (!input || typeof input !== 'object' || Array.isArray(input)
+            || Object.keys(input).sort().join(',') !== 'requestId,taskId'
+            || typeof input.taskId !== 'string' || typeof input.requestId !== 'string') {
+            throw new TaskEntryError('INVALID_HISTORY_INPUT', 400)
+          }
+          return json(await history.delete(input.taskId, input.requestId))
+        } catch (error) { return safeResponse(error) }
+      } },
+    { path: '/api/iteroom/managed-tasks/modify/preview', methods: ['GET'], requestBody: 'buffered',
+      fetch: async request => {
+        try {
+          await acceptance.initialize()
+          const params = new URL(request.url).searchParams
+          if ([...params.keys()].join(',') !== 'taskId' || params.getAll('taskId').length !== 1) {
+            throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
+          }
+          return json(await acceptance.preview(params.get('taskId')))
+        } catch (error) { return safeResponse(error) }
+      } },
+    ...['accept', 'discard', 'recover'].map(action => ({
+      path: `/api/iteroom/managed-tasks/modify/${action}`, methods: ['POST'], requestBody: 'streaming',
+      fetch: async request => {
+        try {
+          if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+          if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+            throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+          }
+          if (new URL(request.url).search) throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
+          const input = await boundedJson(request)
+          const expected = action === 'recover' ? 'mode,requestId,taskId' : 'requestId,taskId'
+          if (!input || typeof input !== 'object' || Array.isArray(input)
+            || Object.keys(input).sort().join(',') !== expected
+            || typeof input.taskId !== 'string' || typeof input.requestId !== 'string'
+            || action === 'recover' && !['finish', 'rollback'].includes(input.mode)) {
+            throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
+          }
+          await acceptance.initialize()
+          return json({ task: action === 'recover'
+            ? await acceptance.recover(input.taskId, input.requestId, input.mode)
+            : await acceptance[action](input.taskId, input.requestId) })
+        } catch (error) { return safeResponse(error) }
+      },
+    })),
+    { path: '/api/iteroom/managed-tasks/modify/artifact', methods: ['GET'], requestBody: 'buffered',
+      fetch: async request => {
+        try {
+          await modifyCoordinator.initialize?.()
+          const params = new URL(request.url).searchParams
+          if ([...params.keys()].join(',') !== 'taskId' || params.getAll('taskId').length !== 1) {
+            throw new TaskEntryError('ARTIFACT_ID_INVALID', 400)
+          }
+          const task = await store.get(params.get('taskId'))
+          if (task.kind !== 'modify' || !['awaiting_review', 'applying', 'interrupted', 'completed', 'discarded'].includes(task.status)
+            || !task.artifactId) {
+            throw new TaskEntryError('ARTIFACT_NOT_READY', 409)
+          }
+          return json({ artifact: await readManagedArtifact(store, task.id, task.artifactId) })
+        } catch (error) { return safeResponse(error) }
+      } },
+    ...[['start', (taskId, requestId) => modifyCoordinator.start(taskId, requestId)],
+      ['cancel', (taskId, requestId) => modifyCoordinator.cancel(taskId, requestId)],
+      ['reconcile', (taskId, requestId) => modifyCoordinator.reconcileTask(taskId, requestId)]].map(([action, execute]) => ({
+      path: `/api/iteroom/managed-tasks/modify/${action}`, methods: ['POST'], requestBody: 'streaming',
+      fetch: async request => {
+        try {
+          if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+          if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+            throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+          }
+          if (new URL(request.url).search) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
+          const input = await boundedJson(request)
+          if (!input || typeof input !== 'object' || Array.isArray(input)
+            || Object.keys(input).sort().join(',') !== 'requestId,taskId') {
+            throw new TaskEntryError('INVALID_RUN_INPUT', 400)
+          }
+          return json({ task: await execute(input.taskId, input.requestId) }, action === 'start' ? 202 : 200)
+        } catch (error) { return safeResponse(error) }
+      },
+    })),
+  ] : [])]
 }

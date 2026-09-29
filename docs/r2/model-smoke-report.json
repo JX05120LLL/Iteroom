@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "actual-dsh-model-opensandbox",
+  "taskStatus": "awaiting_review",
+  "failureCode": null,
+  "sandboxStatus": "cleaned",
+  "requestCount": 4,
+  "maxRequests": 4,
+  "maxOutputTokensPerRequest": 512,
+  "executionStates": [{ "kind": "test", "status": "completed", "exitCode": 0 }],
+  "hostUnchanged": true,
+  "patchSha256": "e64a2851158bf92f12a35ae09a8fba029012adb44aa8641a20e55f5a57399f97",
+  "changeCount": 1,
+  "patchApplicable": true,
+  "serviceStopped": true
+}

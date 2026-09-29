@@ -3,7 +3,7 @@ import styles from './managed-understand.module.css'
 
 interface Reference { path: string; snapshotId: string; sha256: string; startLine: number; endLine: number }
 interface ManagedTask {
-  id: string; objective: string; paths: string[]; status: string; engineStatus: string
+  id: string; kind: string; objective: string; paths: string[]; status: string; engineStatus: string
   snapshotId?: string | null; answer?: string; draft?: string; references?: Reference[]; failureCode?: string
   createdAt: string
 }
@@ -60,8 +60,9 @@ export function ManagedUnderstand() {
       try {
         const result = await api<{ tasks: ManagedTask[] }>('')
         if (!active) return
-        setTasks(result.tasks)
-        setSelectedId(current => current ?? result.tasks[0]?.id ?? null)
+        const ownTasks = result.tasks.filter(task => task.kind === 'understand')
+        setTasks(ownTasks)
+        setSelectedId(current => current ?? ownTasks[0]?.id ?? null)
       } catch (cause) {
         if (active) setError(cause instanceof Error ? cause.message : '无法读取任务')
       } finally {

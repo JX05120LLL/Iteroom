@@ -2,7 +2,7 @@
 
 > 2026-09-26 的重规划快照保留在下文早期章节；最新功能进度见本页顶部及末节。各节中的提交状态为当时记录，当前 Git 状态需实时核对。
 
-2026-09-28 最新更新：R0 技术兼容验证已在固定环境和合成输入范围内完成并推送。R1 已接[受管任务登记](r1/TASK-ENTRY.md)、[受限读取](r1/READ-SCOPE.md)、[固定输入](r1/INPUT-SNAPSHOT.md)、独立只读 DSH 引擎及方案 C 文字 UI；[第三轮受管真实模型任务](r1/READONLY-LIVE.md)在 Windows/新合成仓库完成准确回答和可点击引用，重启后未重发，R1 受管只读退出条件在声明范围通过。旧完整 DSH Web 开发入口保留；独立发行 Host、OCR/沙箱产品接线、补丁接受与 v1 发行验收未完成。见末节；前文各节是历史切片记录。
+2026-09-29 最新更新：R0 技术兼容验证、R1 受管只读、R2 选定文件隔离修改及 R3 用户接受/恢复，均在各自限定环境与合成输入范围内有证据。[R3 分层证据](r3/EVIDENCE.md)包括冲突预览、脏工作树接受、部分失败后的显式继续/回滚、放弃、历史删除、模拟 DSH Loop + 实际沙箱候选接受及本地浏览器交互；R3 最小退出条件在该范围通过。旧完整 DSH Web 开发入口保留；独立发行 Host、OCR 产品接线、更多补丁类型与 v1 发行验收未完成。见末节；前文各节是历史切片记录。
 
 ## 1. 代码事实
 
@@ -217,3 +217,19 @@ Windows 默认数据目录为 `%LOCALAPPDATA%\Iteroom\harness`，`ITEROOM_DSH_HO
 - 新合成 Git 仓库仅含 `src/example.ts` 一行 `export const answer = 42`。经已认证受管 Web API 建立并启动任务；DSH Session 留有 1 次 `iteroom_read_snapshot` 调用/成功结果和 `turn/end: completed`。回答说明 `answer` 为 42，引用 `src/example.ts:1`；来源 API 对快照 ID、哈希和固定字节核对通过。仓库前后 `git status --porcelain` 为空，原文件 SHA-256 不变。[完整记录与复验命令](r1/READONLY-LIVE.md)。
 - 停止并重新启动 Host 后，任务仍是 completed，浏览器显示答案，点击来源展示第 1 行；请求日志重启前后均为 2 次。[浏览器截图](r1/managed-live-completed.png)只含合成代码。390×844 窄屏的完成态 DOM 可见回答和来源；真实生成中间帧未捕获，服务端实际有 1 条草稿事件，不能外推为视觉流式链路全程通过。临时浏览器与 Host 已关闭，端口无监听。
 - 最新本机 `npm.cmd test` 53 通过/1 Windows 执行位条件跳过，`npm.cmd run check`、`npm.cmd run build`、`npm.cmd run test:web` 通过；打包仅查清单，未做干净安装。R1 自有受管任务/权限/快照/验证与 DSH 最小引擎组合的退出条件在 Windows/固定版/单项目合成文本范围内通过；旧 DSH Web 完整入口仍有宿主工具，独立发行 Host、真实提供方断线、真实用户仓库、其他平台、R2–R5 和 v1 均未验收。HEAD/远程仍为 `b240fa0`，R1 改动未提交/推送。
+
+## 24. 2026-09-29 · R2 选定文件的隔离修改与验证
+
+- [R2 实施边界](r2/PLAN.md)和[匿名实测](r2/EVIDENCE.md)：新增独立“隔离修改”面板、`modify` 任务/沙箱/执行/产物记录、已认证的启动/取消/核对/产物接口。固定输入先导入实际 OpenSandbox；DSH 最小 Loop 只见快照读取、沙箱替换和固定测试三工具。候选补丁存项目外且只导出，未对宿主项目写回。旧完整 DSH Web 入口保持原行为与宿主能力。
+- 本机真实沙箱无模型实测：合成 Git 仓库初始测试 exit 1，修复后 exit 0，补丁 `git apply --check` 通过；额外文件/符号链接检查、输入与产物哈希、路径/大小及输出限额有本地回归。实际远端执行启动后注入流故障，显式 interrupt 后记 interrupted；执行中删除沙箱时记录 interrupted/未知退出码；服务与沙箱本轮清理完成，宿主 HEAD/状态/源文件哈希不变。注入流故障不冒充真实 TCP 断线。
+- 本轮真实 `deepseek-flash` 授权最多 4 次、单次输出≤512 tokens、计划费用≤5 元，只发送合成代码/任务/工具 schema；磁盘守卫实际预留 **4 次**，DSH Loop 完成选定文件修改与真实沙箱测试，任务 awaiting_review，补丁可应用，宿主不变。无服务商账单核对，费用上限不是账户硬限制；授权次数已用完。随后增加的沙箱清单/产物输入校验未再调用真实模型，最新组合经模拟 DSH Loop+实际沙箱完成，不能写成“最终修订再次真实模型通过”。另经模拟模型在真实沙箱运行中取消，状态 cancelled/沙箱清理。
+- 浏览器在合成项目创建 R2 任务、无沙箱配置时明确报错并保留 queued；新增“放弃待启动任务”以释放任务位，任务/协调器测试验证不读取凭证或创建沙箱，按钮本身未再次浏览器实测。完成态补丁下载及窄屏视觉尚未实测。当前仅支持选定现有 UTF-8 源文件 whole-file 修改与固定 `.test.mjs`，新增/删除/重命名、依赖安装、真实提供方断线、用户仓库、独立发行未验。**ROADMAP R2 最小退出条件在固定 Windows/Node/DSH/OpenSandbox/合成输入范围内通过；P0-07/A05 与 v1 未完成。**最终 `npm.cmd test` 68 通过/1 个 Windows 条件跳过，`npm.cmd run check`、`npm.cmd run build`、`npm.cmd run test:web`、`git diff --check` 通过；R0 沙箱离线 5 通过/2 需显式安装根与执行授权而跳过，但本轮 R2 独立脚本已实际启动沙箱。`npm.cmd pack --dry-run --json --ignore-scripts` 只核对清单，未做干净安装。本轮改动未提交或推送。
+
+## 25. 2026-09-29 · R3 用户接受、恢复与历史删除切片
+
+- [接口与边界](r3/PLAN.md)、[合成证据](r3/EVIDENCE.md)：继续复用 R2 候选产物格式，严格重建 whole-file 补丁前后字节并核对哈希；受管路由加入预览、接受、放弃、继续/回滚和历史删除。方案 C 修改面板显示文件冲突与实际测试状态，接受/删除需要用户点击；写回不调用模型或沙箱，也不 Git add/commit。
+- 一次性合成脏 Git 仓库验证固定输入匹配时接受成功、index/HEAD 未变；外部编辑/目标缺失在写回前拒绝。两文件注入首文件写后失败，任务 `interrupted`，新任务/历史删除受阻；新 Store 实例显式继续或回滚完成，再编辑已写文件则拒绝恢复覆盖。已收束历史的快照/记录可删除，项目源码保持原样。故障为注入，不是实际突然断电。
+- [实际沙箱接受报告](r3/sandbox-accept-report.json)：模拟模型经真实 DSH Loop/真实 OpenSandbox 产出候选补丁，实际测试 exit 0，清理后用户接受写回，Git index/HEAD 不变、所属控制服务停止；模型请求 0 次。此前 R2 真实模型任务的授权不被本次重用。
+- [真实浏览器报告](r3/browser-report.json)：本地 Chromium/Playwright CLI 在 390×844 浏览器中下载补丁、点击接受、确认完成态、删除历史；另一个部分写回的合成任务从页面显式回滚到快照。离线注入的历史清理失败保留 `deleting` 并用同一请求重试，项目源码未变。
+- **R3 最小退出条件在固定 Windows/Node/DSH/OpenSandbox/合成现有 UTF-8 文件范围内通过。**新增/删除/重命名、真实断电、恶意并发编辑的 OS 级原子保护、用户仓库和干净发行仍未完成；P0-07/A05 与 v1 不随 R3 通过。本轮无真实模型调用、无提交/推送。
+- 本轮最终 `npm.cmd test` **80 通过/1 Windows 执行位条件跳过**，`npm.cmd run check`、`npm.cmd run build`、`npm.cmd run test:web`、`git diff --check` 通过。最终哈希复核改动后，无模型实际沙箱接受及本地浏览器脚本均再次通过。`npm.cmd pack --dry-run --json --ignore-scripts` 确认浏览器 bundle 与新增接受/历史模块进入包清单；未做干净安装或发布。CI、真实用户项目与服务商账单未复验。

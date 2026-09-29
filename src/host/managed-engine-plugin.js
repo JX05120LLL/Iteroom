@@ -34,7 +34,7 @@ export class ManagedDeepSeekAdapter extends DeepSeekAdapter {
   }
 }
 
-function renderRange(file, startLine, endLine) {
+export function renderRange(file, startLine, endLine) {
   const lines = file.text.split('\n')
   if (lines.at(-1) === '') lines.pop()
   if (!Number.isSafeInteger(startLine) || !Number.isSafeInteger(endLine)
@@ -76,6 +76,10 @@ export async function apply(ctx, config) {
   if (JSON.stringify(roster) !== JSON.stringify(['iteroom_read_snapshot'])) {
     throw Error('Managed engine tool roster contains unexpected capability')
   }
+  await configureManagedModel(ctx, config)
+}
+
+export async function configureManagedModel(ctx, config) {
   if (config.synthetic !== true) {
     const nativeFetch = globalThis.fetch
     const maxRequests = Number(process.env.ITEROOM_MODEL_MAX_REQUESTS)
@@ -87,7 +91,8 @@ export async function apply(ctx, config) {
       throw Error('Managed model output limit is invalid')
     }
     const guard = await createManagedModelGuard({ home: process.env.DSH_HOME, transport: nativeFetch,
-      maxRequests, maxOutputTokens, maxRequestBytes: 32768 })
+      maxRequests, maxOutputTokens, maxRequestBytes: 32768,
+      toolProfile: config.modify === true ? 'modify' : 'read' })
     globalThis.fetch = guard
     ctx.effect(() => () => { globalThis.fetch = nativeFetch })
     const options = resolveAdapterOptions({ baseURL: 'https://api.deepseek.com', apiKeyEnv: 'DEEPSEEK_API_KEY',

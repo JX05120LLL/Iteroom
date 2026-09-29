@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "synthetic-dsh-model-actual-opensandbox",
+  "modelCalled": false,
+  "cancelledDuringRunningLoop": true,
+  "taskStatus": "cancelled",
+  "failureCode": "ENGINE_CANCELLED",
+  "sandboxStatus": "cleaned",
+  "requestCount": 0,
+  "executionStates": [],
+  "hostUnchanged": true,
+  "serviceStopped": true
+}

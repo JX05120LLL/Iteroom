@@ -3,6 +3,7 @@ import { TaskStore, defaultTaskDataHome } from './host/task-store.js'
 import { ManagedTaskStore } from './host/managed-task-store.js'
 import { createManagedTaskRoutes } from './host/managed-task-route.js'
 import { ManagedTaskCoordinator } from './host/managed-task-coordinator.js'
+import { ManagedModifyCoordinator } from './host/managed-modify-coordinator.js'
 import { loadManagedModelKey } from './host/managed-model-key.js'
 
 export const inject = ['connection', 'sessionController']
@@ -34,7 +35,11 @@ export function apply(ctx) {
       maxOutputTokens: Number(process.env.ITEROOM_MANAGED_MAX_OUTPUT_TOKENS ?? 256),
     },
   })
+  const modifyCoordinator = new ManagedModifyCoordinator(managedTasks, {
+    modelKey: () => loadManagedModelKey(process.cwd()),
+  })
   ctx.effect(() => () => managedCoordinator.dispose(), 'iteroom: stop managed read-only engine')
+  ctx.effect(() => () => modifyCoordinator.dispose(), 'iteroom: stop managed sandbox engine')
 
   ctx.on('agent/pre-step', async ({ agent, turn, signal }, next) => {
     const decision = await next()
@@ -65,7 +70,7 @@ export function apply(ctx) {
     fetch: async () => json({ cwd: process.cwd() }),
   }), 'iteroom: authenticated launch project route')
 
-  for (const route of createManagedTaskRoutes(managedTasks, managedCoordinator)) {
+  for (const route of createManagedTaskRoutes(managedTasks, managedCoordinator, modifyCoordinator)) {
     ctx.effect(() => ctx.connection.fetch.register(route), 'iteroom: authenticated managed task entry')
   }
 

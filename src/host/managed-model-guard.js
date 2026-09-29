@@ -8,35 +8,54 @@ const HEADERS = new Set(['authorization', 'content-type', 'accept', 'user-agent'
   'x-deepseek-harness-user-id', 'x-deepseek-harness-session-id', 'x-deepseek-harness-compact'])
 const FIELDS = new Set(['model', 'messages', 'tools', 'tool_choice', 'max_tokens', 'stream',
   'stream_options', 'thinking', 'temperature', 'stop'])
+const TOOL_ARGUMENTS = {
+  iteroom_read_snapshot: { path: 'string', startLine: 'number', endLine: 'number' },
+  iteroom_replace_file: { path: 'string', content: 'string' },
+  iteroom_run_tests: {},
+}
+const TOOL_PROFILES = {
+  read: ['iteroom_read_snapshot'],
+  modify: ['iteroom_read_snapshot', 'iteroom_replace_file', 'iteroom_run_tests'],
+}
 
 function plain(value) { return value !== null && typeof value === 'object' && !Array.isArray(value) }
 function keysWithin(value, allowed) { return plain(value) && Object.keys(value).every(key => allowed.has(key)) }
-function validToolCall(call) {
+function validToolCall(call, allowed) {
   if (!keysWithin(call, new Set(['id', 'type', 'function'])) || call.type !== 'function'
     || !keysWithin(call.function, new Set(['name', 'arguments']))
-    || call.function.name !== 'iteroom_read_snapshot'
+    || !allowed.includes(call.function.name)
     || typeof call.function.arguments !== 'string' || call.function.arguments.length > 4096) return false
   let args
   try { args = JSON.parse(call.function.arguments) } catch { return false }
-  return keysWithin(args, new Set(['path', 'startLine', 'endLine']))
-    && typeof args.path === 'string' && args.path.length <= 240
-    && Number.isSafeInteger(args.startLine) && Number.isSafeInteger(args.endLine)
+  const expected = TOOL_ARGUMENTS[call.function.name]
+  return keysWithin(args, new Set(Object.keys(expected)))
+    && Object.keys(args).sort().join(',') === Object.keys(expected).sort().join(',')
+    && Object.entries(expected).every(([key, type]) => type === 'number'
+      ? Number.isSafeInteger(args[key]) : typeof args[key] === 'string')
+    && (args.path === undefined || args.path.length <= 240)
+    && (args.content === undefined || args.content.length <= 262144)
 }
-function validTool(tool) {
+function validTool(tool, allowed) {
   if (!keysWithin(tool, new Set(['type', 'function'])) || tool.type !== 'function'
     || !keysWithin(tool.function, new Set(['name', 'description', 'parameters']))
-    || tool.function.name !== 'iteroom_read_snapshot') return false
+    || !allowed.includes(tool.function.name)) return false
   const parameters = tool.function.parameters
+  const expected = TOOL_ARGUMENTS[tool.function.name]
   return plain(parameters) && parameters.type === 'object'
-    && plain(parameters.properties) && Object.keys(parameters.properties).sort().join(',') === 'endLine,path,startLine'
-    && Array.isArray(parameters.required) && parameters.required.slice().sort().join(',') === 'endLine,path,startLine'
+    && plain(parameters.properties)
+    && Object.keys(parameters.properties).sort().join(',') === Object.keys(expected).sort().join(',')
+    && Object.entries(expected).every(([key, type]) => parameters.properties[key]?.type === type)
+    && (Array.isArray(parameters.required) ? parameters.required.slice().sort().join(',') : '')
+      === Object.keys(expected).sort().join(',')
 }
-function validBody(body, maxOutputTokens) {
+function validBody(body, maxOutputTokens, allowed) {
   if (!keysWithin(body, FIELDS) || body.model !== 'deepseek-flash' || body.stream !== true
     || !Number.isSafeInteger(body.max_tokens) || body.max_tokens < 1 || body.max_tokens > maxOutputTokens
     || !plain(body.thinking) || body.thinking.type !== 'disabled' || Object.keys(body.thinking).length !== 1
     || !Array.isArray(body.messages) || body.messages.length < 1 || body.messages.length > 32
-    || !Array.isArray(body.tools) || body.tools.length !== 1 || !validTool(body.tools[0])) return false
+    || !Array.isArray(body.tools) || body.tools.length !== allowed.length
+    || body.tools.map(tool => tool?.function?.name).sort().join(',') !== allowed.slice().sort().join(',')
+    || !body.tools.every(tool => validTool(tool, allowed))) return false
   for (const message of body.messages) {
     if (!keysWithin(message, new Set(['role', 'content', 'tool_calls', 'tool_call_id', 'name']))
       || !['system', 'user', 'assistant', 'tool'].includes(message.role)
@@ -44,14 +63,14 @@ function validBody(body, maxOutputTokens) {
         && message.content === null && Array.isArray(message.tool_calls))
       || message.tool_calls !== undefined && (message.role !== 'assistant'
         || !Array.isArray(message.tool_calls) || message.tool_calls.length < 1
-        || message.tool_calls.length > 4 || !message.tool_calls.every(validToolCall))
+        || message.tool_calls.length > 4 || !message.tool_calls.every(call => validToolCall(call, allowed)))
       || message.tool_call_id !== undefined && (typeof message.tool_call_id !== 'string'
         || message.tool_call_id.length > 512)
-      || message.name !== undefined && message.name !== 'iteroom_read_snapshot') return false
+      || message.name !== undefined && !allowed.includes(message.name)) return false
   }
   if (body.tool_choice !== undefined && !['auto', 'none', 'required'].includes(body.tool_choice)
     && !(plain(body.tool_choice) && body.tool_choice.type === 'function'
-      && body.tool_choice.function?.name === 'iteroom_read_snapshot')) return false
+      && allowed.includes(body.tool_choice.function?.name))) return false
   if (body.stream_options !== undefined && (!plain(body.stream_options)
     || body.stream_options.include_usage !== true || Object.keys(body.stream_options).length !== 1)) return false
   if (body.temperature !== undefined && (!Number.isFinite(body.temperature)
@@ -61,15 +80,17 @@ function validBody(body, maxOutputTokens) {
 
 /** Reserve each bounded provider request on disk before transport. This is a request cap, not provider-side billing control. */
 export async function createManagedModelGuard({ home, transport, maxRequests = 4,
-  maxOutputTokens = 256, maxRequestBytes = 32768 } = {}) {
+  maxOutputTokens = 256, maxRequestBytes = 32768, toolProfile = 'read' } = {}) {
   if (!isAbsolute(home ?? '') || typeof transport !== 'function'
+    || !Object.hasOwn(TOOL_PROFILES, toolProfile)
     || !Number.isSafeInteger(maxRequests) || maxRequests < 1 || maxRequests > 4
     || !Number.isSafeInteger(maxOutputTokens) || maxOutputTokens < 1 || maxOutputTokens > 512
     || !Number.isSafeInteger(maxRequestBytes) || maxRequestBytes < 1 || maxRequestBytes > 32768) {
     throw new TaskEntryError('MODEL_GUARD_CONFIG_INVALID', 503)
   }
+  const allowed = TOOL_PROFILES[toolProfile]
   const identity = createHash('sha256').update(JSON.stringify({ route: ROUTE, model: 'deepseek-flash',
-    maxRequests, maxOutputTokens, maxRequestBytes })).digest('hex')
+    maxRequests, maxOutputTokens, maxRequestBytes, toolProfile })).digest('hex')
   const journalPath = join(home, 'model-attempts.json')
   let attempts = 0
   try {
@@ -94,7 +115,7 @@ export async function createManagedModelGuard({ home, transport, maxRequests = 4
       || Buffer.byteLength(init.body) > maxRequestBytes) throw new TaskEntryError('MODEL_REQUEST_SCOPE_DENIED', 403)
     let body
     try { body = JSON.parse(init.body) } catch { throw new TaskEntryError('MODEL_REQUEST_SCOPE_DENIED', 403) }
-    if (!validBody(body, maxOutputTokens)) throw new TaskEntryError('MODEL_REQUEST_SCOPE_DENIED', 403)
+    if (!validBody(body, maxOutputTokens, allowed)) throw new TaskEntryError('MODEL_REQUEST_SCOPE_DENIED', 403)
     const reserve = queue.then(async () => {
       if (poisoned) throw new TaskEntryError('MODEL_JOURNAL_INVALID', 503)
       init.signal?.throwIfAborted()

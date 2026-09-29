@@ -113,6 +113,8 @@ R1-2 新增 `POST /api/iteroom/managed-tasks/read`，只接受已选文件，并
 
 R1-3 新增 `POST /api/iteroom/managed-tasks/snapshot`：从受限读取固定任务选定文本至项目外目录，持久化清单哈希 `snapshotId`。当前独立引擎只通过 `readManagedSnapshotFile` 并按文件哈希复核副本；损坏不回退当前工作树。此为应用层固定输入，多文件采集非 OS 原子；旧 Web Profile 仍有宿主工具。
 
+R2 [限定实现与证据](r2/EVIDENCE.md)在同一项目外任务 Store 增加 `modify`、sandbox allocation/cleanup、execution 与 artifact 关联。启动先固定选定文件，SDK 1.1.0 在回环服务创建 deny 网络、无宿主 bind 的固定镜像沙箱，实际 ID 先持久化再导入；每任务独立 `sdk-minimal` CLI 禁用旧宿主执行项，只注册快照读取、选定源文件沙箱替换和固定 `node --test` 三工具。SDK 远端 executionId、退出码、输出摘要与限额单独记录；停止后确认 API 404 才标记清理，运行中命令无可确认退出码时记 `interrupted`。R2 候选补丁在项目外按任务/快照/输入哈希存储，导出前核对沙箱文件清单与记录；目前仅现有选定 UTF-8 源文件的 whole-file 修改，测试文件不可改。R3 [限定实现](r3/PLAN.md)严格重建该格式的前后字节、校验哈希后预览冲突，用户接受时记录逐文件 `pending/writing/written`，原子替换单文件；中断显式 `finish/rollback`，旧 R2 产物保持可读。清理历史使用 `deleting` 标记和受管目录限制。新文件、删除和重命名未接线。旧完整 Web Profile 仍是另一路入口，不因这个 Patch 自动获得隔离保证。
+
 事件以 taskId + 递增 seq 关联并支持游标重连；持久化事实后再发布。重复事件幂等投影，客户端游标不足时拉取完整状态。跨进程无 exactly-once 保证：副作用按 executionId 和实际状态核对；不确定时转 interrupted 而非自动重试。
 
 ## 7. 工作区写回与恢复
@@ -121,7 +123,7 @@ R1-3 新增 `POST /api/iteroom/managed-tasks/snapshot`：从受限读取固定�
 
 导出补丁先校验路径、类型、变更侧和体积。接受前锁定本项目写回流程，重新核对目标文件；文件未改变时写入，变化时报告冲突。该锁不阻止用户编辑器，逐文件写入前仍须重核，防止检查后变化。
 
-跨多个文件不承诺单一原子事务。先保存目标文件可恢复副本与写回日志，再受控执行；中断时识别已写/未写项。恢复或回滚只在目标仍匹配本次已写哈希时执行，避免覆盖中途用户编辑。Git index 不自动修改，自动 commit/push 不在流程内。
+跨多个文件不承诺单一原子事务。R3 当前使用 R2 项目外固定快照作为可恢复的前侧，并把逐文件写回日志存在任务记录；每个文件写前重核哈希并以同目录临时文件替换，结束前再核对全部最终哈希。重启后遗留 `applying` 只转 `interrupted`，不自动重放。恢复或回滚仅处理仍匹配快照前哈希或本次产物后哈希的文件，外部编辑导致冲突并停止。Git index 不自动修改，自动 commit/push 不在流程内；检查到替换的极短窗口没有 OS 级跨编辑器原子 CAS 保证。
 
 ## 8. 安全与技术验证门槛
 

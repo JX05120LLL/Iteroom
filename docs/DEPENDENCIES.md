@@ -7,7 +7,7 @@
 | Cordis 配套发行版 | [DSH vendor/cordis](https://github.com/deepseek-ai/deepseek-harness/tree/master/vendor/cordis) | 插件、依赖和生命周期 | 本地 4.0.2 包 manifest 为 MIT；不是泛用 cordis 包的可互换承诺 |
 | DeepSeek Harness | [官方仓库](https://github.com/deepseek-ai/deepseek-harness) | Loop、模型契约及最小兼容服务；必要持久化/provider | 当前全量 0.1.5-rc.3；本地已检查 Loop/Cordis 包为 MIT，最终包集合逐项审计 |
 | OpenCodeReview | [官方仓库](https://github.com/alibaba/open-code-review) | Delegate 文件/规则准备、选择性规则参考 | 产品未接入；研究 SHA 486022d；R0 验证官方 v1.12.9 / bccbc15f Windows amd64；[Apache-2.0](https://github.com/alibaba/open-code-review/blob/main/LICENSE) |
-| OpenSandbox | [官方仓库](https://github.com/opensandbox-group/OpenSandbox) | TypeScript SDK、Docker 沙箱执行服务 | 独立实际 PoC，未接产品；SDK 1.1.0/服务 SHA 4a56195；[Apache-2.0](https://github.com/opensandbox-group/OpenSandbox/blob/main/LICENSE) |
+| OpenSandbox | [官方仓库](https://github.com/opensandbox-group/OpenSandbox) | TypeScript SDK、Docker 沙箱执行服务 | R2 受管隔离修改直接依赖 SDK 1.1.0；服务沿用项目外固定安装/SHA 4a56195，未捆绑发行；[Apache-2.0](https://github.com/opensandbox-group/OpenSandbox/blob/main/LICENSE) |
 
 DSH 包内 UI 可以继续作为迁移期基线；目标产品 API、任务状态和交互由 Iteroom 定义。凡复用上游 UI、规则、工具或算法，都保留来源说明，不因品牌修改改变代码归属。
 

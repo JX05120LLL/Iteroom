@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "local-browser-synthetic-artifact",
+  "browser": "playwright-cli",
+  "viewport": "390x844",
+  "modelRequests": 0,
+  "patchDownloaded": true,
+  "accepted": true,
+  "hostSourceChanged": true,
+  "historyDeleted": true,
+  "partialWriteRollbackCompleted": true
+}

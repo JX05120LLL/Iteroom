@@ -10,10 +10,12 @@ import styles, { stylesheet } from './ui.module.css'
 import { TaskReview } from './task-review.js'
 import { stylesheet as taskReviewStylesheet } from './task-review.module.css'
 import { ManagedUnderstand } from './managed-understand.js'
+import { ManagedModify } from './managed-modify.js'
 import { stylesheet as managedUnderstandStylesheet } from './managed-understand.module.css'
 
 const CALL_PANEL = 'iteroom.call' as MainPanelId
 const UNDERSTAND_PANEL = 'iteroom.understand' as MainPanelId
+const MODIFY_PANEL = 'iteroom.modify' as MainPanelId
 const ICON = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="M10 54V28C10 16 19 7 31 7h2c12 0 21 9 21 21v26" stroke="#254D42" stroke-width="5" stroke-linecap="round"/><path d="M23 54V31a9 9 0 0 1 18 0v23" stroke="#254D42" stroke-width="5" stroke-linecap="round"/><path d="M10 54h13m18 0h13" stroke="#B2644C" stroke-width="5" stroke-linecap="round"/></svg>',
 )
@@ -244,6 +246,9 @@ export function apply(ctx: Context): void {
       yield ctx.slots.register({ name: 'main', key: UNDERSTAND_PANEL }, ManagedUnderstand)
       yield ctx.slots.register({ name: 'sidebar.panellist', id: UNDERSTAND_PANEL, order: 350,
         label: '代码理解' }, TextTaskIcon)
+      yield ctx.slots.register({ name: 'main', key: MODIFY_PANEL }, ManagedModify)
+      yield ctx.slots.register({ name: 'sidebar.panellist', id: MODIFY_PANEL, order: 375,
+        label: '隔离修改' }, TextTaskIcon)
       yield ctx.slots.register({ name: 'main', key: CALL_PANEL,
         inject: () => ({ returnToChat }) }, CallPage)
       yield ctx.slots.register({ name: 'sidebar.panellist', id: CALL_PANEL, order: 400,

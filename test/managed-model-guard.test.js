@@ -73,3 +73,29 @@ test('explicit 512-token and four-request cap is enforced before transport', asy
   assert.equal(calls, 4)
   assert.equal(JSON.parse(await readFile(join(home, 'model-attempts.json'), 'utf8')).attempts, 4)
 })
+
+test('modify profile permits only the three bounded sandbox tool schemas', async t => {
+  const home = await mkdtemp(join(tmpdir(), 'iteroom-r2-model-'))
+  t.after(() => rm(home, { recursive: true, force: true }))
+  let calls = 0
+  const guard = await createManagedModelGuard({ home, toolProfile: 'modify', maxRequests: 1,
+    transport: async () => { calls++; return new Response('ok') } })
+  const route = 'https://api.deepseek.com/chat/completions'
+  const bounded = request()
+  const body = JSON.parse(bounded.body)
+  body.tools.push({ type: 'function', function: { name: 'iteroom_replace_file',
+    description: 'Replace selected sandbox file', parameters: { type: 'object',
+      properties: { path: { type: 'string' }, content: { type: 'string' } }, required: ['path', 'content'] } } })
+  body.tools.push({ type: 'function', function: { name: 'iteroom_run_tests',
+    description: 'Run fixed tests', parameters: { type: 'object', properties: {}, required: [] } } })
+  body.messages.push({ role: 'assistant', content: null, tool_calls: [{ id: 'call-1', type: 'function',
+    function: { name: 'iteroom_replace_file', arguments: JSON.stringify({ path: 'greet.mjs', content: 'fixed' }) } }] })
+  body.messages.push({ role: 'tool', tool_call_id: 'call-1', name: 'iteroom_replace_file', content: 'done' })
+  bounded.body = JSON.stringify(body)
+  assert.equal((await guard(route, bounded)).status, 200)
+  assert.equal(calls, 1)
+  const extra = { ...bounded, body: JSON.stringify({ ...body, tools: [...body.tools,
+    { type: 'function', function: { name: 'host_shell', parameters: {} } }] }) }
+  await assert.rejects(guard(route, extra), { code: 'MODEL_REQUEST_SCOPE_DENIED' })
+  assert.equal(calls, 1)
+})
