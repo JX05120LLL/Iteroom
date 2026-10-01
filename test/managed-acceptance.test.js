@@ -84,6 +84,70 @@ test('discard leaves source untouched and cannot later accept', async t => {
   await assert.rejects(accept.accept(f.taskId, 'accept-1'), { code: 'ACCEPT_STATE_CONFLICT' })
 })
 
+test('overlapping accept requests cannot orphan the active writer', { timeout: 10000 }, async t => {
+  const f = await fixture(t, 2)
+  const entered = Promise.withResolvers(), releaseClaim = Promise.withResolvers()
+  const secondClaim = Promise.withResolvers(), written = Promise.withResolvers()
+  const releaseWrite = Promise.withResolvers()
+  const begin = f.store.beginAcceptance.bind(f.store)
+  let claims = 0
+  f.store.beginAcceptance = async (...args) => {
+    if (claims++ === 0) { entered.resolve(); await releaseClaim.promise }
+    else { secondClaim.resolve(); await written.promise }
+    return begin(...args)
+  }
+  const acceptance = new ManagedAcceptance(f.store, { afterWrite: async index => {
+    if (index === 0) { written.resolve(); await releaseWrite.promise }
+  } })
+  const first = acceptance.accept(f.taskId, 'overlap-first')
+  try {
+    await entered.promise
+    const second = acceptance.accept(f.taskId, 'overlap-second').then(
+      task => ({ task }), error => ({ error }))
+    await Promise.race([secondClaim.promise, second])
+    releaseClaim.resolve()
+    await written.promise
+    assert.equal((await second).error?.code, 'ACCEPT_STATE_CONFLICT')
+    await acceptance.initialize()
+    assert.equal((await f.store.get(f.taskId)).status, 'applying',
+      'a rejected decision must not make a live write look orphaned')
+    await assert.rejects(acceptance.discard(f.taskId, 'overlap-discard'), { code: 'ACCEPT_STATE_CONFLICT' })
+    await assert.rejects(acceptance.recover(f.taskId, 'overlap-recover', 'rollback'), { code: 'ACCEPT_STATE_CONFLICT' })
+  } finally {
+    releaseClaim.resolve(); releaseWrite.resolve()
+    await first
+  }
+  assert.equal((await f.store.get(f.taskId)).status, 'completed')
+  assert.equal(await readFile(join(f.project, 'file1.mjs'), 'utf8'), 'export const x1=2\n')
+})
+
+test('overlapping recovery decisions keep the first requested mode', { timeout: 10000 }, async t => {
+  const f = await fixture(t, 2)
+  await assert.rejects(new ManagedAcceptance(f.store, { afterWrite: async index => {
+    if (index === 0) throw Error('synthetic stop')
+  } }).accept(f.taskId, 'recover-overlap-start'))
+  const acceptance = new ManagedAcceptance(f.store)
+  const entered = Promise.withResolvers(), release = Promise.withResolvers()
+  const files = acceptance.files.bind(acceptance)
+  let calls = 0
+  acceptance.files = async taskId => {
+    if (calls++ === 0) { entered.resolve(); await release.promise }
+    return files(taskId)
+  }
+  const first = acceptance.recover(f.taskId, 'recover-overlap-finish', 'finish')
+  try {
+    await entered.promise
+    await assert.rejects(acceptance.recover(f.taskId, 'recover-overlap-rollback', 'rollback'),
+      { code: 'ACCEPT_STATE_CONFLICT' })
+    await assert.rejects(acceptance.discard(f.taskId, 'recover-overlap-discard'),
+      { code: 'ACCEPT_STATE_CONFLICT' })
+    assert.equal(await readFile(join(f.project, 'file0.mjs'), 'utf8'), 'export const x0=2\n')
+  } finally { release.resolve(); await first }
+  assert.equal((await f.store.get(f.taskId)).status, 'completed')
+  assert.equal(await readFile(join(f.project, 'file1.mjs'), 'utf8'), 'export const x1=2\n')
+  assert.equal((await acceptance.recover(f.taskId, 'recover-overlap-finish', 'finish')).status, 'completed')
+})
+
 test('partial write remains visible and recovery refuses external edits', async t => {
   const f = await fixture(t, 2)
   const accept = new ManagedAcceptance(f.store, { afterWrite: async index => {

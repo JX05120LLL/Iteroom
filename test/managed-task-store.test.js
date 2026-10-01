@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { ManagedTaskStore } from '../src/host/managed-task-store.js'
+import { spawn } from 'node:child_process'
+import { ManagedTaskStore, renameTaskFile } from '../src/host/managed-task-store.js'
 
 async function fixture(t) {
   const root = await mkdtemp(join(tmpdir(), 'iteroom-r1-task-'))
@@ -15,6 +16,59 @@ async function fixture(t) {
 }
 
 const input = { requestId: 'request-1', kind: 'understand', objective: 'Explain the selected file', paths: ['README.md'] }
+
+test('Windows atomic task replacement retries only the same rename while keeping the previous record', async t => {
+  const { root } = await fixture(t), target = join(root, 'task.json'), temporary = join(root, 'task.tmp')
+  await writeFile(target, 'old'); await writeFile(temporary, 'new')
+  const waits = [], calls = []
+  await renameTaskFile(temporary, target, { platform: 'win32', wait: async ms => { waits.push(ms) },
+    replace: async (...paths) => {
+      calls.push(paths)
+      if (calls.length <= 2) {
+        assert.equal(await readFile(target, 'utf8'), 'old')
+        throw Object.assign(Error('synthetic sharing violation'), { code: 'EPERM' })
+      }
+      await rename(...paths)
+    } })
+  assert.deepEqual(waits, [25, 50])
+  assert.deepEqual(calls, Array.from({ length: 3 }, () => [temporary, target]))
+  assert.equal(await readFile(target, 'utf8'), 'new')
+  if (process.platform === 'win32') {
+    await writeFile(target, 'old'); await writeFile(temporary, 'new')
+    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+      "$reviewRecord = [System.IO.File]::Open($env:ITEROOM_TASK_LOCK_FILE, 'Open', 'Read', 'Read'); [Console]::Out.WriteLine('locked'); [Console]::Out.Flush(); [Console]::ReadLine() | Out-Null; $reviewRecord.Dispose()"], {
+      windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'],
+      env: { SystemRoot: process.env.SystemRoot, WINDIR: process.env.WINDIR, ITEROOM_TASK_LOCK_FILE: target },
+    })
+    t.after(() => { if (child.exitCode === null && child.signalCode === null) child.kill() })
+    const exited = new Promise((done, reject) => { child.once('close', done); child.once('error', reject) })
+    await new Promise((done, reject) => {
+      const timer = setTimeout(() => reject(Error('synthetic lock timeout')), 10000)
+      child.stdout.once('data', () => { clearTimeout(timer); done() })
+      child.once('error', error => { clearTimeout(timer); reject(error) })
+    })
+    const codes = []
+    await renameTaskFile(temporary, target, { replace: async (...paths) => {
+      try { await rename(...paths) }
+      catch (error) { codes.push(error.code); child.stdin.write('release\n'); throw error }
+    } })
+    assert.equal(await exited, 0)
+    assert.equal(codes[0], 'EPERM')
+    assert.equal(await readFile(target, 'utf8'), 'new')
+  }
+})
+
+test('persistent task rename denial is bounded and unrelated errors or platforms are not retried', async t => {
+  const { root } = await fixture(t), target = join(root, 'task.json'), temporary = join(root, 'task.tmp')
+  await writeFile(target, 'old'); await writeFile(temporary, 'new')
+  for (const [platform, code, expected] of [['win32', 'EPERM', 6], ['win32', 'EBUSY', 6], ['win32', 'ENOSPC', 1], ['linux', 'EPERM', 1]]) {
+    let calls = 0
+    await assert.rejects(renameTaskFile(temporary, target, { platform, wait: async () => {},
+      replace: async () => { calls++; throw Object.assign(Error('synthetic denied'), { code }) } }), { code })
+    assert.equal(calls, expected)
+    assert.equal(await readFile(target, 'utf8'), 'old')
+  }
+})
 
 test('managed read task is durable, scoped to one project and idempotent across Store instances', async t => {
   const { root, project, dataHome } = await fixture(t)

@@ -51,7 +51,7 @@ export class ManagedHistory {
   async delete(taskId, requestId) {
     await this.store.markHistoryDeleting(taskId, requestId)
     const location = await this.store.location()
-    for (const name of ['managed-artifacts-v1', 'managed-snapshots-v1']) {
+    for (const name of ['managed-artifacts-v1', 'managed-snapshots-v1', 'managed-reviews-v1']) {
       const root = join(this.store.dataHome, name)
       try { await this.removeFolder(root, location.projectId, taskId, location.project, this.store.dataHome) }
       catch (error) { if (error.code !== 'ENOENT') throw error }

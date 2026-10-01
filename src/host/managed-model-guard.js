@@ -12,10 +12,12 @@ const TOOL_ARGUMENTS = {
   iteroom_read_snapshot: { path: 'string', startLine: 'number', endLine: 'number' },
   iteroom_replace_file: { path: 'string', content: 'string' },
   iteroom_run_tests: {},
+  iteroom_review_context: { groupId: 'number' },
 }
 const TOOL_PROFILES = {
   read: ['iteroom_read_snapshot'],
   modify: ['iteroom_read_snapshot', 'iteroom_replace_file', 'iteroom_run_tests'],
+  review: ['iteroom_review_context'],
 }
 
 function plain(value) { return value !== null && typeof value === 'object' && !Array.isArray(value) }

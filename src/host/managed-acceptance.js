@@ -120,7 +120,14 @@ async function verifyTargets(project, files, side) {
 
 export class ManagedAcceptance {
   constructor(store, { afterWrite = async () => {} } = {}) {
-    this.store = store; this.afterWrite = afterWrite; this.active = new Set()
+    this.store = store; this.afterWrite = afterWrite; this.active = new Set(); this.decisions = new Set()
+  }
+
+  async #withDecision(taskId, action) {
+    if (this.decisions.has(taskId)) throw new TaskEntryError('ACCEPT_STATE_CONFLICT', 409)
+    this.decisions.add(taskId)
+    try { return await action() }
+    finally { this.decisions.delete(taskId) }
   }
 
   async initialize() {
@@ -159,6 +166,10 @@ export class ManagedAcceptance {
   }
 
   async accept(taskId, requestId) {
+    return this.#withDecision(taskId, () => this.#acceptCandidate(taskId, requestId))
+  }
+
+  async #acceptCandidate(taskId, requestId) {
     await this.initialize()
     const { task, files, project } = await this.files(taskId)
     if (task.status === 'completed' && task.acceptance?.requestId === requestId) return task
@@ -190,13 +201,19 @@ export class ManagedAcceptance {
   }
 
   async discard(taskId, requestId) {
-    await this.initialize()
-    const task = await this.store.get(taskId)
-    if (task.artifactId) await this.files(taskId)
-    return this.store.discardArtifact(taskId, requestId)
+    return this.#withDecision(taskId, async () => {
+      await this.initialize()
+      const task = await this.store.get(taskId)
+      if (task.artifactId) await this.files(taskId)
+      return this.store.discardArtifact(taskId, requestId)
+    })
   }
 
   async recover(taskId, requestId, mode) {
+    return this.#withDecision(taskId, () => this.#recoverCandidate(taskId, requestId, mode))
+  }
+
+  async #recoverCandidate(taskId, requestId, mode) {
     await this.initialize()
     if (!['finish', 'rollback'].includes(mode)) throw new TaskEntryError('INVALID_ACCEPT_INPUT', 400)
     const { task, files, project } = await this.files(taskId)

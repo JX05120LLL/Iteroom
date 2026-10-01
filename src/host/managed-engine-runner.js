@@ -16,7 +16,7 @@ function within(parent, child) {
   return path === '' || path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path)
 }
 
-function progressPipe(child, onText) {
+export function managedEngineProgress(child, onText) {
   const pipe = child.stdio[3]
   if (!pipe) throw new TaskEntryError('ENGINE_PROGRESS_PIPE_MISSING', 503)
   let line = '', pending = '', total = 0, failure, timer
@@ -62,7 +62,7 @@ function progressPipe(child, onText) {
   }
 }
 
-function client(child, timeoutMs, signal) {
+export function managedEngineClient(child, timeoutMs, signal) {
   const pending = new Map(), notifications = [], listeners = new Set()
   let nextId = 0, stdout = '', bytes = 0, stderrBytes = 0, ended = false, fatal
   const wake = () => { for (const listener of listeners) listener() }
@@ -232,8 +232,8 @@ export async function runManagedUnderstand({ store, taskId, provider, model, mod
   const child = spawn(process.execPath, [cli, '--profile', 'sdk-minimal', '--patch', join(home, 'managed.patch.yml')], {
     cwd: location.project, env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
   })
-  const rpc = client(child, timeoutMs, signal)
-  const progress = progressPipe(child, onText)
+  const rpc = managedEngineClient(child, timeoutMs, signal)
+  const progress = managedEngineProgress(child, onText)
   try {
     await onProcess?.(child.pid)
     const hello = await rpc.request('initialize', { cwd: location.project, provider, model,
@@ -294,8 +294,8 @@ export async function runManagedModify({ store, taskId, sandboxId, sandboxKey, p
   const child = spawn(process.execPath, [cli, '--profile', 'sdk-minimal', '--patch', join(home, 'managed.patch.yml')], {
     cwd: location.project, env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
   })
-  const rpc = client(child, timeoutMs, signal)
-  const progress = progressPipe(child)
+  const rpc = managedEngineClient(child, timeoutMs, signal)
+  const progress = managedEngineProgress(child)
   try {
     const hello = await rpc.request('initialize', { cwd: location.project, provider, model,
       maxTokens: maxOutputTokens })

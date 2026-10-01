@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-01",
+  "evidenceKind": "r3-synthetic-retest-with-concurrency-regression",
+  "code": {
+    "baseCommit": "3d21332f91f0c05190be16d264e5f050ea759e25",
+    "uncommittedFix": true,
+    "acceptanceSha256": "6e12165d245f54cb13bfdd3def6978124407d75fdd570bb625cd56dd911766d3",
+    "testSha256": "3c1e39e9d96dd4c92772c31ffcecb2fb46d422cc7810fda412815f4c84f4b623"
+  },
+  "environment": {
+    "platform": "win32",
+    "node": "v24.14.0",
+    "python": "3.10.20",
+    "dockerLinux": "29.4.0",
+    "dsh": "0.1.5-rc.3",
+    "opensandboxSdk": "1.1.0",
+    "opensandboxServer": "0.1.0.dev1+g4a5619524"
+  },
+  "checks": {
+    "r3Focused": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    "allTests": {
+      "total": 83,
+      "passed": 82,
+      "failed": 0,
+      "skipped": 1,
+      "skipReason": "Windows Git executable-bit changes unavailable"
+    },
+    "typecheck": true,
+    "build": true,
+    "webSmoke": true,
+    "packageDryRun": {
+      "entries": 24,
+      "acceptanceIncluded": true,
+      "historyIncluded": true,
+      "clientIncluded": true
+    }
+  },
+  "regression": {
+    "beforeFix": {
+      "overlappingAccept": "failed",
+      "expectedStatus": "applying",
+      "actualStatus": "interrupted"
+    },
+    "afterFix": {
+      "overlappingAccept": true,
+      "overlappingRecovery": true,
+      "concurrentDiscardRejected": true,
+      "completedRetryPreserved": true
+    },
+    "scope": "one ManagedAcceptance instance shared by one Host route"
+  },
+  "sandbox": {
+    "schemaVersion": 1,
+    "evidenceKind": "synthetic-dsh-model-actual-opensandbox",
+    "modelCalled": false,
+    "cancelledDuringRunningLoop": false,
+    "taskStatus": "awaiting_review",
+    "failureCode": null,
+    "sandboxStatus": "cleaned",
+    "requestCount": 0,
+    "maxRequests": 4,
+    "maxOutputTokensPerRequest": 512,
+    "executionStates": [
+      {
+        "kind": "test",
+        "status": "completed",
+        "exitCode": 0
+      }
+    ],
+    "hostUnchanged": true,
+    "patchSha256": "e64a2851158bf92f12a35ae09a8fba029012adb44aa8641a20e55f5a57399f97",
+    "changeCount": 1,
+    "patchApplicable": true,
+    "acceptedStatus": "completed",
+    "acceptedSourceSha256": "4e7445013d3a4ee54fe507197003db209f1c849d15d82b8dca1480aa295b3a44",
+    "headUnchangedAfterAccept": true,
+    "indexUnchangedAfterAccept": true,
+    "serviceStopped": true
+  },
+  "browser": {
+    "browser": "playwright-cli",
+    "viewport": "390x844",
+    "modelRequests": 0,
+    "patchDownloaded": true,
+    "accepted": true,
+    "sourceChanged": true,
+    "historyDeleted": true,
+    "recoveryRolledBack": true
+  },
+  "resourceAudit": {
+    "containerCountBefore": 7,
+    "containerCountAfter": 7,
+    "containerSetRestored": true,
+    "volumeCountBefore": 9,
+    "volumeCountAfter": 9,
+    "volumeSetRestored": true,
+    "ownedProbeProcesses": 0,
+    "sandboxPortListeners": 0
+  },
+  "environmentRepair": {
+    "initialPreflight": "process_failed",
+    "cause": "missing installed Python package files; six then dateutil import errors",
+    "sameVersionPackagesRestored": 14,
+    "linkMode": "copy",
+    "scope": "external synthetic OpenSandbox venv only",
+    "serverConfigChanged": false,
+    "projectDependenciesChanged": false
+  },
+  "modelRequests": 0,
+  "userSourceSent": false,
+  "unverified": [
+    "real-model-latest-R3-chain",
+    "real-user-repository",
+    "sudden-power-loss",
+    "cross-process-or-cross-editor-atomicity",
+    "added-deleted-renamed-patches",
+    "clean-install-and-release"
+  ]
+}

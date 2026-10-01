@@ -99,3 +99,26 @@ test('modify profile permits only the three bounded sandbox tool schemas', async
   await assert.rejects(guard(route, extra), { code: 'MODEL_REQUEST_SCOPE_DENIED' })
   assert.equal(calls, 1)
 })
+
+test('review profile accepts only fixed group reads and reserves capped requests before transport', async t => {
+  const home = await mkdtemp(join(tmpdir(), 'iteroom-r4-model-'))
+  t.after(() => rm(home, { recursive: true, force: true }))
+  let calls = 0
+  const guard = await createManagedModelGuard({ home, toolProfile: 'review', maxRequests: 1, maxOutputTokens: 512,
+    transport: async () => { calls++; return new Response('ok') } })
+  const init = request(), body = JSON.parse(init.body), route = 'https://api.deepseek.com/chat/completions'
+  body.tools = [{ type: 'function', function: { name: 'iteroom_review_context', description: 'Read fixed group',
+    parameters: { type: 'object', properties: { groupId: { type: 'number' } }, required: ['groupId'] } } }]
+  body.messages.push({ role: 'assistant', content: null, tool_calls: [{ id: 'read-group', type: 'function',
+    function: { name: 'iteroom_review_context', arguments: '{"groupId":1}' } }] })
+  const post = value => guard(route, { ...init, body: JSON.stringify(value) })
+  await assert.rejects(post({ ...body, max_tokens: 513 }), { code: 'MODEL_REQUEST_SCOPE_DENIED' })
+  await assert.rejects(post({ ...body, tools: JSON.parse(request().body).tools }), { code: 'MODEL_REQUEST_SCOPE_DENIED' })
+  const invalid = structuredClone(body)
+  invalid.messages[1].tool_calls[0].function.arguments = '{"groupId":1,"path":"/private"}'
+  await assert.rejects(post(invalid), { code: 'MODEL_REQUEST_SCOPE_DENIED' })
+  assert.equal(calls, 0)
+  assert.equal((await post(body)).status, 200)
+  await assert.rejects(post(body), { code: 'MODEL_REQUEST_LIMIT' })
+  assert.equal(calls, 1)
+})

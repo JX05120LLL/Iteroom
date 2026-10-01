@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import styles from './managed-understand.module.css'
+import { emptyTaskSelection, type ManagedTaskSelection } from './managed-navigation.js'
 
 interface Execution { id: string; kind: string; command: string; status: string; exitCode?: number | null; outputBytes?: number; outputExcerpt?: string }
 interface Task { id: string; kind: string; objective: string; paths: string[]; status: string;
   sandboxStatus?: string; failureCode?: string; executions?: Execution[]; changeCount?: number; artifactId?: string;
-  acceptance?: { entries: Array<{ path: string; state: string }> } }
+  acceptance?: { entries: Array<{ path: string; state: string }> }; reviewOrigin?: { reviewTaskId: string; findingId: string; path: string } }
 interface Artifact { patch: string; sha256: string; changes: Array<{ path: string; kind: string; beforeSha256: string; afterSha256: string }> }
 interface Preview { files: Array<{ path: string; status: 'ready' | 'applied' | 'conflict' }>; verification: Execution | null }
 const API = '/api/iteroom/managed-tasks'
@@ -17,6 +18,11 @@ const messages: Record<string, string> = {
   RUN_ALREADY_STARTED: '该任务已经启动，不会自动重试。', SANDBOX_TEST_SCOPE_DENIED: '请选择至少一个源文件和一个 .test.mjs 测试文件。',
   ACCEPT_CONFLICT: '本地目标文件已变化或路径不安全。没有继续覆盖；请导出补丁并检查文件。',
   ACCEPT_STATE_CONFLICT: '当前任务不能执行该决定；请刷新任务状态。',
+  REVIEW_FIX_INPUT_CHANGED: '修复输入与原审查不匹配，已拒绝启动。',
+  REVIEW_RECHECK_NOT_ACCEPTED: '需要先接受关联修复补丁，再固定复查输入。',
+  REVIEW_RECHECK_INPUT_CHANGED: '源码或测试已与本次修复结果不同，请重新审查当前变更。',
+  REVIEW_RECHECK_TARGET_MISSING: '修复目标已不在工作树变更范围内，当前无法建立此类复查。',
+  HISTORY_REFERENCED: '此记录仍被复查任务引用，请先删除复查记录。',
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
@@ -33,9 +39,13 @@ function post<T>(action: string, body: unknown) {
   return api<T>(`/${action}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
 }
 
-export function ManagedModify() {
+export function ManagedModify({ openReview, selection = emptyTaskSelection }: {
+  openReview?: (taskId: string) => void; selection?: ManagedTaskSelection
+} = {}) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const requestedId = useSyncExternalStore(selection.subscribe, selection.getSnapshot)
+  useEffect(() => { if (requestedId) setSelectedId(requestedId) }, [requestedId])
   const [objective, setObjective] = useState('')
   const [paths, setPaths] = useState('')
   const [busy, setBusy] = useState(false)
@@ -47,6 +57,7 @@ export function ManagedModify() {
   const cancelIds = useRef(new Map<string, string>())
   const decisionIds = useRef(new Map<string, string>())
   const deleteIds = useRef(new Map<string, string>())
+  const recheckIds = useRef(new Map<string, string>())
 
   useEffect(() => {
     let active = true, timer: ReturnType<typeof setTimeout> | undefined
@@ -133,6 +144,12 @@ export function ManagedModify() {
     link.href = url; link.download = `iteroom-${selected.id}.patch`; link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
+  const recheck = (task: Task) => void act(async () => {
+    const requestId = recheckIds.current.get(task.id) ?? crypto.randomUUID()
+    recheckIds.current.set(task.id, requestId)
+    const result = await post<{ task: { id: string } }>('review/recheck', { taskId: task.id, requestId })
+    openReview?.(result.task.id)
+  })
   const activeTask = tasks.some(task => ['queued', 'running', 'cancelling', 'applying'].includes(task.status)
     || task.status === 'interrupted' && !!task.acceptance)
   return <section className={styles.panel} data-iteroom-managed-modify="true" aria-label="受管隔离修改">
@@ -150,6 +167,14 @@ export function ManagedModify() {
           <div className={styles.taskTop}><span className={styles.taskLabel}>当前任务</span>
             <span className={styles.status} data-status={selected.status}>{labels[selected.status] ?? selected.status}</span></div>
           <h3>{selected.objective}</h3>
+          {selected.reviewOrigin && <div className={styles.actions}>
+            <span>关联审查候选 · {selected.reviewOrigin.path} · 来源 {selected.reviewOrigin.reviewTaskId.slice(0, 8)}</span>
+            <button className={styles.secondary} type="button" disabled={busy || !openReview}
+              onClick={() => openReview?.(selected.reviewOrigin!.reviewTaskId)}>查看原审查</button>
+            {selected.status === 'completed' && <button className={styles.secondary} type="button" disabled={busy || !openReview}
+              onClick={() => recheck(selected)}>固定修复后输入复查</button>}
+          </div>}
+          {selected.reviewOrigin && selected.status === 'completed' && <p className={styles.hint}>复查会固定当前工作树全部变更，需保持源码和测试与本次接受结果一致；修复文件须仍在变更范围内。此动作不启动模型，旧报告不代表修复后结果。</p>}
           <ul className={styles.pathList}>{selected.paths.map(path => <li key={path}><code>{path}</code></li>)}</ul>
           {selected.status === 'queued' && <div className={styles.actions}>
             <button className={styles.primary} type="button" disabled={busy} onClick={() => start(selected)}>固定输入并在沙箱执行</button>

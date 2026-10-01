@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "date": "2026-10-01",
+  "slice": "R4-1",
+  "status": "passed_with_limits",
+  "r4Complete": false,
+  "v1Complete": false,
+  "baselineCommit": "3d21332f91f0c05190be16d264e5f050ea759e25",
+  "uncommitted": true,
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v24.14.0",
+    "git": "git version 2.47.1.windows.2"
+  },
+  "ocr": {
+    "version": "v1.12.9",
+    "sourceCommit": "bccbc15f785269400735d5255540c231e6c02b6d",
+    "executableSha256": "ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1",
+    "schemaVersion": "1",
+    "source": "https://github.com/alibaba/open-code-review/releases/tag/v1.12.9",
+    "actualCli": true
+  },
+  "syntheticInputsOnly": true,
+  "realModelRequests": 0,
+  "userSourceTransmitted": false,
+  "actualSandboxRerun": false,
+  "committed": false,
+  "pushed": false,
+  "checks": {
+    "reviewFocused": {
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "actualCliTests": 2,
+      "injectedOrSyntheticTests": 6
+    },
+    "npmTestWithOcr": {
+      "total": 92,
+      "passed": 91,
+      "failed": 0,
+      "skipped": 1,
+      "skipReason": "Windows executable Git mode unavailable"
+    },
+    "r0ReviewRegression": {
+      "total": 49,
+      "passed": 49,
+      "failed": 0,
+      "skipped": 0,
+      "actualCliTests": 3,
+      "executedSeparately": true
+    },
+    "typecheck": "passed",
+    "build": "passed",
+    "webSmoke": {
+      "status": "passed",
+      "model": "local_stub"
+    },
+    "packDryRun": {
+      "files": 36,
+      "sharedReviewModules": 10,
+      "newHostModulesIncluded": true,
+      "clientIncluded": true,
+      "cleanInstall": false,
+      "published": false
+    }
+  },
+  "actualProductModes": [
+    {
+      "mode": "workspace",
+      "entries": 7,
+      "pendingInference": 6,
+      "excluded": 1,
+      "headIndexStatusUnchanged": true,
+      "testedVia": "ManagedReviewCoordinator with actual pinned Delegate"
+    },
+    {
+      "mode": "commit",
+      "entries": 7,
+      "pendingInference": 6,
+      "excluded": 1,
+      "headIndexStatusUnchanged": true,
+      "testedVia": "ManagedReviewCoordinator with actual pinned Delegate"
+    },
+    {
+      "mode": "range",
+      "entries": 7,
+      "pendingInference": 6,
+      "excluded": 1,
+      "headIndexStatusUnchanged": true,
+      "testedVia": "ManagedReviewCoordinator with actual pinned Delegate"
+    }
+  ],
+  "extraExclusions": {
+    "entries": 9,
+    "untrackedProviderVisible": true,
+    "secretRedacted": true,
+    "excludedDiffRedacted": true
+  },
+  "browser": {
+    "status": "passed",
+    "driver": "playwright-cli",
+    "viewport": "390x844",
+    "actualCli": true,
+    "workspacePrepared": true,
+    "testIncluded": true,
+    "deletedOldDiff": true,
+    "providerRedacted": true,
+    "inferenceDisabled": true,
+    "historicalModeForms": true,
+    "historicalModeExecuted": false,
+    "cancelled": true,
+    "historyDeleted": true,
+    "headIndexStatusUnchanged": true,
+    "horizontalOverflow": false
+  },
+  "failureBoundaries": {
+    "sameOriginBodyQueryChecked": true,
+    "fixedReceiptRetry": true,
+    "concurrentPrepareCoalesced": true,
+    "cancelWaitsForCleanup": true,
+    "tamperedRecordRejected": true,
+    "unsafeGitConfigRejected": true,
+    "unconfirmedTerminationPersistentlyBlocked": true,
+    "terminationFailureWasInjected": true,
+    "rawDiagnosticPersisted": false,
+    "jsonFieldOrderIdempotent": true
+  },
+  "limits": {
+    "maxFiles": 100,
+    "maxFileBytes": 262144,
+    "maxSidesBytes": 1048576,
+    "maxDiffBytes": 1048576,
+    "maxGitObjects": 1000,
+    "maxGitObjectBytes": 16777216,
+    "maxCliOutputBytes": 1048576,
+    "cliTimeoutMs": 10000
+  },
+  "sourceSha256": {
+    "package.json": "aa049cb1d9617760ed2bc8d58c000d172303080f9f9da9462d4f355ea05f8735",
+    "scripts/r4/browser-smoke.mjs": "b2fa7d94af721bf3902c8b127bdafece81cc8411f74af4915e46d41ca956e23e",
+    "src/client/index.tsx": "f80d4f5be6e67f310a4f91841e34c3dbfb14d9df7008d03efb60636dab137157",
+    "src/client/managed-review.module.css": "f131ab197041a61370118730170c18cb6e9ddfffffff6503f73d832f02d6493f",
+    "src/client/managed-review.tsx": "200ed3fbc845a4783d861c063c5e0b70c5b056b3ef972d793fddc5b929f2c6b0",
+    "src/host/managed-history.js": "6dc36c6b3a3f5494487c6fd874bc9ae07986be1af25f408447b1dbb8c23665d1",
+    "src/host/managed-review-coordinator.js": "23025b1118a5b8616292331b0569970562140c6cc2c3ed4f54809c8d7d48e1fe",
+    "src/host/managed-review-snapshot.js": "ae7e7514530101450bf9fc9821e752a2da3934aebd46a4457db5d0768e3e1ea8",
+    "src/host/managed-task-route.js": "f491676a42a9eca5531e6c68056ad4bd1304d3e20b685476ec8d57fe94334bf3",
+    "src/host/managed-task-store.js": "f618d310b4d0915ea8eb26c73506a74961b678bfa2ce1126f33ca88539ddc3fa",
+    "src/host/review/delegate.js": "5bba03dafad1c4b3e9043c6f4beba15685d340f5732e4b7b7004220c6f271f11",
+    "src/host/review/fixed-review-copy.js": "e93d5cb04815db8b4329349ae91d56bef63fab8cd0738df6601bf926a5f3486d",
+    "src/host/review/git.js": "d6a3970e3f1254727956cdf1a0a6eac2b3bcaa6e5146ba07d7538c8959e7a8f0",
+    "src/host/review/ocr-cli.js": "85a9ff0624ba49c67824ec33b7f994e655821c1d2978ccd93819f0a45a638ca6",
+    "src/host/review/ocr-contract.js": "222d162d63baabc7c592d0dd5e707b0e4458da2523e5213b77bc740f6e1f4630",
+    "src/host/review/ocr-process.js": "022a596781e9bf3ebdb265249015c2ef8560d73684af92e47a45d1c32b21f28f",
+    "src/host/review/review-files.js": "e22273e7d8af12903e197149842684c2376de384ff84b7a2f0dc3f0666daf359",
+    "src/host/review/review-git-boundary.js": "af6fdb7bee3e34f7ba6bed9474a487af0ffec7a23d40c86d1248a4199b0a1abe",
+    "src/host/review/review-input.js": "ef27700929c4e5198f3feee407b20ac8da58c1157dffec07510cf5e0e024d8e0",
+    "src/host/review/selection.js": "e2ae71dd3a92252fe68d0e85adad0ce28e438a020726bd73db7bd9ef7a314e11",
+    "src/index.js": "37bf7d87d3b735bf2c2248a2c8923cd6414889adaff39a1a3cc4a092c03ccbfa",
+    "test/managed-review.test.js": "dce003e6322e5efec8495afaeb22cf783d1274c0356b8e367ffabd003f53ec2c",
+    "test/managed-task-route.test.js": "eba4e5633e3821fca8ab6765477989ea933c235d913ad213befc2a4bf1e6e933"
+  },
+  "unverified": [
+    "review_inference",
+    "review_budget_and_group_execution",
+    "finding_location",
+    "associated_fix_and_fresh_review",
+    "history_modes_executed_in_browser",
+    "real_model",
+    "user_repository",
+    "multiple_hosts",
+    "atomic_capture",
+    "readonly_os_copy",
+    "cleanup_pending_release_action",
+    "additional_patch_types",
+    "other_platforms",
+    "clean_install",
+    "release"
+  ]
+}

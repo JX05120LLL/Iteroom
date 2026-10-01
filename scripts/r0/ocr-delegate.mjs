@@ -1,25 +1,15 @@
 import { createHash } from 'node:crypto'
-import { createReadStream } from 'node:fs'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve, isAbsolute } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { failure, runBounded } from './ocr-process.mjs'
 import { modeArgs, parsePreview, parseRules } from './ocr-contract.mjs'
 import { createFixture, git, gitChanges } from './ocr-fixture.mjs'
 
-export const OCR_PIN = Object.freeze({ version: 'v1.12.9', sourceCommit: 'bccbc15f785269400735d5255540c231e6c02b6d',
-  asset: 'opencodereview-windows-amd64.exe', sha256: 'ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1',
-  source: 'https://github.com/alibaba/open-code-review/releases/tag/v1.12.9' })
+import { OCR_PIN, verifyExecutable } from '../../src/host/review/ocr-cli.js'
+export { OCR_PIN, verifyExecutable }
 const digest = x => createHash('sha256').update(x).digest('hex')
-export async function verifyExecutable(executable) {
-  if (!executable || !isAbsolute(executable)) throw failure('cli_unavailable')
-  if (process.platform !== 'win32' || process.arch !== 'x64') throw failure('platform_unverified')
-  const hash = createHash('sha256')
-  try { for await (const bytes of createReadStream(executable)) hash.update(bytes) }
-  catch { throw failure('cli_unavailable') }
-  if (hash.digest('hex') !== OCR_PIN.sha256) throw failure('binary_mismatch')
-}
 function requireFact(condition) { if (!condition) throw failure('probe_assertion') }
 async function fingerprint(fixture) {
   const entries = (await git(fixture, ['ls-files', '-z'])).split('\0').filter(Boolean)

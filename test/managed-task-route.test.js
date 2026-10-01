@@ -108,3 +108,45 @@ test('run actions require same-origin bounded JSON and delegate only exact task/
   assert.equal((await post(cancel, { taskId: 'task-1', requestId: 'cancel-1' })).status, 200)
   assert.deepEqual(calls, [['start', 'task-1', 'start-1'], ['cancel', 'task-1', 'cancel-1']])
 })
+
+test('review routes keep same-origin, body and query boundaries and hide private failures', async () => {
+  const calls = []
+  const review = {
+    prepare: async value => { calls.push(['prepare', value]); return { created: true, task: { id: 'review-1' } } },
+    preparation: async id => { calls.push(['read', id]); return { id: 'fixed-1' } },
+    cancel: async (...args) => { calls.push(['cancel', ...args]); return { id: args[0], status: 'cancelled' } },
+  }
+  const inference = { ...review, start: async (...args) => { calls.push(['start', ...args]); return { id: args[0] } },
+    plan: async id => ({ id }), result: async id => ({ id }) }
+  const routes = createManagedTaskRoutes({}, {}, undefined, undefined, undefined, review, inference)
+  const prepare = routes.find(route => route.path.endsWith('/review/prepare'))
+  const read = routes.find(route => route.path.endsWith('/review/preparation'))
+  const cancel = routes.find(route => route.path.endsWith('/review/cancel'))
+  const body = { requestId: 'review-route', input: { mode: 'workspace' } }
+  const request = (route, payload, origin = 'http://127.0.0.1:3000') => new Request(`http://dsh.internal${route.path}`, {
+    method: 'POST', headers: { host: '127.0.0.1:3000', origin, 'content-type': 'application/json' }, body: payload,
+  })
+  assert.equal((await prepare.fetch(request(prepare, JSON.stringify(body), 'https://foreign.example'))).status, 403)
+  assert.equal((await prepare.fetch(request(prepare, JSON.stringify({ ...body, repo: '/private' })))).status, 400)
+  assert.equal((await prepare.fetch(request(prepare, 'x'.repeat(8193)))).status, 413)
+  assert.equal((await read.fetch(new Request(`http://dsh.internal${read.path}?taskId=a&taskId=b`))).status, 400)
+  assert.equal(calls.length, 0)
+  assert.equal((await prepare.fetch(request(prepare, JSON.stringify(body)))).status, 201)
+  assert.equal((await read.fetch(new Request(`http://dsh.internal${read.path}?taskId=review-1`))).status, 200)
+  assert.equal((await cancel.fetch(request(cancel, JSON.stringify({ taskId: 'review-1', requestId: 'cancel-route' })))).status, 200)
+  assert.deepEqual(calls, [['prepare', body], ['read', 'review-1'], ['cancel', 'review-1', 'cancel-route']])
+  const start = routes.find(route => route.path.endsWith('/review/start'))
+  assert.equal((await start.fetch(request(start, '{bad'))).status, 400)
+  assert.equal((await start.fetch(request(start, JSON.stringify({ taskId: 'review-1', requestId: 'start', path: '/private' })))).status, 400)
+  assert.equal((await start.fetch(request(start, JSON.stringify({ taskId: 'review-1', requestId: 'start' }), 'https://foreign.example'))).status, 403)
+  assert.equal((await start.fetch(request(start, JSON.stringify({ taskId: 'review-1', requestId: 'start' })))).status, 202)
+  for (const action of ['plan', 'result']) {
+    const route = routes.find(route => route.path.endsWith(`/review/${action}`))
+    assert.equal((await route.fetch(new Request(`http://dsh.internal${route.path}?taskId=a&taskId=b`))).status, 400)
+    assert.equal((await route.fetch(new Request(`http://dsh.internal${route.path}?taskId=review-1`))).status, 200)
+  }
+  review.prepare = async () => { throw Error('private source or credentials') }
+  const failure = await prepare.fetch(request(prepare, JSON.stringify(body)))
+  assert.equal(failure.status, 503)
+  assert.deepEqual(await failure.json(), { code: 'TASK_ENTRY_UNAVAILABLE' })
+})

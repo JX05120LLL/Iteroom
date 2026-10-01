@@ -4,6 +4,9 @@ import { ManagedTaskStore } from './host/managed-task-store.js'
 import { createManagedTaskRoutes } from './host/managed-task-route.js'
 import { ManagedTaskCoordinator } from './host/managed-task-coordinator.js'
 import { ManagedModifyCoordinator } from './host/managed-modify-coordinator.js'
+import { ManagedReviewCoordinator } from './host/managed-review-coordinator.js'
+import { ManagedReviewInference } from './host/managed-review-inference.js'
+import { ManagedReviewFix } from './host/managed-review-fix.js'
 import { loadManagedModelKey } from './host/managed-model-key.js'
 
 export const inject = ['connection', 'sessionController']
@@ -38,8 +41,16 @@ export function apply(ctx) {
   const modifyCoordinator = new ManagedModifyCoordinator(managedTasks, {
     modelKey: () => loadManagedModelKey(process.cwd()),
   })
+  const reviewCoordinator = new ManagedReviewCoordinator(managedTasks)
+  const reviewInference = new ManagedReviewInference(managedTasks, {
+    modelKey: () => loadManagedModelKey(process.cwd()), preparer: reviewCoordinator,
+  })
+  const reviewFix = new ManagedReviewFix(managedTasks, { preparer: reviewCoordinator })
   ctx.effect(() => () => managedCoordinator.dispose(), 'iteroom: stop managed read-only engine')
   ctx.effect(() => () => modifyCoordinator.dispose(), 'iteroom: stop managed sandbox engine')
+  ctx.effect(() => () => reviewCoordinator.dispose(), 'iteroom: finish local review preparation')
+  ctx.effect(() => () => reviewInference.dispose(), 'iteroom: stop managed review engine')
+  ctx.effect(() => () => reviewFix.dispose(), 'iteroom: finish linked review preparation')
 
   ctx.on('agent/pre-step', async ({ agent, turn, signal }, next) => {
     const decision = await next()
@@ -70,7 +81,8 @@ export function apply(ctx) {
     fetch: async () => json({ cwd: process.cwd() }),
   }), 'iteroom: authenticated launch project route')
 
-  for (const route of createManagedTaskRoutes(managedTasks, managedCoordinator, modifyCoordinator)) {
+  for (const route of createManagedTaskRoutes(managedTasks, managedCoordinator, modifyCoordinator,
+    undefined, undefined, reviewCoordinator, reviewInference, reviewFix)) {
     ctx.effect(() => ctx.connection.fetch.register(route), 'iteroom: authenticated managed task entry')
   }
 

@@ -2,7 +2,7 @@ import { lstat, readFile, realpath } from 'node:fs/promises'
 import { isAbsolute, relative, sep } from 'node:path'
 import { Sandbox, SandboxManager } from '@alibaba-group/opensandbox'
 import { TaskEntryError } from './managed-task-store.js'
-import { captureManagedSnapshot } from './managed-snapshot.js'
+import { captureManagedSnapshot, readManagedSnapshotFile } from './managed-snapshot.js'
 import { openManagedSandbox, exportManagedPatch } from './managed-sandbox.js'
 import { saveManagedArtifact } from './managed-artifact.js'
 import { runManagedModify } from './managed-engine-runner.js'
@@ -93,6 +93,9 @@ export class ManagedModifyCoordinator {
     const key = await this.modelKey()
     if (typeof key !== 'string' || !key) throw new TaskEntryError('MODEL_NOT_CONFIGURED', 503)
     await captureManagedSnapshot(this.store, taskId)
+    if (task.reviewOrigin && (await readManagedSnapshotFile(this.store, taskId, task.reviewOrigin.path)).sha256 !== task.reviewOrigin.sourceSha256) {
+      throw new TaskEntryError('REVIEW_FIX_INPUT_CHANGED', 409)
+    }
     const claim = await this.store.claimModify(taskId, requestId)
     if (!claim.created) return claim.task
     const controller = new AbortController()

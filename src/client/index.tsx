@@ -11,11 +11,15 @@ import { TaskReview } from './task-review.js'
 import { stylesheet as taskReviewStylesheet } from './task-review.module.css'
 import { ManagedUnderstand } from './managed-understand.js'
 import { ManagedModify } from './managed-modify.js'
+import { ManagedReview } from './managed-review.js'
+import { managedTaskSelection } from './managed-navigation.js'
+import { stylesheet as managedReviewStylesheet } from './managed-review.module.css'
 import { stylesheet as managedUnderstandStylesheet } from './managed-understand.module.css'
 
 const CALL_PANEL = 'iteroom.call' as MainPanelId
 const UNDERSTAND_PANEL = 'iteroom.understand' as MainPanelId
 const MODIFY_PANEL = 'iteroom.modify' as MainPanelId
+const REVIEW_PANEL = 'iteroom.review-preparation' as MainPanelId
 const ICON = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><path d="M10 54V28C10 16 19 7 31 7h2c12 0 21 9 21 21v26" stroke="#254D42" stroke-width="5" stroke-linecap="round"/><path d="M23 54V31a9 9 0 0 1 18 0v23" stroke="#254D42" stroke-width="5" stroke-linecap="round"/><path d="M10 54h13m18 0h13" stroke="#B2644C" stroke-width="5" stroke-linecap="round"/></svg>',
 )
@@ -170,7 +174,7 @@ export function apply(ctx: Context): void {
   ctx.effect(() => {
     const style = document.createElement('style')
     style.dataset.iteroomUi = 'true'
-    style.textContent = stylesheet + '\n' + taskReviewStylesheet + '\n' + managedUnderstandStylesheet
+    style.textContent = stylesheet + '\n' + taskReviewStylesheet + '\n' + managedUnderstandStylesheet + '\n' + managedReviewStylesheet
     document.head.append(style)
     const restoreBrand = installPageBrand()
     return () => { restoreBrand(); style.remove() }
@@ -228,6 +232,9 @@ export function apply(ctx: Context): void {
 
   const openCall = () => ctx.layout.selectPanel(CALL_PANEL)
   const returnToChat = () => ctx.layout.selectPanel(null)
+  const modifySelection = managedTaskSelection(), reviewSelection = managedTaskSelection()
+  const openModify = (taskId: string) => { modifySelection.select(taskId); ctx.layout.selectPanel(MODIFY_PANEL) }
+  const openReview = (taskId: string) => { reviewSelection.select(taskId); ctx.layout.selectPanel(REVIEW_PANEL) }
 
   ctx.slots.inject('sidebar.brand.mark', () =>
     ctx.slots.register({ name: 'sidebar.brand.mark' }, IteroomMark))
@@ -246,9 +253,14 @@ export function apply(ctx: Context): void {
       yield ctx.slots.register({ name: 'main', key: UNDERSTAND_PANEL }, ManagedUnderstand)
       yield ctx.slots.register({ name: 'sidebar.panellist', id: UNDERSTAND_PANEL, order: 350,
         label: '代码理解' }, TextTaskIcon)
-      yield ctx.slots.register({ name: 'main', key: MODIFY_PANEL }, ManagedModify)
+      yield ctx.slots.register({ name: 'main', key: MODIFY_PANEL,
+        inject: () => ({ openReview, selection: modifySelection }) }, ManagedModify)
       yield ctx.slots.register({ name: 'sidebar.panellist', id: MODIFY_PANEL, order: 375,
         label: '隔离修改' }, TextTaskIcon)
+      yield ctx.slots.register({ name: 'main', key: REVIEW_PANEL,
+        inject: () => ({ openModify, selection: reviewSelection }) }, ManagedReview)
+      yield ctx.slots.register({ name: 'sidebar.panellist', id: REVIEW_PANEL, order: 385,
+        label: '变更审查' }, TextTaskIcon)
       yield ctx.slots.register({ name: 'main', key: CALL_PANEL,
         inject: () => ({ returnToChat }) }, CallPage)
       yield ctx.slots.register({ name: 'sidebar.panellist', id: CALL_PANEL, order: 400,

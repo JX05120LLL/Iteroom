@@ -4,6 +4,7 @@ import { TaskEntryError } from './managed-task-store.js'
 
 const pluginPath = fileURLToPath(new URL('./managed-engine-plugin.js', import.meta.url))
 const modifyPluginPath = fileURLToPath(new URL('./managed-modify-plugin.js', import.meta.url))
+const reviewPluginPath = fileURLToPath(new URL('./managed-review-plugin.js', import.meta.url))
 export const DISABLED_HOST_ROWS = ['sandbox', 'sandbox-policy', 'subprocess', 'pty',
   'terminal-bash', 'terminal-pwsh', 'jobs', 'persistent-bash', 'persistent-pwsh', 'llm-retry', 'llm-deepseek']
 
@@ -45,4 +46,8 @@ export function managedModifyPatch({ dataHome, projectRoot, taskId, sandboxId, m
     + '        modify: true\n'
     + (mockAdapterPath ? '        synthetic: true\n' : '')
     + (mockAdapterPath ? `    - id: iteroom-managed-modify-engine-mock\n      name: ${JSON.stringify(mockAdapterPath)}\n` : '')
+}
+
+export function managedReviewPatch(options = {}) {
+  return managedEnginePatch(options).replace(JSON.stringify(pluginPath), JSON.stringify(reviewPluginPath))
 }

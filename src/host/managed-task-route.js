@@ -6,6 +6,9 @@ import { ManagedTaskCoordinator } from './managed-task-coordinator.js'
 import { readManagedArtifact } from './managed-artifact.js'
 import { ManagedAcceptance } from './managed-acceptance.js'
 import { ManagedHistory } from './managed-history.js'
+import { ManagedReviewCoordinator } from './managed-review-coordinator.js'
+import { ManagedReviewInference } from './managed-review-inference.js'
+import { ManagedReviewFix } from './managed-review-fix.js'
 
 const MAX_BODY_BYTES = 8192
 const headers = { 'Cache-Control': 'no-store', 'Content-Type': 'application/json; charset=utf-8', 'X-Content-Type-Options': 'nosniff' }
@@ -48,13 +51,17 @@ function safeResponse(error) {
 /** The fixed carrier buffers GET bodies, so the bounded POST has a distinct streaming path. */
 export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoordinator(store), modifyCoordinator,
   acceptance = modifyCoordinator ? new ManagedAcceptance(store) : undefined,
-  history = modifyCoordinator ? new ManagedHistory(store) : undefined) {
+  history = modifyCoordinator ? new ManagedHistory(store) : undefined,
+  reviewCoordinator = new ManagedReviewCoordinator(store),
+  reviewInference = new ManagedReviewInference(store, { preparer: reviewCoordinator }),
+  reviewFix = new ManagedReviewFix(store, { preparer: reviewCoordinator })) {
   return [{ path: '/api/iteroom/managed-tasks', methods: ['GET'], requestBody: 'buffered',
     fetch: async request => {
       try {
         await coordinator.initialize?.()
         await modifyCoordinator?.initialize?.()
         await acceptance?.initialize?.()
+        await reviewInference.initialize?.()
         const params = new URL(request.url).searchParams
         if ([...params.keys()].some(key => key !== 'taskId') || params.getAll('taskId').length > 1) {
           throw new TaskEntryError('INVALID_TASK_ID', 400)
@@ -143,7 +150,64 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
       } catch (error) { return safeResponse(error) }
     },
   })),
+  { path: '/api/iteroom/managed-tasks/review/preparation', methods: ['GET'], requestBody: 'buffered',
+    fetch: async request => {
+      try {
+        const params = new URL(request.url).searchParams
+        if ([...params.keys()].join(',') !== 'taskId' || params.getAll('taskId').length !== 1) {
+          throw new TaskEntryError('INVALID_REVIEW_INPUT', 400)
+        }
+        return json({ preparation: await reviewCoordinator.preparation(params.get('taskId')) })
+      } catch (error) { return safeResponse(error) }
+    } },
+  ...['plan', 'result'].map(action => ({
+    path: `/api/iteroom/managed-tasks/review/${action}`, methods: ['GET'], requestBody: 'buffered',
+    fetch: async request => {
+      try {
+        await reviewInference.initialize?.()
+        const params = new URL(request.url).searchParams
+        if ([...params.keys()].join(',') !== 'taskId' || params.getAll('taskId').length !== 1) throw new TaskEntryError('INVALID_REVIEW_INPUT', 400)
+        return json({ [action]: await reviewInference[action](params.get('taskId')) })
+      } catch (error) { return safeResponse(error) }
+    },
+  })),
+  ...['prepare', 'start', 'cancel'].map(action => ({
+    path: `/api/iteroom/managed-tasks/review/${action}`, methods: ['POST'], requestBody: 'streaming',
+    fetch: async request => {
+      try {
+        if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+        if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+          throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+        }
+        if (new URL(request.url).search) throw new TaskEntryError('INVALID_REVIEW_INPUT', 400)
+        const input = await boundedJson(request)
+        if (!input || typeof input !== 'object' || Array.isArray(input)
+          || Object.keys(input).sort().join(',') !== (action === 'prepare' ? 'input,requestId' : 'requestId,taskId')
+          || typeof input.requestId !== 'string' || action !== 'prepare' && typeof input.taskId !== 'string') {
+          throw new TaskEntryError('INVALID_REVIEW_INPUT', 400)
+        }
+        if (action !== 'prepare') return json({ task: await reviewInference[action](input.taskId, input.requestId) }, action === 'start' ? 202 : 200)
+        const result = await reviewCoordinator.prepare(input)
+        return json(result, result.created ? 201 : 200)
+      } catch (error) { return safeResponse(error) }
+    },
+  })),
   ...(modifyCoordinator ? [
+    ...['fix', 'recheck'].map(action => ({
+      path: `/api/iteroom/managed-tasks/review/${action}`, methods: ['POST'], requestBody: 'streaming',
+      fetch: async request => {
+        try {
+          if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+          if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+            throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+          }
+          if (new URL(request.url).search) throw new TaskEntryError('INVALID_REVIEW_FIX_INPUT', 400)
+          const input = await boundedJson(request)
+          const result = await reviewFix[action === 'fix' ? 'create' : 'recheck'](input)
+          return json(result, result.created ? 201 : 200)
+        } catch (error) { return safeResponse(error) }
+      },
+    })),
     { path: '/api/iteroom/managed-tasks/history/delete', methods: ['POST'], requestBody: 'streaming',
       fetch: async request => {
         try {
@@ -158,6 +222,7 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
             || typeof input.taskId !== 'string' || typeof input.requestId !== 'string') {
             throw new TaskEntryError('INVALID_HISTORY_INPUT', 400)
           }
+          await reviewFix.whenPrepared?.(input.taskId)
           return json(await history.delete(input.taskId, input.requestId))
         } catch (error) { return safeResponse(error) }
       } },
@@ -228,6 +293,7 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
             || Object.keys(input).sort().join(',') !== 'requestId,taskId') {
             throw new TaskEntryError('INVALID_RUN_INPUT', 400)
           }
+          await reviewFix.whenPrepared?.(input.taskId)
           return json({ task: await execute(input.taskId, input.requestId) }, action === 'start' ? 202 : 200)
         } catch (error) { return safeResponse(error) }
       },

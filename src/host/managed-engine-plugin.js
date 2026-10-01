@@ -92,7 +92,7 @@ export async function configureManagedModel(ctx, config) {
     }
     const guard = await createManagedModelGuard({ home: process.env.DSH_HOME, transport: nativeFetch,
       maxRequests, maxOutputTokens, maxRequestBytes: 32768,
-      toolProfile: config.modify === true ? 'modify' : 'read' })
+      toolProfile: config.review === true ? 'review' : config.modify === true ? 'modify' : 'read' })
     globalThis.fetch = guard
     ctx.effect(() => () => { globalThis.fetch = nativeFetch })
     const options = resolveAdapterOptions({ baseURL: 'https://api.deepseek.com', apiKeyEnv: 'DEEPSEEK_API_KEY',

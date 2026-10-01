@@ -69,6 +69,10 @@ Delegate 只提供候选清单、排除原因和规则。同规则分组不等�
 
 2026-09-27 的[输入捕获扩展](r0/REVIEW-INPUT.md)只在受管合成仓库提供旧/新路径、Git blob/内容/diff 哈希与固定文本。range 使用唯一 merge-base，root 对空树，merge commit 对第一父；多最佳祖先/无共同历史拒绝。文本删除获得 old side 和规则但保持 pending_inference；binary/provider 排除可见，测试显式纳入。后续[固定副本](r0/FIXED-REVIEW-COPY.md)重建独立 objects/index/字节，CLI 改读副本并前后复验；配置/attributes 与外部存储保守拒绝。捕获不是原子的、副本未受 OS 只读保护，该 R0 模块不得直接接真实项目作为产品 WorkspaceManager。
 
+R4-1 的[实施计划](r4/PLAN.md)与[产品准备证据](r4/EVIDENCE.md)已将 Iteroom 自有 R0 输入/进程/契约模块提升到 `src/host/review`，原探针入口继续 re-export；没有复制上游 Loop 或审查 Agent。新增 `ManagedReviewCoordinator` 把当前启动项目只读采集到独立临时 Git 副本，再调用固定 CLI；`managed-reviews-v1/<projectId>/<taskId>/prepared.json` 保存固定输入、每项覆盖、规则来源/哈希。任务记录的 `reviewSnapshotId` 是完整准备 JSON 的 SHA256，`inputSha256` 是原输入捕获摘要；两者职责不同。排除文件正文/Diff 置 null。固定重试复用第一份记录，Hash 不匹配拒绝；放弃等待当前准备收束，删除仅处理项目外所属目录。原子捕获、OS 只读副本和多 Host 互斥尚未实现。
+
+当前产品只接受普通本地 SHA-1 仓库，增加 benign user/remote/branch 配置白名单，保留 filters/includes/attributes/外部对象存储/链接/子模块拒绝及对象/文件限额。CLI 每进程 10 秒、stdout+stderr 合计 1 MiB、无 shell、受控 HOME/环境；不继承模型凭证。固定版省略的未跟踪 provider 目录由 Iteroom 显式记录排除，其余缺失/未知条目拒绝，不当作“无问题”。准备失败只存安全错误码；进程终止或临时资源清理未确认时保留 `reviewCleanupPending`，重启仍阻塞，不自动再次执行。当前无自动解除此状态的产品动作，需要人工核对。准备完成保持 queued/not_started；推理分组/预算、发现与关联修复后续接入。新程序可读旧任务记录，旧程序不理解 review kind；回退前备份数据，未执行格式迁移。
+
 ## 5. OpenSandbox 接入
 
 使用 TypeScript SDK `@alibaba-group/opensandbox`，固定并记录实际验证的 SDK、服务与镜像 digest。首版只接 Docker，不引入预热池、Kubernetes 或微虚拟机调度。研究源码快照为 `4a5619524650ff7c2cbaf59626df822fce72b161`，不等同选定发行版本。
@@ -89,7 +93,11 @@ Windows 宿主优先验证 Docker/WSL2 上的 Linux 执行环境；路径、换�
 
 来源：[平台架构](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/architecture/index.md)、[SDK](https://github.com/opensandbox-group/OpenSandbox/blob/main/sdks/sandbox/javascript/README.md)、[运行时](https://github.com/opensandbox-group/OpenSandbox/blob/main/docs/guides/secure-container.md)、[Windows 客体](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/guides/windows-sandbox.md)。
 
+R4-2 的 [实现边界](r4/INFERENCE-EVIDENCE.md)：`ManagedReviewInference` 编排开始/停止/重启收据，`buildReviewPlan` 只读 preparation 生成完整上下文分组，项目外 `plan.json`/`result.json` 与任务可选 reviewPlanId/reviewReportId/reviewOutcome（格式仍 v1）关联。模型最多 4 次/512 输出 tokens；每组编码上下文 8 KiB、总 16 KiB、最多两组，超限项保持 pending。`managed-review-runner` 复用既有 RPC/进程收束，`managed-review-plugin` 在原 sdk-minimal Loop 仅注册固定组读取工具；生产模型 guard 的 review Profile 只接受该 schema。覆盖依据实际工具返回与分组响应，发现是候选；宿主在旧/新固定侧唯一匹配 quote 后产生行号。读取报告核对 Hash 并重算覆盖/定位，异常不降级读取当前源码，原始模型 JSON 和诊断不进入任务元数据。取消须等待子进程退出，无完整收据的孤立运行标 interrupted、不重放。已收束报告先落盘后任务关联，崩溃于两者间可校验补关联。记录删除清理 review 快照/计划/报告；DSH 引擎历史单独保留，全面数据清除留待 R5。真实 OCR/DSH CLI 配本地模拟模型已验，真实审查模型与关联修复未验。
+
 ## 6. 数据与接口约定
+
+R4-3 的 [关联修复协调器](r4/FIX-EVIDENCE.md)复用现有 Store、固定快照、R2/R3 与 review preparation/result。内部创建参数原子保存 `reviewOrigin` 或 `recheckOrigin`，公开普通 create 接口不能注入关系；请求去重包含关系及原始用户目标/范围，加载时检查父记录和不可变 Hash，父历史删除在同一 Store 锁内拒绝悬空关系。仅允许已定位的新侧 modified 源文件，整文件 Hash 比对后固定源码与显式测试；修改启动前再次核对固定快照 Hash，拒绝竞态产生的错误输入。`review/fix` 与 `review/recheck` 沿用同源、认证 carrier 和 8 KiB 正文限额，不直接运行模型。取消/开始/历史删除路由先等待该 Host 的关联准备 promise 收束，防止快照在已删除任务后发布；不是跨 Host 生命周期锁。复查只接受已接受的关联产物，验证源码/测试后重新调用固定 OCR，在持久化前后验证固定 new side；保持工作树全体变更覆盖。原目标恢复为无变更文件暂拒绝，报告与原发现通过新任务关系追溯，不自动判定已修复。UI 通过注入的面板选择服务跳到指定任务，不建立新执行 Loop。旧数据可读，格式仍 v1；旧程序不提供关系删除保护，回退前备份项目外数据。
 
 目标标识为 projectId、taskId、sessionId、snapshotId、sandboxId、executionId、artifactId、requestId。产品任务对 DSH Session/turn 显式关联；一个任务可包含多个 turn，不能默认一轮回答就是完整任务。
 
@@ -122,6 +130,8 @@ R2 [限定实现与证据](r2/EVIDENCE.md)在同一项目外任务 Store 增加 
 输入快照保留允许文件的任务前真实内容及哈希，包括已确认的脏工作树内容。未跟踪内容、忽略文件、符号链接、子模块、LFS、二进制和超大文件分别分类；v1 未支持的类别拒绝修改或明确仅导出，不默默遗漏。
 
 导出补丁先校验路径、类型、变更侧和体积。接受前锁定本项目写回流程，重新核对目标文件；文件未改变时写入，变化时报告冲突。该锁不阻止用户编辑器，逐文件写入前仍须重核，防止检查后变化。
+
+当前 Host 路由复用一个 `ManagedAcceptance` 实例；其决策占用在首个异步动作前建立，同一任务的重叠接受/放弃/恢复返回 `ACCEPT_STATE_CONFLICT / 409`。写回活动标记与决策占用分开，失败的第二请求不能移除首请求的活动标记；占用总在结束时释放。[2026-10-01 回归](r3/RETEST-2026-10-01.md)验证该单 Host 边界，未覆盖多 Host 进程互斥。
 
 跨多个文件不承诺单一原子事务。R3 当前使用 R2 项目外固定快照作为可恢复的前侧，并把逐文件写回日志存在任务记录；每个文件写前重核哈希并以同目录临时文件替换，结束前再核对全部最终哈希。重启后遗留 `applying` 只转 `interrupted`，不自动重放。恢复或回滚仅处理仍匹配快照前哈希或本次产物后哈希的文件，外部编辑导致冲突并停止。Git index 不自动修改，自动 commit/push 不在流程内；检查到替换的极短窗口没有 OS 级跨编辑器原子 CAS 保证。
 

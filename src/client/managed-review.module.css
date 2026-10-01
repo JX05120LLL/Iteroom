@@ -1,0 +1,20 @@
+.panel button { min-height: 44px; }
+.modes { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0; padding: 12px 0; border: 0; }
+.modes legend { color: #43544a; font-size: 12px; font-weight: 630; }
+.modes label { display: flex; align-items: center; gap: 7px; min-height: 44px; cursor: pointer; }
+.modes input { accent-color: #315b4b; }
+.hashInput { box-sizing: border-box; display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #dce4df;
+  border-radius: 8px; background: #fff; color: #22312c; font: 13px/1.6 Consolas, monospace; }
+.hashInput:focus-visible { outline: 2px solid #315b4b; outline-offset: 2px; }
+.fingerprint { display: block; color: #697b6f; font-size: 11px; overflow-wrap: anywhere; }
+.files { display: grid; gap: 8px; margin-top: 18px; }
+.files button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; }
+.files code { overflow-wrap: anywhere; min-width: 0; font-size: 12px; }
+.files span { flex-shrink: 0; font-size: 11px; }
+.files button[aria-pressed="true"] { background: #edf4ef; border-color: #7ea18d; }
+.diff { padding: 12px; max-height: 560px; font-size: 12px; }
+.historyTitle { margin: 32px 0 14px; font-size: 15px; }
+.findings { display: grid; gap: 10px; margin-top: 24px; }
+.findings button { display: grid; gap: 8px; text-align: left; }
+.findings small { color: #62766a; font-size: 11px; overflow-wrap: anywhere; }
+.highlight { background: #fff0c8; }

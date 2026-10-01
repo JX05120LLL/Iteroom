@@ -49,8 +49,16 @@ export async function readManagedFile(store, input) {
   const task = await store.get(input.taskId)
   if (!task.paths.includes(input.path)) throw new TaskEntryError('READ_PATH_DENIED', 403)
   const { project } = await store.location()
-  const file = join(project, ...input.path.split('/'))
-  const before = await inspectPath(project, input.path)
+  const value = await readManagedProjectFile(project, input.path)
+  const { text, ...metadata } = value
+  const observation = await store.recordRead(task.id, metadata)
+  return { taskId: task.id, ...observation, text }
+}
+
+/** Internal reader; callers must first validate the selected path with the task input contract. */
+export async function readManagedProjectFile(project, path) {
+  const file = join(project, ...path.split('/'))
+  const before = await inspectPath(project, path)
   if (before.size > BigInt(MAX_FILE_BYTES)) throw new TaskEntryError('READ_TOO_LARGE', 413)
   let handle
   let bytes
@@ -71,15 +79,14 @@ export async function readManagedFile(store, input) {
     if (error instanceof TaskEntryError) throw error
     throw new TaskEntryError('READ_UNAVAILABLE', 409)
   } finally { await handle?.close() }
-  const after = await inspectPath(project, input.path)
+  const after = await inspectPath(project, path)
   if (!sameFile(before, after) || BigInt(bytes.length) !== after.size) throw new TaskEntryError('READ_INPUT_CHANGED', 409)
   let text
   try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes) }
   catch { throw new TaskEntryError('READ_NOT_TEXT', 415) }
   if (text.includes('\0')) throw new TaskEntryError('READ_NOT_TEXT', 415)
-  const observation = await store.recordRead(task.id, {
-    path: input.path, sha256: createHash('sha256').update(bytes).digest('hex'),
+  return {
+    path, sha256: createHash('sha256').update(bytes).digest('hex'), text,
     byteLength: bytes.length, lineCount: text ? text.split('\n').length - Number(text.endsWith('\n')) : 0,
-  })
-  return { taskId: task.id, ...observation, text }
+  }
 }
