@@ -1,6 +1,6 @@
 # Iteroom 目标架构
 
-> 2026-09-26 · 目标设计；R0 技术 Gate 与 R1 受管只读退出条件已在固定环境/合成输入范围内通过，完整产品仍未完成。产品范围见 [PRD](PRD.md)，现状见 [STATUS](STATUS.md)。
+> 2026-09-26 · 目标设计；R0–R4 最小阶段退出条件已在各自固定环境/合成输入与选定现有文本范围内通过，完整产品仍未完成。产品范围见 [PRD](PRD.md)，现状见 [STATUS](STATUS.md)。
 
 ## 1. 总体结构
 
@@ -93,7 +93,7 @@ Windows 宿主优先验证 Docker/WSL2 上的 Linux 执行环境；路径、换�
 
 来源：[平台架构](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/architecture/index.md)、[SDK](https://github.com/opensandbox-group/OpenSandbox/blob/main/sdks/sandbox/javascript/README.md)、[运行时](https://github.com/opensandbox-group/OpenSandbox/blob/main/docs/guides/secure-container.md)、[Windows 客体](https://github.com/opensandbox-group/OpenSandbox/blob/4a5619524650ff7c2cbaf59626df822fce72b161/docs/guides/windows-sandbox.md)。
 
-R4-2 的 [实现边界](r4/INFERENCE-EVIDENCE.md)：`ManagedReviewInference` 编排开始/停止/重启收据，`buildReviewPlan` 只读 preparation 生成完整上下文分组，项目外 `plan.json`/`result.json` 与任务可选 reviewPlanId/reviewReportId/reviewOutcome（格式仍 v1）关联。模型最多 4 次/512 输出 tokens；每组编码上下文 8 KiB、总 16 KiB、最多两组，超限项保持 pending。`managed-review-runner` 复用既有 RPC/进程收束，`managed-review-plugin` 在原 sdk-minimal Loop 仅注册固定组读取工具；生产模型 guard 的 review Profile 只接受该 schema。覆盖依据实际工具返回与分组响应，发现是候选；宿主在旧/新固定侧唯一匹配 quote 后产生行号。读取报告核对 Hash 并重算覆盖/定位，异常不降级读取当前源码，原始模型 JSON 和诊断不进入任务元数据。取消须等待子进程退出，无完整收据的孤立运行标 interrupted、不重放。已收束报告先落盘后任务关联，崩溃于两者间可校验补关联。记录删除清理 review 快照/计划/报告；DSH 引擎历史单独保留，全面数据清除留待 R5。真实 OCR/DSH CLI 配本地模拟模型已验，真实审查模型与关联修复未验。
+R4-2 的 [实现边界](r4/INFERENCE-EVIDENCE.md)：`ManagedReviewInference` 编排开始/停止/重启收据，`buildReviewPlan` 只读 preparation 生成完整上下文分组，项目外 `plan.json`/`result.json` 与任务可选 reviewPlanId/reviewReportId/reviewOutcome（格式仍 v1）关联。模型最多 4 次/512 输出 tokens；每组编码上下文 8 KiB、总 16 KiB、最多两组，超限项保持 pending。`managed-review-runner` 复用既有 RPC/进程收束，`managed-review-plugin` 在原 sdk-minimal Loop 仅注册固定组读取工具；生产模型 guard 的 review Profile 只接受该 schema。覆盖依据实际工具返回与分组响应，发现是候选；宿主在旧/新固定侧唯一匹配 quote 后产生行号。读取报告核对 Hash 并重算覆盖/定位，异常不降级读取当前源码，原始模型 JSON 和诊断不进入任务元数据。取消须等待子进程退出，无完整收据的孤立运行标 interrupted、不重放。已收束报告先落盘后任务关联，崩溃于两者间可校验补关联。记录删除清理 review 快照/计划/报告；DSH 引擎历史单独保留，全面数据清除留待 R5。该段记录 R4-2 当时的实际 OCR/DSH 配 mock 范围；最新真实模型与关联修复组合见 [R4 阶段验证](r4/COMPLETION-EVIDENCE.md)。
 
 ## 6. 数据与接口约定
 
@@ -146,3 +146,7 @@ Host 负责身份/来源校验、权限审批、路径真实解析、凭证过�
 三个先行 Gate：DSH 支持的最小启动/工具挂载；OCR 三种审查输入和 JSON 契约；OpenSandbox 本机运行、取消和清理。任一失败，暂停相应主链路迁移并记录具体问题，不用 mock 冒充验证通过。
 
 许可归属见 [第三方依赖](DEPENDENCIES.md)，行为验收见 [ACCEPTANCE](ACCEPTANCE.md)。
+
+## R4 阶段退出后的架构状态
+
+2026-10-01 的 [实际证据](r4/COMPLETION-EVIDENCE.md)使用已有生产接口和方案 C UI，经官方 DeepSeek、原 DSH Loop、固定 OCR、真实 OpenSandbox、R3 接受和新输入复查完成组合。没有增加第二套 Loop 或更改产品数据格式。三种模式完整执行、覆盖/片段定位/来源、刷新及重启不重放分层验证；真实模型闭环为工作树模式，历史两种推理使用 mock。R4 最小退出在固定 Windows/合成现有文本范围通过，接下来 R5 核对配置、权限、数据管理、完整补丁类型和发行缺项。旧 carrier 仍保留全量宿主工具，受管隔离保证不外推到旧入口。

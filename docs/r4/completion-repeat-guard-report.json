@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "evidence": "same-receipt-duplicate-rejected-before-service-model-or-sandbox",
+  "expectedExit": 1,
+  "errorCode": "EEXIST",
+  "externalModelRequestsReserved": 0,
+  "cleanup": {
+    "serviceStopped": true,
+    "confirmed": true,
+    "containersUnchanged": true,
+    "volumesUnchanged": true,
+    "beforeContainers": 7,
+    "afterContainers": 7,
+    "beforeVolumes": 9,
+    "afterVolumes": 9
+  }
+}

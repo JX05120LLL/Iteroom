@@ -21,6 +21,9 @@ await verifyExecutable(process.env.ITEROOM_OCR_BIN)
 const root = await mkdtemp(join(tmpdir(), 'iteroom-r0-r4-browser-'))
 const source = await createFixture(root), home = join(root, 'harness')
 await writeFile(join(source.repository, 'src/greet.ts'), 'export const divide = value => value / 0\n')
+await git(source, ['add', 'src/greet.ts'])
+const historicalTree = (await git(source, ['write-tree'])).trim()
+const historicalCommit = (await git(source, ['commit-tree', historicalTree, '-p', (await git(source, ['rev-parse', 'HEAD'])).trim(), '-m', 'synthetic historical review'])).trim()
 const store = new ManagedTaskStore(join(home, 'iteroom'), source.repository)
 const originalStatus = await git(source, ['status', '--porcelain=v1', '-z'])
 const originalIndex = await readFile(join(source.repository, '.git/index'))
@@ -106,6 +109,31 @@ try {
     await page.getByRole('textbox', { name: '起点 SHA', exact: true }).waitFor();
     await page.getByRole('textbox', { name: '终点 SHA', exact: true }).waitFor();
   }`])
+  for (const input of [{ mode: 'commit', commit: historicalCommit }, { mode: 'range', from: originalHead.trim(), to: historicalCommit }]) {
+    await call(['run-code', `async (page) => {
+      await page.getByRole('radio', { name: '${input.mode === 'commit' ? '单提交' : '提交范围'}', exact: true }).check();
+      ${input.mode === 'commit'
+        ? `await page.getByRole('textbox', { name: '提交 SHA', exact: true }).fill('${input.commit}');`
+        : `await page.getByRole('textbox', { name: '起点 SHA', exact: true }).fill('${input.from}'); await page.getByRole('textbox', { name: '终点 SHA', exact: true }).fill('${input.to}');`}
+      await page.getByRole('button', { name: '固定输入', exact: true }).click();
+      await page.getByText('已固定 · 尚未推理', { exact: true }).waitFor({ timeout: 35000 });
+    }`])
+    const historical = (await store.list()).find(item => item.reviewInput?.mode === input.mode)
+    await review.start(historical.id, `browser-${input.mode}-mock`)
+    assert.equal((await review.whenIdle(historical.id)).reviewOutcome, 'completed')
+    const historicalReport = await review.result(historical.id)
+    assert.equal(historicalReport.coverage.filter(item => item.status === 'completed').length, 5)
+    assert.equal(historicalReport.findings[0].location, 'located')
+    await call(['run-code', `async (page) => {
+      await page.getByText('审查完成', { exact: true }).first().waitFor({ timeout: 15000 });
+      await page.getByRole('button').filter({ hasText: 'Synthetic candidate: division uses zero.' }).click();
+      await page.getByRole('heading', { name: '固定源码', exact: true }).waitFor();
+      await page.reload();
+      await page.getByRole('button', { name: '变更审查', exact: true }).click();
+      await page.getByRole('button').filter({ hasText: 'Synthetic candidate: division uses zero.' }).waitFor();
+      await page.getByRole('button', { name: '删除审查记录', exact: true }).click();
+    }`])
+  }
   const oversized = join(source.repository, 'src/oversize.ts')
   await writeFile(oversized, `export const large = '${'synthetic'.repeat(2000)}'\n`)
   const preparer = new ManagedReviewCoordinator(store)
@@ -142,7 +170,7 @@ try {
     inferenceButtonEnabled: true, productionModelStartClicked: false, inferenceViaLocalMockCoordinator: true,
     originalDshLoop: true, candidateLocatedInFixedSource: true, reloadRetainsResult: true, linkedFixRequiresTestSelection: true,
     partialCoverageVisible: true, failedJsonVisible: true, failedJsonViaInjectedRunner: true,
-    historicalModeForms: true, historicalModeExecutedInBrowser: false,
+    historicalModeForms: true, historicalModeExecutedInBrowser: true, historicalInferenceViaLocalMock: true,
     historyDeleted: true, sourceHeadIndexStatusUnchanged: true }) + '\n')
 } finally {
   await call(['close']).catch(() => {})
