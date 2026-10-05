@@ -40,8 +40,9 @@ async function loadSnapshot(store, task) {
     if (error.code === 'ENOENT') return null
     throw new TaskEntryError('SNAPSHOT_INVALID', 409)
   }
-  if (!dir.isDirectory() || dir.isSymbolicLink() || !within(store.dataHome, await realpath(final))
-    || within(location.project, await realpath(final))) throw new TaskEntryError('SNAPSHOT_INVALID', 409)
+  const realFinal = await realpath(final)
+  if (!dir.isDirectory() || dir.isSymbolicLink() || !within(await realpath(store.dataHome), realFinal)
+    || within(location.project, realFinal)) throw new TaskEntryError('SNAPSHOT_INVALID', 409)
   let manifest
   try {
     const manifestPath = join(final, 'manifest.json')

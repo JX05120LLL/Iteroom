@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -35,6 +35,21 @@ test('snapshot is durable, task-bound and independently readable after source ch
   assert.deepEqual(await captureManagedSnapshot(reopened, task.id), first)
   await assert.rejects(readManagedSnapshotFile(reopened, task.id, 'src/other.ts'), { code: 'SNAPSHOT_PATH_DENIED' })
   assert.equal(await readFile(join(project, 'src', 'first.ts'), 'utf8'), 'export const first = 999\n')
+})
+
+test('snapshot remains readable when the data home uses a directory junction', async t => {
+  const { root, project } = await fixture(t)
+  const realHome = join(root, 'real-data')
+  const aliasHome = join(root, 'alias-data')
+  await mkdir(realHome)
+  await symlink(realHome, aliasHome, 'junction')
+  const store = new ManagedTaskStore(aliasHome, project)
+  const task = (await store.create({ requestId: 'junction-snapshot', kind: 'understand',
+    objective: 'Explain one file', paths: ['src/first.ts'] })).task
+  const snapshot = await captureManagedSnapshot(store, task.id)
+  const read = await readManagedSnapshotFile(store, task.id, 'src/first.ts')
+  assert.equal(read.snapshotId, snapshot.id)
+  assert.equal(read.text, 'export const first = 1\n')
 })
 
 test('failed capture leaves task without snapshot and can be retried after fixing source', async t => {
