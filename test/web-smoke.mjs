@@ -204,6 +204,21 @@ async function main() {
     })
     assert.equal(crossOrigin.status, 403, 'task route refuses a foreign Origin')
 
+    const runtimeUrl = `${browser.origin}/api/iteroom/runtime`
+    assert.equal((await fetch(runtimeUrl)).status, 401, 'runtime status requires carrier authentication')
+    assert.equal((await fetch(runtimeUrl, { headers: { cookie: browser.cookie, origin: 'http://foreign.example' } })).status,
+      403, 'runtime status refuses a foreign Origin')
+    const modelRequestsBeforeStatus = stub.requests.length
+    const runtimeResponse = await fetch(runtimeUrl, { headers: { cookie: browser.cookie, origin: browser.origin } })
+    assert.equal(runtimeResponse.status, 200)
+    assert.equal(runtimeResponse.headers.get('cache-control'), 'no-store')
+    const runtimeText = await runtimeResponse.text(), runtimeStatus = JSON.parse(runtimeText)
+    assert.equal(runtimeStatus.scope, 'managed-tasks-only')
+    assert.equal(runtimeStatus.sandbox.service, 'not_checked')
+    assert.deepEqual(runtimeStatus.budgets.modify, { maxRequests: 4, maxOutputTokens: 512 })
+    assert.doesNotMatch(runtimeText, /apiKey|connectionConfig/)
+    assert.equal(stub.requests.length, modelRequestsBeforeStatus, 'status inspection does not call the model')
+
     const projectUrl = `${browser.origin}/api/iteroom/project`
     const projectUnauthorized = await fetch(projectUrl)
     assert.equal(projectUnauthorized.status, 401, 'project route requires browser authentication')

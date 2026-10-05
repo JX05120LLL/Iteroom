@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import styles from './managed-understand.module.css'
+import { ManagedRuntimeStatus } from './managed-runtime-status.js'
 import reviewStyles from './managed-review.module.css'
 import { emptyTaskSelection, type ManagedTaskSelection } from './managed-navigation.js'
 
@@ -149,6 +150,7 @@ export function ManagedReview({ openModify, selection = emptyTaskSelection }: {
     <header className={styles.header}><div><span className={styles.kicker}>ITEROOM / REVIEW</span><h2>变更审查</h2></div>
       <p>固定变更与规则，查看覆盖和候选发现</p></header>
     <div className={styles.layout}><main className={styles.main}>
+      <ManagedRuntimeStatus kind="review" />
       {error && <div className={styles.error} role="alert">{error}</div>}
       <form className={styles.form} onSubmit={prepare}>
         <div className={styles.formTitle}><h3>准备审查输入</h3><span>当前启动项目</span></div>

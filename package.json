@@ -37,6 +37,7 @@
     "lib/host/managed-review-runner.js",
     "lib/host/managed-review-plugin.js",
     "lib/host/managed-review-fix.js",
+    "lib/host/managed-runtime-status.js",
     "lib/host/review"
   ],
   "engines": {
@@ -63,7 +64,7 @@
     "start": "node bin/iteroom.mjs",
     "review": "node scripts/review.mjs",
     "check": "tsc --noEmit",
-    "test": "node --test test/launcher.test.js test/task-store.test.js test/workspace-evidence.test.js test/managed-task-store.test.js test/managed-task-route.test.js test/managed-read-scope.test.js test/managed-snapshot.test.js test/managed-engine.test.js test/managed-model-guard.test.js test/managed-task-coordinator.test.js test/managed-model-key.test.js test/managed-crash-recovery.test.js test/managed-modify-store.test.js test/managed-sandbox.test.js test/managed-artifact.test.js test/managed-modify-coordinator.test.js test/managed-modify-route.test.js test/managed-acceptance.test.js test/managed-history.test.js test/managed-review.test.js test/managed-review-inference.test.js test/managed-review-fix.test.js test/r4-completion-cleanup.test.js",
+    "test": "node --test test/launcher.test.js test/task-store.test.js test/workspace-evidence.test.js test/managed-task-store.test.js test/managed-task-route.test.js test/managed-read-scope.test.js test/managed-snapshot.test.js test/managed-engine.test.js test/managed-model-guard.test.js test/managed-task-coordinator.test.js test/managed-model-key.test.js test/managed-crash-recovery.test.js test/managed-modify-store.test.js test/managed-sandbox.test.js test/managed-artifact.test.js test/managed-modify-coordinator.test.js test/managed-modify-route.test.js test/managed-acceptance.test.js test/managed-history.test.js test/managed-review.test.js test/managed-review-inference.test.js test/managed-review-fix.test.js test/r4-completion-cleanup.test.js test/managed-runtime-status.test.js",
     "test:web": "node test/web-smoke.mjs",
     "test:launcher": "node --test test/launcher.test.js"
   },

@@ -1,5 +1,7 @@
 # 下一轮接续提示
 
+2026-10-05 接续：R5-1 的[实施计划](r5/PLAN.md)与[限定证据](r5/EVIDENCE.md)已在隔离 `codex/r5-1-runtime-status` 分支整理；实时检查分支、提交、远端 CI 和原会话目录的未提交改动，勿把历史报告当当前结果。R5-1 只展示配置、预算与回环服务可达性；实际服务、模型账户、镜像执行和 v1 未验。真实付费模型请求需新的额度/数据授权；下一切片先冻结新增、删除、重命名的输入/补丁/接受恢复协议。旧完整 DSH Web 入口保持原有宿主工具，不扩大受管隔离声明。
+
 请继续 D:\code\Iteroom。先核对 Git 工作区、HEAD/远程、服务、当前授权并保留已有改动。R4 收尾的父基线为 main / 596f1bd，用户已授权将收尾改动提交至 origin/main；实际提交和远程结果以实时 Git 及 STATUS 最新交付记录为准，历史证据中的未提交字段保留生成时含义，未发布 npm 包。阅读 AGENTS、README、CONTEXT、PRD、ARCHITECTURE、ROADMAP、STATUS、ACCEPTANCE，以及 docs/r4/COMPLETION-PLAN.md、COMPLETION-EVIDENCE.md、completion-report.json、[收尾交付复验](r4/COMPLETION-DELIVERY-2026-10-01.md)与相关实现/测试。
 
 R0–R4 的最小阶段退出条件在各自固定 Windows/版本/合成输入和选定现有文本文件范围内通过，可开始定义 R5；不是完整 P0/A01–A21 或 v1。保留白色方案 C、双拱门 Logo、独立禁用通话预览和旧完整 DSH Web 入口；旧入口仍有宿主工具，不外推受管隔离保证。不要另建 Loop，或提前加语音/RAG/记忆/分布式调度。
