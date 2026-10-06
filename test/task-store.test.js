@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, realpath, rm, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
@@ -138,6 +138,51 @@ test('persists a bounded baseline and terminal workspace delta for cold read', a
   assert.equal(card.evidenceStatus, 'available')
   assert.equal(card.changes[0].priorChange, true)
   assert.ok(card.warnings.some(warning => warning.includes('外部编辑也可能混入')))
+})
+
+test('workspace evidence survives a project directory junction in live and terminal reads', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'iteroom-task-alias-'))
+  t.after(() => rm(directory, { recursive: true, force: true }))
+  const project = join(directory, 'project'), alias = join(directory, 'project-alias')
+  await mkdir(project)
+  await symlink(project, alias, 'junction')
+  const change = { path: 'smoke-result.txt', status: 'added', priorChange: false, diff: '+one line' }
+  const store = new TaskStore(join(directory, 'data'), {
+    capture: async cwd => ({ cwd: await realpath(cwd), files: [], warnings: [] }),
+    compare: async () => ({ changes: [change], warnings: [] }),
+  })
+  await store.prepare({ sessionId: 'session-1', turn: 1, cwd: alias })
+  const running = await store.tasksForInspection(inspection([event(0, 'turn/start', { turn: 1 })], alias))
+  assert.deepEqual(running[0].changes, [change])
+  await store.finish({ sessionId: 'session-1', turn: 1, cwd: alias })
+  const completed = await store.tasksForInspection(inspection([
+    event(0, 'turn/start', { turn: 1 }), event(1, 'turn/end', { turn: 1, reason: { kind: 'completed' } }),
+  ], alias))
+  assert.equal(completed[0].evidenceStatus, 'available')
+  assert.deepEqual(completed[0].changes, [change])
+})
+
+test('workspace evidence refuses a junction redirected after the baseline', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'iteroom-task-alias-change-'))
+  t.after(() => rm(directory, { recursive: true, force: true }))
+  const project = join(directory, 'project'), replacement = join(directory, 'replacement')
+  const alias = join(directory, 'project-alias')
+  await mkdir(project)
+  await mkdir(replacement)
+  await symlink(project, alias, 'junction')
+  let comparisons = 0
+  const store = new TaskStore(join(directory, 'data'), {
+    capture: async cwd => ({ cwd: await realpath(cwd), files: [], warnings: [] }),
+    compare: async () => { comparisons++; return { changes: [], warnings: [] } },
+  })
+  await store.prepare({ sessionId: 'session-1', turn: 1, cwd: alias })
+  await rm(alias, { recursive: true })
+  await symlink(replacement, alias, 'junction')
+  await store.finish({ sessionId: 'session-1', turn: 1, cwd: alias })
+  const record = await store.read('session-1', 1)
+  assert.equal(comparisons, 0)
+  assert.equal(record.final, undefined)
+  assert.match(record.finalError, /Workspace path changed/)
 })
 
 test('next turn waits for the previous terminal comparison in one workspace', async t => {

@@ -30,3 +30,9 @@ R5-1 在固定 Windows / Node 24.14.0 / DSH Web 开发入口和一次性合成�
 - 第二次运行 [ce6c6a7](https://github.com/JX05120LLL/Iteroom/actions/runs/37332146989) 已消除上述 30 项失败，仍有 6 项失败：5 项评审准备把 Windows 临时目录别名误判为非托管仓库，1 项取消状态测试依赖固定 30 ms 延时。工作区中的修复使评审临时目录在创建前规范为真实路径，保留严格目录校验；取消测试等待实际状态并保证释放等待中的运行器。
 - 当前本地定向评审测试为 19 项、17 通过、2 条件跳过；完整 `npm.cmd test` 为 136 项、131 通过、5 条件跳过、0 失败。`npm.cmd run check`、`npm.cmd run build`、`npm.cmd run test:web` 通过。上述测试使用隔离项目、本地服务和模型桩，无真实模型请求或沙箱分配。
 - 远端门禁以最终提交 SHA 对应的 GitHub Actions 结果为准；本地通过不代替远端验收。R5-1 之外的 R5 和 v1 总体验收仍未通过。
+
+## 2026-10-06 Web 冒烟复核
+
+- [ebc34ba 的 CI](https://github.com/JX05120LLL/Iteroom/actions/runs/37429638013) 中 `npm.cmd ci`、`npm.cmd test`、`npm.cmd run check`、`npm.cmd run build` 通过；`npm.cmd run test:web` 失败，终态任务的 `changes` 暂为空。Windows 临时目录短路径使会话保存的原始 `cwd` 与快照中的真实路径不同，证据结束与显示代码原先将两者直接比较。
+- 新增目录联接回归测试先复现空变更，修复后验证运行中和终态读取均可显示变更；另一测试确认联接改指后拒绝把新目录的内容归因于原任务。Web 冒烟现在等待终态证据持久化后检查 Diff。仓库外临时目录联接模拟运行、本地普通 Web 冒烟均通过。
+- 修复后的本地 `npm.cmd test` 为 138 项：133 通过、5 条件跳过、0 失败；`npm.cmd run check`、`npm.cmd run build`、`npm.cmd run test:web` 通过。曾将临时目录联接放在 Iteroom 仓库深处的额外诊断运行因 Windows 路径过长在快照创建时报 `ENOENT`；该人工嵌套布局不是 CI 路径，未计入门禁通过。后续须以新提交 SHA 的远端 CI 结果确认 R5-1。

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { captureWorkspace, compareWorkspace } from './workspace-evidence.js'
@@ -150,7 +150,7 @@ export function projectTasks(inspection, evidenceByTurn = new Map()) {
 
   return [...tasks.entries()].map(([turn, task]) => {
     const evidence = evidenceByTurn.get(turn)
-    if (evidence?.baseline?.cwd && evidence.baseline.cwd !== cwd) {
+    if (evidence?.baseline?.cwd && (evidence.cwd ?? evidence.baseline.cwd) !== cwd) {
       task.warnings.push('保存的工作区快照与会话工作区不一致，已隐藏差异。')
     } else if (evidence?.baseline && evidence?.final) {
       task.evidenceStatus = 'available'
@@ -254,9 +254,15 @@ export class TaskStore {
       await priorFinalization?.catch(() => {})
       await this.preparing.get(id)
       const record = await this.read(sessionId, turn)
-      if (!record || record.final || record.finalError || !record.baseline?.files || record.baseline.cwd !== cwd) return
+      if (!record || record.final || record.finalError || !record.baseline?.files || record.cwd !== cwd) return
       try {
+        if (record.baseline.cwd !== cwd && await realpath(cwd) !== record.baseline.cwd) {
+          throw new Error('Workspace path changed since task baseline')
+        }
         const comparison = await this.compare(record.baseline)
+        if (record.baseline.cwd !== cwd && await realpath(cwd) !== record.baseline.cwd) {
+          throw new Error('Workspace path changed since task baseline')
+        }
         record.final = { at: new Date().toISOString(), changes: comparison.changes, warnings: comparison.warnings }
       } catch (error) {
         record.finalError = `无法读取任务结束时的工作区差异：${error.message}`
@@ -293,7 +299,9 @@ export class TaskStore {
     if (active) {
       const turn = Number(active.id.slice(active.id.lastIndexOf(':') + 1))
       const record = evidence.get(turn)
-      if (record?.baseline && record.baseline.cwd === inspection.meta.cwd) {
+      if (record?.baseline && record.cwd === inspection.meta.cwd
+        && (record.baseline.cwd === record.cwd
+          || await realpath(record.cwd).catch(() => null) === record.baseline.cwd)) {
         const id = key(sessionId, turn)
         let cached = this.live.get(id)
         if (!cached || Date.now() - cached.time > 5000) {
@@ -302,12 +310,18 @@ export class TaskStore {
         }
         try {
           const comparison = await cached.result
+          if (record.baseline.cwd !== record.cwd
+            && await realpath(record.cwd).catch(() => null) !== record.baseline.cwd) {
+            throw new Error('Workspace path changed since task baseline')
+          }
           active.changes = comparison.changes
           active.warnings.push(...comparison.warnings)
           active.warnings = [...new Set(active.warnings)]
         } catch (error) {
           active.warnings.push(`当前工作区差异暂不可用：${error.message}`)
         }
+      } else if (record?.baseline && record.cwd === inspection.meta.cwd) {
+        active.warnings.push('Workspace path changed since task baseline; live differences are unavailable.')
       }
     }
     return tasks

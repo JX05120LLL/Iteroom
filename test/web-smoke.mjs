@@ -177,15 +177,17 @@ async function tasks(browser, sessionId) {
   return body.tasks
 }
 
-async function waitForTask(browser, sessionId) {
+async function waitForTask(browser, sessionId, { requireEvidence = false } = {}) {
   const deadline = Date.now() + 45_000
+  let last
   while (Date.now() < deadline) {
     const current = await tasks(browser, sessionId)
     const task = current.find((entry) => entry.sessionId === sessionId)
-    if (task && terminalStatuses.has(task.status)) return task
+    if (task) last = { status: task.status, evidenceStatus: task.evidenceStatus }
+    if (task && terminalStatuses.has(task.status) && (!requireEvidence || task.evidenceStatus === 'available')) return task
     await delay(400)
   }
-  throw new Error('Iteroom task did not reach a terminal state within 45 seconds')
+  throw new Error(`Iteroom task did not settle within 45 seconds: ${JSON.stringify(last)}`)
 }
 
 async function main() {
@@ -341,7 +343,7 @@ async function main() {
       mode: 'queue',
       content: [{ type: 'text', text: 'ITEROOM_SMOKE_WRITE: create smoke-result.txt with one line.' }],
     })
-    const writeTask = await waitForTask(browser, writeSession.sessionId)
+    const writeTask = await waitForTask(browser, writeSession.sessionId, { requireEvidence: true })
     assert.equal(writeTask.status, 'completed', `file task status: ${writeTask.status}; ${JSON.stringify(writeTask.warnings ?? [])}`)
     assert.equal(await readFile(join(cwd, 'smoke-result.txt'), 'utf8'), 'Iteroom smoke wrote this file.\n',
       'DSH write tool changed the isolated repository')
