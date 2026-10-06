@@ -81,10 +81,15 @@ test('missing configuration leaves review queued; cancellation waits for engine 
   } })
   await review.start(f.taskId, 'start-cancel'); await entered.promise
   const stopped = review.cancel(f.taskId, 'cancel-1')
-  await new Promise(done => setTimeout(done, 30))
-  assert.equal((await f.store.get(f.taskId)).status, 'cancelling')
-  release.resolve()
+  let cancelling = false
+  try {
+    for (let attempt = 0; attempt < 100; attempt++) {
+      if ((await f.store.get(f.taskId)).status === 'cancelling') { cancelling = true; break }
+      await new Promise(done => setTimeout(done, 20))
+    }
+  } finally { release.resolve() }
   assert.equal((await stopped).status, 'cancelled')
+  assert.ok(cancelling, 'cancellation must enter the cancelling state before the runner exits')
   const report = await review.result(f.taskId)
   assert.equal(report.outcome, 'cancelled')
   assert.equal(report.coverage[0].status, 'failed')

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createHash } from 'node:crypto'
-import { mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rename, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createFixture, git } from '../scripts/r0/ocr-fixture.mjs'
@@ -92,6 +92,26 @@ test('review preparation is fixed, durable, hash-bound, explicit about exclusion
   await new ManagedHistory(f.store).delete(prepared.task.id, 'delete-fixed')
   await assert.rejects(readFile(file), { code: 'ENOENT' })
   assert.equal(await readFile(join(f.source.repository, 'src/greet.ts'), 'utf8'), 'later edit\n')
+})
+
+test('review preparation accepts a temporary directory reached through a junction', async t => {
+  const f = await fixture(t), review = await coordinator(f)
+  const actualTemp = join(f.root, 'actual-temp'), aliasTemp = join(f.root, 'alias-temp')
+  await mkdir(actualTemp)
+  await symlink(actualTemp, aliasTemp, 'junction')
+  const oldTemp = process.env.TEMP, oldTmp = process.env.TMP
+  process.env.TEMP = aliasTemp
+  process.env.TMP = aliasTemp
+  try {
+    const prepared = await review.prepare({ requestId: 'review-junction', input: { mode: 'workspace' } })
+    assert.equal(prepared.task.status, 'queued')
+    await review.cancel(prepared.task.id, 'cancel-junction')
+  } finally {
+    if (oldTemp === undefined) delete process.env.TEMP
+    else process.env.TEMP = oldTemp
+    if (oldTmp === undefined) delete process.env.TMP
+    else process.env.TMP = oldTmp
+  }
 })
 
 test('review input validation, process failure and unsafe repository leave a cancellable task without source writes', async t => {

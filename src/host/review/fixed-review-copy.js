@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
 import { deflateSync } from 'node:zlib'
-import { mkdtemp, mkdir, writeFile, chmod, rm } from 'node:fs/promises'
+import { mkdtemp, mkdir, writeFile, chmod, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, dirname, resolve } from 'node:path'
+import { join, dirname } from 'node:path'
 import { captureReviewInput, captureWorkspaceState } from './review-input.js'
 import { assertManaged } from './review-files.js'
 import { assertPlainGit } from './review-git-boundary.js'
@@ -30,7 +30,7 @@ export async function createFixedReviewCopy(source, input) {
     if (bytes.length !== Number(size) || createHash('sha1').update(raw).digest('hex') !== oid) throw failure('input_changed')
     objects.push({ oid, compressed: deflateSync(raw) })
   }
-  const parent = resolve(tmpdir()), scratch = await mkdtemp(join(parent, 'iteroom-r0-fixed-copy-'))
+  const parent = await realpath(tmpdir()), scratch = await mkdtemp(join(parent, 'iteroom-r0-fixed-copy-'))
   const repository = join(scratch, 'repository'), home = join(scratch, 'home')
   const fixture = { repository, home, options: { cwd: repository, env: controlledEnv(home), timeoutMs: 10000, maxOutputBytes: 1024 * 1024 } }
   let disposed = false

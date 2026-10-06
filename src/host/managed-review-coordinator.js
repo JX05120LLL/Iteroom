@@ -64,7 +64,7 @@ export class ManagedReviewCoordinator {
           throw new TaskEntryError('REVIEW_CLI_LOCATION_UNSAFE', 503)
         }
         await this.verify(executable)
-        sourceHome = await mkdtemp(join(tmpdir(), 'iteroom-r4-source-'))
+        sourceHome = await mkdtemp(join(await realpath(tmpdir()), 'iteroom-r4-source-'))
         const home = join(sourceHome, 'home')
         await mkdir(home); await mkdir(join(home, 'hooks'))
         copy = await createFixedReviewCopy({ repository: location.project, productRoot: location.project, home,

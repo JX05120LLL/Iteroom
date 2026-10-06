@@ -12,7 +12,7 @@ export function text(bytes) {
   catch { throw failure('unsupported_encoding') }
 }
 export async function assertManaged(fixture) {
-  const root = resolve(fixture.repository), scratch = dirname(root), parent = resolve(tmpdir())
+  const root = resolve(fixture.repository), scratch = dirname(root), parent = await realpath(tmpdir())
   if (fixture.productRoot !== undefined) {
     const offset = relative(root, resolve(fixture.home))
     if (resolve(fixture.productRoot) !== root || !isAbsolute(fixture.home) || fixture.options.cwd !== root
