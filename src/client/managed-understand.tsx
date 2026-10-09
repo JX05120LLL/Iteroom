@@ -179,6 +179,7 @@ export function ManagedUnderstand() {
           <ul className={styles.pathList}>{selected.paths.map(path => <li key={path}><code>{path}</code></li>)}</ul>
           {selected.status === 'queued' && <div className={styles.actions}>
             <button className={styles.primary} type="button" disabled={busy} onClick={() => start(selected)}>固定输入并开始理解</button>
+            <button className={styles.secondary} type="button" disabled={busy} onClick={() => cancel(selected)}>取消任务</button>
             <span>将向 DeepSeek 发送本任务选定的代码片段</span>
           </div>}
           {['running', 'cancelling'].includes(selected.status) && <div className={styles.actions}>
@@ -198,7 +199,8 @@ export function ManagedUnderstand() {
               </button>)}</div>
           </div>}
           {['failed', 'interrupted', 'cancelled'].includes(selected.status) &&
-            <p className={styles.failure}>{selected.status === 'cancelled' ? '任务已停止。' : '本次没有可确认的回答。'}
+            <p className={styles.failure}>{selected.status === 'cancelled'
+              ? selected.engineStatus === 'not_started' ? '任务已取消，未启动推理。' : '任务已停止。' : '本次没有可确认的回答。'}
               {selected.failureCode ? ` 原因：${selected.failureCode}` : ''} 不会自动重发模型请求。</p>}
           {events.length > 0 && <div className={styles.timeline} aria-label="任务进度">
             {events.map(event => <span key={event.seq}>{event.seq}. {event.type === 'snapshot' ? '输入已固定'

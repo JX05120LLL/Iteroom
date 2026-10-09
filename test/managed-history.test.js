@@ -45,3 +45,22 @@ test('failed history cleanup persists deleting state and retries without touchin
   await new ManagedHistory(store).delete(task.id, 'delete-retry')
   await assert.rejects(store.get(task.id), { code: 'TASK_NOT_FOUND' })
 })
+
+test('deleting settled history while another task is active is rejected before corrupting the serial store', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'iteroom-r5-history-serial-'))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const project = join(root, 'project')
+  await mkdir(project); await writeFile(join(project, 'x.mjs'), 'export const x=1\n')
+  const store = new ManagedTaskStore(join(root, 'data'), project)
+  const old = (await store.create({ requestId: 'old-history', kind: 'modify', objective: 'Old synthetic task', paths: ['x.mjs'] })).task
+  await store.cancelQueuedModify(old.id)
+  const active = (await store.create({ requestId: 'active-history', kind: 'modify', objective: 'Active synthetic task', paths: ['x.mjs'] })).task
+  const file = (await store.location()).file, before = await readFile(file)
+  await assert.rejects(new ManagedHistory(store).delete(old.id, 'delete-during-active'), { code: 'HISTORY_ACTIVE' })
+  assert.deepEqual(await readFile(file), before)
+  assert.equal((await new ManagedTaskStore(store.dataHome, project).get(active.id)).status, 'queued')
+  await store.cancelQueuedModify(active.id)
+  await new ManagedHistory(store).delete(old.id, 'delete-after-settled')
+  await assert.rejects(store.get(old.id), { code: 'TASK_NOT_FOUND' })
+  assert.equal(await readFile(join(project, 'x.mjs'), 'utf8'), 'export const x=1\n')
+})

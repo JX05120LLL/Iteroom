@@ -1,5 +1,13 @@
 # 下一轮接续提示
 
+2026-10-09 最新接续（优先于下文 R5-1 历史说明）：`daafd60` 的 R5-1 已推送，R5-2 本轮得到开发和推送授权，最终交付提交须重新查 Git。先核对工作区、HEAD/远程及所属服务，保留已有改动；读取 AGENTS/README/CONTEXT/PRD/ARCHITECTURE/ROADMAP/STATUS/ACCEPTANCE，以及 [安装证据](r5/INSTALLATION-EVIDENCE.md)、[支持矩阵](r5/SUPPORT-MATRIX.md)、[交付报告](r5/installation-delivery-2026-10-09-report.json)、[安装最终报告](r5/installation-final-2026-10-09-report.json)和[异常收尾报告](r5/installation-fault-2026-10-09-report.json)。报告 parent 为验证父基线，不能冒充最终提交 Hash。
+
+R5-2 在仓库外实际安装 tarball/生产依赖并运行已安装 Node launcher 与 Chromium 页面，未链接 checkout node_modules；只验证认证、缺配置、任务取消和收尾，使用本机 npm 缓存，不是空缓存/全新机器/已安装真实模型沙箱完整流程。新理解取消状态仍为 v1，旧程序可能不认识；降级前停止服务、备份完整项目外数据，优先保留并恢复升级前备份，不批量删除用户历史。相关 starting/cancelling 门闩、等待快照/claim/engine 收束和历史锁内串行保护不能移除。
+
+本轮真实模型/实际沙箱/用户源码传输均 0，当前 R5 和完整 P0/v1 未完成。下一项：先定义新增/删除/重命名补丁的版本化快照、工具、导出、接受恢复协议与实施计划；离线测试覆盖拒绝、冲突、部分失败、恢复和旧格式，再接实际沙箱。未支持路径保持拒绝，不仅扩大 Diff 显示或沿用审查覆盖来宣称修改支持。保留方案 C 白色/Logo/禁用通话及旧开发入口，无第二套 Loop。
+
+复验使用证据文档命令，工具采用已核对的项目外固定 OCR 与 Playwright；安装默认离线、缓存缺包保持失败，允许下载公共依赖时才加 --online。分别记录 mock/实际 CLI/生产浏览器/模型/沙箱；每轮新的真实模型费用授权独立核对，旧 R4 额度不自动继承。后续 commit/push 仍需当轮授权。本轮旧 R5-1 说明保留如下，其“下一步安装”已由以上 R5-2 接续取代。
+
 请继续 D:\code\Iteroom。先核对 Git 工作区、HEAD/远程和服务，保留已有改动。R5-1 交付父基线为 main / 1fbaa41；2026-10-09 用户授权提交推送及继续开发，实际交付 Hash 以实时 Git 为准，历史报告字段保留生成时含义。未公开发布 npm。阅读 AGENTS、README、CONTEXT、PRD、ARCHITECTURE、ROADMAP、STATUS、ACCEPTANCE，以及 docs/r5/PLAN.md、EVIDENCE.md、delivery-2026-10-09-report.json、delivery-2026-10-09-browser-report.json 与相关实现/测试。
 
 R0–R4 最小阶段退出在固定 Windows/版本/合成现有文本范围通过，不是完整 P0/A01–A21/v1。保留方案 C 白色 UI、双拱门 Logo、独立禁用通话预览、旧完整 DSH Web 开发入口及其原宿主工具边界。不要另建 Agent Loop，或接语音/RAG/记忆/分布式调度。

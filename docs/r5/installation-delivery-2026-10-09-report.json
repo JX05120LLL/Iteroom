@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T06:23:31.518543+00:00",
+  "scope": "R5-2 Windows isolated tarball consumer and cancellation recovery limited delivery",
+  "git": {
+    "parent": "daafd60ca32e0037632bfb4dc4b81cb2f2661097",
+    "uncommittedAtVerification": true
+  },
+  "phase": {
+    "r5Complete": false,
+    "v1Complete": false,
+    "next": "versioned add/delete/rename patch protocol and offline behavior tests"
+  },
+  "checks": {
+    "relatedTestsPassed": 15,
+    "fullTest": {
+      "total": 140,
+      "passed": 139,
+      "failed": 0,
+      "skipped": 1,
+      "durationMs": 81262.0255,
+      "skip": "Windows Git executable bit"
+    },
+    "typeCheck": true,
+    "build": true,
+    "webSmoke": true,
+    "installedProductionBrowser": true,
+    "installedFileHashesMatched": 44,
+    "injectedStartupFailureCleanup": true,
+    "partialOpenAndCloseFailureTests": "offline resource stubs, 2 passed",
+    "codeReview": {
+      "critical": 0,
+      "important": 0,
+      "minor": 0
+    },
+    "credentialPatternMatches": 0,
+    "localLinks": 407,
+    "missingLocalLinks": 0,
+    "jsonFilesParsed": 53,
+    "whitespace": true
+  },
+  "priorFailure": {
+    "fullTestTotal": 134,
+    "passed": 132,
+    "failed": 1,
+    "skipped": 1,
+    "cause": "review cancellation assertion used fixed 30ms delay; now waits for actual abort"
+  },
+  "boundary": {
+    "realModelRequests": 0,
+    "actualSandboxAllocations": 0,
+    "userSourceTransmitted": false,
+    "accountVerified": false,
+    "cleanMachineVerified": false,
+    "otherPlatformsVerified": false,
+    "published": false
+  },
+  "environment": {
+    "platform": "win32",
+    "node": "v24.14.0",
+    "dsh": "0.1.5-rc.3",
+    "sandboxSdk": "1.1.0",
+    "ocr": "v1.12.9",
+    "ocrSha256": "ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1"
+  },
+  "installationReport": "installation-final-2026-10-09-report.json",
+  "startupFailureReport": "installation-fault-2026-10-09-report.json",
+  "sourceHashes": {
+    "package.json": "2a738c02a76891be3c9e91b65db846fb45568a5aae99e2b59921cb140540d073",
+    "src/client/managed-understand.tsx": "314afc82858e037b843543ad6950a78121bc1d366b73d468052664974b879bb9",
+    "src/host/managed-task-coordinator.js": "b2130c39a2484b4a7c12493f9a8a26171481fede7d0d22decde8e4b938186c7c",
+    "src/host/managed-task-store.js": "8821a201bc257f8afb26de02f582547bf75cec8bb25ce6a9dbcdf92c68f23a5c",
+    "test/managed-task-coordinator.test.js": "676619c818a801a8e6695ac3161f5715e580920c43085594dd61a376019dc414",
+    "test/managed-history.test.js": "566292b5f0df90893b74669b834a0d67fd6363d45d7d3805bcb65d61f3680266",
+    "test/managed-review-inference.test.js": "1f5e1b4768c8d6fbe80bab68ac7dede37acc0dcac849785835eb13a099dc0f7d",
+    "test/r5-install-cleanup.test.js": "330540e0ff9c2dd84611ade900a67e585357b5c7aca03ad11eb7fab7b1404a95",
+    "scripts/r5/install-smoke.mjs": "d9bb29335f6b4b8ad83a79fd21887f90d8f748618ef437e7b5eabedfda43b666",
+    "scripts/r5/browser-session.mjs": "dcb076657efc39d4800c60814557d88170897724b257cb939fda9a3064712b5d"
+  },
+  "builtHashes": {
+    "lib/client.js": "a8f7d2e0522d306cda9f2ce000d7b64423b4a86d8c188c1743fc89a91e4d1ac0",
+    "lib/host/managed-task-coordinator.js": "b2130c39a2484b4a7c12493f9a8a26171481fede7d0d22decde8e4b938186c7c",
+    "lib/host/managed-task-store.js": "8821a201bc257f8afb26de02f582547bf75cec8bb25ce6a9dbcdf92c68f23a5c"
+  }
+}

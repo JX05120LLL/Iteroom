@@ -115,7 +115,7 @@ function appendEvent(task, type, previousStatus = task.status, text) {
 }
 
 function validStoredTask(task, projectId) {
-  const cancelledBeforeStart = ['modify', 'review'].includes(task?.kind) && ['cancelled', 'deleting'].includes(task.status)
+  const cancelledBeforeStart = ['understand', 'modify', 'review'].includes(task?.kind) && ['cancelled', 'deleting'].includes(task.status)
     && task.engineStatus === 'not_started' && task.sessionId === null
     && task.startRequestId === undefined && task.startedAt === undefined
   if (!task || !validRelations(task) || task.version !== VERSION || !UUID.test(task.id) || task.projectId !== projectId
@@ -547,6 +547,16 @@ export class ManagedTaskStore {
     })
   }
 
+  async cancelQueuedUnderstand(id) {
+    return this.updateTask(id, task => {
+      if (task.kind !== 'understand') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
+      if (task.status === 'cancelled' && task.engineStatus === 'not_started') return { changed: false, value: task }
+      if (task.status !== 'queued') throw new TaskEntryError('RUN_STATE_CONFLICT', 409)
+      task.status = 'cancelled'; task.endedAt = new Date().toISOString()
+      return { changed: true, value: task }
+    })
+  }
+
   async cancelQueuedModify(id) {
     return this.updateTask(id, task => {
       if (task.kind !== 'modify') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
@@ -708,6 +718,7 @@ export class ManagedTaskStore {
       }
       if (task.status === 'deleting' && task.deleteRequestId === requestId) return { changed: false, value: task }
       if (['queued', 'running', 'cancelling', 'applying', 'deleting'].includes(task.status)
+        || state.tasks.some(other => other.id !== id && ACTIVE.has(other.status))
         || task.sandboxStatus === 'cleanup_pending' || task.status === 'interrupted' && task.acceptance) {
         throw new TaskEntryError('HISTORY_ACTIVE', 409)
       }

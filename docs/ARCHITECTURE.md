@@ -149,6 +149,10 @@ Host 负责身份/来源校验、权限审批、路径真实解析、凭证过�
 
 ## R4 阶段退出后的架构状态
 
+[R5-2](r5/INSTALLATION-EVIDENCE.md)以真实 tarball 安装到仓库外消费项目：运行包及 DSH 从消费目录解析，不链接 checkout 的 node_modules，不在消费目录构建。安装使用公共 registry 补齐缓存后离线复验，禁用 lifecycle scripts；消费锁与实际版本另存匿名证据，不把直接依赖固定当作传递依赖图完全锁定。仍是原 Web carrier，不引入第二套 Loop。
+
+理解协调器在首个异步动作前登记每任务 `starting` 和 `cancelling` promise；相同启动请求复用准备，不同请求拒绝，取消未收束时拒绝后到启动。取消先 abort 并等待准备收束，再取消 queued 或已登记引擎；claim 期间收到取消时只结算取消收据，不启动引擎。dispose 同样等待准备、引擎和取消，不能在快照写入仍进行时释放任务供历史删除。Store 锁内检查另一个活动任务后才能标记历史 `deleting`，否则保持原文件。新理解取消记录为 `status=cancelled / engineStatus=not_started / sessionId=null`；v1 无自动迁移，向旧版回退需要备份或恢复升级前数据。
+
 R5-1 的 `ManagedRuntimeStatus` 独立读取既有模型/沙箱 loader 和协调器实际预算；认证 `GET /api/iteroom/runtime` 不调用任务 initialize/recovery、不发网络请求。`POST /api/iteroom/runtime/sandbox-check` 要求同源、JSON、8 KiB 正文、无查询及精确空对象，仅通过固定 SDK 1.1.0 的公开 lifecycle factory 执行 `GET http://127.0.0.1:3088/v1/sandboxes` 的单页过滤查询。拒绝重定向、外部地址和其他动作；不分配沙箱、不调用模型、不返回清单/凭证/私有路径。完整响应正文最多 64 KiB；统一 2.5 秒 deadline 中止 headers/body，SDK 内部超时晚于该 deadline；取消 reader 并在 finally 关闭 SDK。同配置重复检查共用探测，超时响应按时返回，但探测记录保留至底层取消及 close 收束，不在清理期间创建重复客户端。无效但已填写的环境配置与缺失区分，既有 loader 的备用凭证规则不变。数据格式和旧 API 不变，无迁移。真实 SDK 配内存/本机合成 HTTP 与 Chromium 证据见 [R5-1](r5/EVIDENCE.md)；未据此验证实际服务/账户/镜像执行或整体发行。
 
 2026-10-01 的 [实际证据](r4/COMPLETION-EVIDENCE.md)使用已有生产接口和方案 C UI，经官方 DeepSeek、原 DSH Loop、固定 OCR、真实 OpenSandbox、R3 接受和新输入复查完成组合。没有增加第二套 Loop 或更改产品数据格式。三种模式完整执行、覆盖/片段定位/来源、刷新及重启不重放分层验证；真实模型闭环为工作树模式，历史两种推理使用 mock。R4 最小退出在固定 Windows/合成现有文本范围通过，接下来 R5 核对配置、权限、数据管理、完整补丁类型和发行缺项。旧 carrier 仍保留全量宿主工具，受管隔离保证不外推到旧入口。

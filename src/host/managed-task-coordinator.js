@@ -36,6 +36,9 @@ export class ManagedTaskCoordinator {
     this.onError = onError
     this.engineLimits = limits
     this.jobs = new Map()
+    this.starting = new Map()
+    this.cancelling = new Map()
+    this.disposed = false
     this.recovery = null
   }
 
@@ -44,9 +47,24 @@ export class ManagedTaskCoordinator {
     return this.recovery
   }
 
-  async start(taskId, requestId) {
+  start(taskId, requestId) {
+    if (typeof requestId !== 'string' || !REQUEST_ID.test(requestId)) {
+      return Promise.reject(new TaskEntryError('INVALID_RUN_INPUT', 400))
+    }
+    if (this.cancelling.has(taskId)) return Promise.reject(new TaskEntryError('RUN_STATE_CONFLICT', 409))
+    const pending = this.starting.get(taskId)
+    if (pending) return pending.requestId === requestId ? pending.promise
+      : Promise.reject(new TaskEntryError('RUN_ALREADY_STARTED', 409))
+    const controller = new AbortController()
+    const promise = this.startOnce(taskId, requestId, controller).finally(() => this.starting.delete(taskId))
+    this.starting.set(taskId, { requestId, controller, promise })
+    return promise
+  }
+
+  async startOnce(taskId, requestId, controller) {
     await this.initialize()
-    if (!REQUEST_ID.test(requestId)) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
+    if (this.disposed) throw new TaskEntryError('ENGINE_OWNER_LOST', 503)
+    if (controller.signal.aborted) throw new TaskEntryError('ENGINE_CANCELLED', 409)
     const task = await this.store.get(taskId)
     if (task.kind !== 'understand') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
     if (task.status !== 'queued') {
@@ -54,15 +72,20 @@ export class ManagedTaskCoordinator {
       throw new TaskEntryError('RUN_ALREADY_STARTED', 409)
     }
     const key = await this.modelKey()
+    if (controller.signal.aborted) throw new TaskEntryError('ENGINE_CANCELLED', 409)
     if (typeof key !== 'string' || !key) throw new TaskEntryError('MODEL_NOT_CONFIGURED', 503)
     await captureManagedSnapshot(this.store, taskId)
+    if (controller.signal.aborted) throw new TaskEntryError('ENGINE_CANCELLED', 409)
     const claim = await this.store.claimRun(taskId, requestId)
     if (!claim.created) return claim.task
-    const controller = new AbortController()
+    if (controller.signal.aborted) {
+      return storeAction(() => this.store.failRun(taskId, 'ENGINE_CANCELLED', 'cancelled'))
+    }
     const job = { controller, promise: null }
     this.jobs.set(taskId, job)
     job.promise = Promise.resolve().then(async () => {
       try {
+        if (controller.signal.aborted) throw new TaskEntryError('ENGINE_CANCELLED', 409)
         const result = await this.run({ store: this.store, taskId,
           provider: 'deepseek', model: 'deepseek-flash', modelKey: key, signal: controller.signal,
           ...this.engineLimits,
@@ -82,14 +105,30 @@ export class ManagedTaskCoordinator {
     return claim.task
   }
 
-  async cancel(taskId, requestId) {
+  cancel(taskId, requestId) {
+    if (typeof requestId !== 'string' || !REQUEST_ID.test(requestId)) {
+      return Promise.reject(new TaskEntryError('INVALID_RUN_INPUT', 400))
+    }
+    const pending = this.cancelling.get(taskId)
+    if (pending) return pending
+    const promise = this.cancelOnce(taskId).finally(() => this.cancelling.delete(taskId))
+    this.cancelling.set(taskId, promise)
+    return promise
+  }
+
+  async cancelOnce(taskId) {
     await this.initialize()
-    if (!REQUEST_ID.test(requestId)) throw new TaskEntryError('INVALID_RUN_INPUT', 400)
+    const pending = this.starting.get(taskId)
+    if (pending) {
+      pending.controller.abort()
+      await pending.promise.catch(() => {})
+    }
     const task = await this.store.get(taskId)
     if (task.kind !== 'understand') throw new TaskEntryError('RUN_KIND_MISMATCH', 409)
     if (['completed', 'failed', 'cancelled', 'interrupted'].includes(task.status)) return task
     const job = this.jobs.get(taskId)
     if (!job) {
+      if (task.status === 'queued') return storeAction(() => this.store.cancelQueuedUnderstand(taskId))
       if (task.status === 'running' || task.status === 'cancelling') {
         return this.store.failRun(taskId, 'ENGINE_OWNER_LOST', 'interrupted')
       }
@@ -102,6 +141,7 @@ export class ManagedTaskCoordinator {
   }
 
   async whenIdle(taskId) {
+    await this.starting.get(taskId)?.promise
     await this.jobs.get(taskId)?.promise
     return this.store.get(taskId)
   }
@@ -115,7 +155,11 @@ export class ManagedTaskCoordinator {
   }
 
   async dispose() {
+    this.disposed = true
+    for (const pending of this.starting.values()) pending.controller.abort()
+    await Promise.allSettled([...this.starting.values()].map(pending => pending.promise))
     for (const job of this.jobs.values()) job.controller.abort()
     await Promise.allSettled([...this.jobs.values()].map(job => job.promise))
+    await Promise.allSettled([...this.cancelling.values()])
   }
 }

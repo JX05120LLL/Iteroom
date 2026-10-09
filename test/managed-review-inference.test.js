@@ -69,19 +69,19 @@ test('review inference claims once, persists zero-findings coverage and never re
 
 test('missing configuration leaves review queued; cancellation waits for engine exit and retains failed coverage', async t => {
   const { ManagedReviewInference } = await import('../src/host/managed-review-inference.js')
-  const f = await fixture(t), entered = Promise.withResolvers(), release = Promise.withResolvers()
+  const f = await fixture(t), entered = Promise.withResolvers(), release = Promise.withResolvers(), aborted = Promise.withResolvers()
   await assert.rejects(new ManagedReviewInference(f.store, { modelKey: async () => undefined }).start(f.taskId, 'missing'),
     { code: 'MODEL_NOT_CONFIGURED' })
   assert.equal((await f.store.get(f.taskId)).status, 'queued')
   const review = new ManagedReviewInference(f.store, { modelKey: async () => 'synthetic', run: async args => {
     await args.onReady(); entered.resolve()
-    await new Promise(done => args.signal.addEventListener('abort', done, { once: true }))
+    await new Promise(done => args.signal.addEventListener('abort', () => { aborted.resolve(); done() }, { once: true }))
     await release.promise
     throw Object.assign(Error('private diagnostic'), { code: 'ENGINE_CANCELLED' })
   } })
   await review.start(f.taskId, 'start-cancel'); await entered.promise
   const stopped = review.cancel(f.taskId, 'cancel-1')
-  await new Promise(done => setTimeout(done, 30))
+  await aborted.promise
   assert.equal((await f.store.get(f.taskId)).status, 'cancelling')
   release.resolve()
   assert.equal((await stopped).status, 'cancelled')
