@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T05:46:38.678Z",
+  "scope": "R5-1 runtime status limited delivery",
+  "git": {
+    "branch": "main",
+    "parent": "1fbaa4183517aef3292cddea1b72efce90e6cf41",
+    "uncommittedAtVerification": true
+  },
+  "phase": {
+    "r5Complete": false,
+    "v1Complete": false,
+    "next": "isolated tarball installation and startup verification"
+  },
+  "checks": {
+    "runtime": {
+      "passed": 12,
+      "failed": 0
+    },
+    "relatedRoutes": {
+      "passed": 19,
+      "failed": 0
+    },
+    "fullTest": {
+      "total": 132,
+      "passed": 131,
+      "skipped": 1,
+      "failed": 0,
+      "durationMs": 68716.1624,
+      "skip": "Windows Git executable bit"
+    },
+    "typeCheck": true,
+    "build": true,
+    "webSmoke": true,
+    "browser": true,
+    "packFiles": 44,
+    "credentialPatternMatches": 0,
+    "localLinks": 222,
+    "missingLocalLinks": 0,
+    "jsonFiles": 3
+  },
+  "boundary": {
+    "realModelRequests": 0,
+    "actualSandboxAllocations": 0,
+    "userSourceTransmitted": false,
+    "actualSandboxServiceVerified": false,
+    "accountVerified": false,
+    "cleanInstallVerified": false,
+    "published": false
+  },
+  "environment": {
+    "platform": "win32",
+    "node": "v24.14.0",
+    "dsh": "0.1.5-rc.3",
+    "sandboxSdk": "1.1.0",
+    "ocr": "v1.12.9",
+    "ocrSha256": "ae6f4785fea34a5cfef93ad22d8e7fb8032bbd12c45f2cbcc98cbe1b38cceff1"
+  },
+  "browserReport": "delivery-2026-10-09-browser-report.json",
+  "sourceHashes": {
+    "package.json": "f603cce91dd42e2ff2ef3d986dc52f52f654ed4bbfa485e9dedce64082814e08",
+    "src/client/managed-modify.tsx": "d99b8db0f34415882e0b3dcc0ce23934d3b243e2e9be4b6cd8190ee52c894eb9",
+    "src/client/managed-review.tsx": "7b71fc361db703c23180e763f9c6cf1f555fb77fc176a37e30d43f7c13135963",
+    "src/client/managed-understand.module.css": "e9210d22118b465078e110aa7c4443479863bb4a20e88e391a12146be54cff9b",
+    "src/client/managed-understand.tsx": "4b52176882b988d4c660bf1a16027fd4886cb7f7770b72c991219abe64d87173",
+    "src/host/managed-task-route.js": "0404d14cf64e7def03dfa0fb962b063b160690b918fb4295166d45b5a3d51b84",
+    "test/web-smoke.mjs": "87c9d6051fd54c9ceec6a6d5cdbdc08a6dad55965931a0ee44c0314a892c7e1f",
+    "scripts/r5/runtime-browser-smoke.mjs": "3f99e5d3a37e38bb76bdf0f1758d529768f640b05416de68d916bc2f8985b1b6",
+    "src/client/managed-runtime-status.tsx": "a2723c457c9ef7f859db6261295342af0bf782f3b21f063558b5687499760ce2",
+    "src/host/managed-runtime-status.js": "a85d0accfa0bbcd07720f53116dc20e5621f7ad34058b163b1ca4820e7dc4164",
+    "test/managed-runtime-status.test.js": "650ff2e526caf0e0097ccf9646a2caabf0475b9b0a5eb9225ff34f6a4ec898e6"
+  },
+  "builtHashes": {
+    "lib/host/managed-task-route.js": "0404d14cf64e7def03dfa0fb962b063b160690b918fb4295166d45b5a3d51b84",
+    "lib/host/managed-runtime-status.js": "a85d0accfa0bbcd07720f53116dc20e5621f7ad34058b163b1ca4820e7dc4164",
+    "lib/client.js": "57841fdcc74cd586cf112ee1b707db6a7f416564a33fff09919fd900298e3aee"
+  }
+}

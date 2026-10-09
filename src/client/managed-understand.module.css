@@ -4,6 +4,21 @@
   background: #fff;
   font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
+.runtime { margin-bottom: 24px; border: 1px solid #e1e8e3; border-radius: 10px; background: #fff; }
+.runtime summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 44px;
+  padding: 10px 14px; cursor: pointer; color: #344d40; font-size: 13px; font-weight: 600; }
+.runtime summary::before { content: '+'; font-size: 16px; }
+.runtime[open] summary::before { content: '−'; }
+.runtime summary span { margin-left: auto; color: #53655a; font-size: 12px; font-weight: 400; }
+.runtime summary:focus-visible { outline: 2px solid #315b4b; outline-offset: 3px; }
+.runtimeBody { padding: 0 14px 14px; }
+.runtimeFacts { display: grid; grid-template-columns: 85px minmax(0, 1fr); gap: 10px 12px; margin: 8px 0 14px;
+  font-size: 13px; line-height: 1.6; }
+.runtimeFacts dt { color: #53655a; }
+.runtimeFacts dd { margin: 0; color: #344d40; overflow-wrap: anywhere; }
+.runtimeButtons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.runtimeButtons button { min-height: 44px; }
+@media (max-width: 560px) { .runtimeFacts { grid-template-columns: 1fr; gap: 4px; } .runtimeFacts dd { margin-bottom: 8px; } }
 .header {
   display: flex;
   align-items: end;

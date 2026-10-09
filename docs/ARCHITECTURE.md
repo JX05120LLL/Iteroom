@@ -149,4 +149,6 @@ Host 负责身份/来源校验、权限审批、路径真实解析、凭证过�
 
 ## R4 阶段退出后的架构状态
 
+R5-1 的 `ManagedRuntimeStatus` 独立读取既有模型/沙箱 loader 和协调器实际预算；认证 `GET /api/iteroom/runtime` 不调用任务 initialize/recovery、不发网络请求。`POST /api/iteroom/runtime/sandbox-check` 要求同源、JSON、8 KiB 正文、无查询及精确空对象，仅通过固定 SDK 1.1.0 的公开 lifecycle factory 执行 `GET http://127.0.0.1:3088/v1/sandboxes` 的单页过滤查询。拒绝重定向、外部地址和其他动作；不分配沙箱、不调用模型、不返回清单/凭证/私有路径。完整响应正文最多 64 KiB；统一 2.5 秒 deadline 中止 headers/body，SDK 内部超时晚于该 deadline；取消 reader 并在 finally 关闭 SDK。同配置重复检查共用探测，超时响应按时返回，但探测记录保留至底层取消及 close 收束，不在清理期间创建重复客户端。无效但已填写的环境配置与缺失区分，既有 loader 的备用凭证规则不变。数据格式和旧 API 不变，无迁移。真实 SDK 配内存/本机合成 HTTP 与 Chromium 证据见 [R5-1](r5/EVIDENCE.md)；未据此验证实际服务/账户/镜像执行或整体发行。
+
 2026-10-01 的 [实际证据](r4/COMPLETION-EVIDENCE.md)使用已有生产接口和方案 C UI，经官方 DeepSeek、原 DSH Loop、固定 OCR、真实 OpenSandbox、R3 接受和新输入复查完成组合。没有增加第二套 Loop 或更改产品数据格式。三种模式完整执行、覆盖/片段定位/来源、刷新及重启不重放分层验证；真实模型闭环为工作树模式，历史两种推理使用 mock。R4 最小退出在固定 Windows/合成现有文本范围通过，接下来 R5 核对配置、权限、数据管理、完整补丁类型和发行缺项。旧 carrier 仍保留全量宿主工具，受管隔离保证不外推到旧入口。

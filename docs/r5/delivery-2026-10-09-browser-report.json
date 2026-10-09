@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T05:41:23.364Z",
+  "viewport": "390x844",
+  "evidence": "production UI and SDK against synthetic loopback HTTP service",
+  "realModelRequests": 0,
+  "actualOpenSandboxServer": false,
+  "actualSandboxAllocations": 0,
+  "success": true,
+  "productionButtons": true,
+  "sourceHeadIndexStatusUnchanged": true,
+  "getHasNoServiceCall": true,
+  "credentialValuesHidden": true,
+  "unavailableVisible": true,
+  "redirectRefused": true,
+  "budgetsMatchCoordinators": true,
+  "refreshClearsServiceObservation": true,
+  "sourceFilesHashChecked": 6,
+  "sandboxRequests": [
+    {
+      "method": "GET",
+      "path": "/v1/sandboxes"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sandboxes"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sandboxes"
+    }
+  ],
+  "modelGuardRequests": 0,
+  "probeServicesStopped": true,
+  "clientHash": "57841fdcc74cd586cf112ee1b707db6a7f416564a33fff09919fd900298e3aee",
+  "runtimeHostHash": "a85d0accfa0bbcd07720f53116dc20e5621f7ad34058b163b1ca4820e7dc4164",
+  "scriptHash": "3f99e5d3a37e38bb76bdf0f1758d529768f640b05416de68d916bc2f8985b1b6"
+}

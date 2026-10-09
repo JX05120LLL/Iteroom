@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import styles from './managed-understand.module.css'
+import { ManagedRuntimeStatus } from './managed-runtime-status.js'
 import { emptyTaskSelection, type ManagedTaskSelection } from './managed-navigation.js'
 
 interface Execution { id: string; kind: string; command: string; status: string; exitCode?: number | null; outputBytes?: number; outputExcerpt?: string }
@@ -159,6 +160,7 @@ export function ManagedModify({ openReview, selection = emptyTaskSelection }: {
     </header>
     <div className={styles.layout}>
       <div className={styles.main}>
+        <ManagedRuntimeStatus kind="modify" />
         {error && <div className={styles.error} role="alert">{error}</div>}
         {tasks.length > 1 && <nav className={styles.history} aria-label="修改任务历史">{tasks.map(task =>
           <button type="button" key={task.id} aria-current={selectedId === task.id ? 'page' : undefined}

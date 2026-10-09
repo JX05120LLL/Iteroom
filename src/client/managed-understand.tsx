@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import styles from './managed-understand.module.css'
+import { ManagedRuntimeStatus } from './managed-runtime-status.js'
 
 interface Reference { path: string; snapshotId: string; sha256: string; startLine: number; endLine: number }
 interface ManagedTask {
@@ -163,6 +164,7 @@ export function ManagedUnderstand() {
     </header>
     <div className={styles.layout}>
       <div className={styles.main}>
+        <ManagedRuntimeStatus kind="understand" />
         {error && <div className={styles.error} role="alert">{error}</div>}
         {tasks.length > 1 && <nav className={styles.history} aria-label="理解任务历史">
           {tasks.map(task => <button type="button" key={task.id} aria-current={selectedId === task.id ? 'page' : undefined}

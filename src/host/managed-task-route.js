@@ -9,6 +9,7 @@ import { ManagedHistory } from './managed-history.js'
 import { ManagedReviewCoordinator } from './managed-review-coordinator.js'
 import { ManagedReviewInference } from './managed-review-inference.js'
 import { ManagedReviewFix } from './managed-review-fix.js'
+import { ManagedRuntimeStatus } from './managed-runtime-status.js'
 
 const MAX_BODY_BYTES = 8192
 const headers = { 'Cache-Control': 'no-store', 'Content-Type': 'application/json; charset=utf-8', 'X-Content-Type-Options': 'nosniff' }
@@ -54,7 +55,10 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
   history = modifyCoordinator ? new ManagedHistory(store) : undefined,
   reviewCoordinator = new ManagedReviewCoordinator(store),
   reviewInference = new ManagedReviewInference(store, { preparer: reviewCoordinator }),
-  reviewFix = new ManagedReviewFix(store, { preparer: reviewCoordinator })) {
+  reviewFix = new ManagedReviewFix(store, { preparer: reviewCoordinator }),
+  runtimeStatus = new ManagedRuntimeStatus({ projectRoot: store.projectRoot,
+    modelKey: coordinator.modelKey, sandboxConfig: modifyCoordinator?.sandboxConfig,
+    budgets: { understand: coordinator.engineLimits, modify: modifyCoordinator?.engineLimits, review: reviewInference.engineLimits } })) {
   return [{ path: '/api/iteroom/managed-tasks', methods: ['GET'], requestBody: 'buffered',
     fetch: async request => {
       try {
@@ -298,5 +302,27 @@ export function createManagedTaskRoutes(store, coordinator = new ManagedTaskCoor
         } catch (error) { return safeResponse(error) }
       },
     })),
-  ] : [])]
+  ] : []),
+  { path: '/api/iteroom/runtime', methods: ['GET'], requestBody: 'buffered',
+    fetch: async request => {
+      try {
+        if (new URL(request.url).search) throw new TaskEntryError('INVALID_RUNTIME_INPUT', 400)
+        return json(await runtimeStatus.inspect())
+      } catch (error) { return safeResponse(error) }
+    } },
+  { path: '/api/iteroom/runtime/sandbox-check', methods: ['POST'], requestBody: 'streaming',
+    fetch: async request => {
+      try {
+        if (!sameOrigin(request)) throw new TaskEntryError('TASK_ORIGIN_DENIED', 403)
+        if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type') ?? '')) {
+          throw new TaskEntryError('TASK_CONTENT_TYPE_UNSUPPORTED', 415)
+        }
+        if (new URL(request.url).search) throw new TaskEntryError('INVALID_RUNTIME_INPUT', 400)
+        const input = await boundedJson(request)
+        if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) {
+          throw new TaskEntryError('INVALID_RUNTIME_INPUT', 400)
+        }
+        return json(await runtimeStatus.inspect({ checkSandbox: true }))
+      } catch (error) { return safeResponse(error) }
+    } }]
 }
