@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T06:45:28.351Z",
+  "platform": "win32",
+  "node": "v24.14.0",
+  "parent": "5e904d9b7a4c62ee4b1a5bded0baab42a621b1cd",
+  "success": true,
+  "realModelRequests": 0,
+  "actualSandboxAllocations": 0,
+  "userSourceTransmitted": false,
+  "productV2Connected": false,
+  "actualFilesystemRecovery": false,
+  "r5Complete": false,
+  "v1Complete": false,
+  "gitVersion": "git version 2.47.1.windows.2",
+  "scopeId": "e0bd2fa63fa49794ce7db193bdff810bded908b51c4d45817ec2f35a4bcaa7e6",
+  "patchSha256": "660ee7c0895672d6ce44513e7ad809e2ef2f8a8aeb18b6d8a5bb74c4997efcb3",
+  "operations": {
+    "added": 2,
+    "modified": 2,
+    "deleted": 2,
+    "renamed": 2
+  },
+  "pureRecoveryPrefixesChecked": 11,
+  "actualGitApplyCheck": true,
+  "actualGitApply": true,
+  "actualGitReverseCheck": true,
+  "actualGitReverse": true,
+  "syntheticSourceHashesRestored": {
+    "src/modify.js": "117c5d6a0f57e8e25b4b29cfd7db1d73c3c5e5dbf67fbcb33d218bc295c32d25",
+    "src/delete.js": "2308cd77689ace11b7c2f247cbb997ca394f469febe6385bc89ac717584ee0ad",
+    "src/old.js": "739c5863c69089393a73e8289b3a738fd8746bdd12f79d0d32fbfea4a1839785",
+    "empty-delete.js": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty-old.js": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/bom.js": "2f51beb0b0be0225423bb9183353bf369006feb16a567619fa541b51c2e71a96",
+    "test/fixed.test.js": "d188236adc3465d5e508554798f8af99b5e640caa7699352a6f29a08f76f50de"
+  },
+  "syntheticHeadIndexStatusPreserved": true,
+  "bomCrlfNoFinalNewlineAndEmptyFilesChecked": true,
+  "temporaryDirectoryRemoved": true,
+  "moduleHash": "174f8afe87001d42cc04b038ba9358002059988bc5a3a88cca1219bf91c19376",
+  "probeHash": "e2c1442a532669cbef57e9f4470fe4f1fad3a161d8cdf4a77520759dc57d64ce"
+}

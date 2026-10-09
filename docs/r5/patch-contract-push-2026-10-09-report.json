@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T10:00:57.713Z",
+  "phase": "pre-commit",
+  "parent": "5e904d9b7a4c62ee4b1a5bded0baab42a621b1cd",
+  "branch": "main",
+  "requestedRemoteRef": "origin/main",
+  "userAuthorizedCommitAndPush": true,
+  "scope": "R5-3 pure text patch contract, tests, synthetic evidence and documentation",
+  "checks": {
+    "fullTests": {
+      "total": 158,
+      "passed": 157,
+      "failed": 0,
+      "skipped": 1,
+      "durationMs": 77128.2622
+    },
+    "typecheck": true,
+    "build": true,
+    "webSmoke": true,
+    "packageDryRunFiles": 45,
+    "productSourceMatchesDevelopmentEvidence": true,
+    "sourceBuiltModuleMatch": true,
+    "diffWhitespace": true,
+    "secretScan": {
+      "textFiles": 265,
+      "findings": 0
+    },
+    "markdown": {
+      "files": 12,
+      "localLinks": 251,
+      "brokenLinks": 0
+    }
+  },
+  "expectedCommitPaths": [
+    "README.md",
+    "docs/ACCEPTANCE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/NEXT_SESSION_PROMPT.md",
+    "docs/PRD.md",
+    "docs/ROADMAP.md",
+    "docs/STATUS.md",
+    "docs/r5/PATCH-CONTRACT.md",
+    "docs/r5/PATCH-EVIDENCE.md",
+    "docs/r5/PATCH-PLAN.md",
+    "docs/r5/PLAN.md",
+    "docs/r5/SUPPORT-MATRIX.md",
+    "docs/r5/patch-contract-2026-10-09-report.json",
+    "docs/r5/patch-contract-delivery-2026-10-09-report.json",
+    "docs/r5/patch-contract-fault-2026-10-09-report.json",
+    "docs/r5/patch-contract-final-2026-10-09-report.json",
+    "docs/r5/patch-contract-push-2026-10-09-report.json",
+    "package.json",
+    "scripts/r5/patch-smoke.mjs",
+    "src/host/managed-patch-contract.js",
+    "test/managed-artifact.test.js",
+    "test/managed-patch-contract.test.js"
+  ],
+  "boundaries": {
+    "realModelRequests": 0,
+    "actualSandboxAllocations": 0,
+    "userSourceTransmitted": false,
+    "productV2Connected": false,
+    "actualFilesystemRecovery": false,
+    "browserRechecked": false,
+    "installedPackageRechecked": false,
+    "published": false,
+    "r5Complete": false,
+    "v1Complete": false
+  },
+  "notes": [
+    "Commit and remote outcome must be verified after this pre-commit report.",
+    "Prior JSON hashes and uncommitted fields retain their generation-time meaning; updated handoff hashes are recorded here.",
+    "Current build is recorded separately; no claim that historical browser bundle hashes match."
+  ],
+  "hashes": {
+    "src/host/managed-patch-contract.js": "23d93cec02cf1c398f82f52a2520a1f3bb08f9ad31aa4e4ab6c0de31879d7d98",
+    "test/managed-patch-contract.test.js": "31599e324294208927e24662a5d750da405fe729e8ce3e1a9c12521400fe3f20",
+    "test/managed-artifact.test.js": "c7ace64c6b957994cbb8f46fe0c50772dad96188f9e83d7b01f7822cf9fa5fb0",
+    "scripts/r5/patch-smoke.mjs": "b1d35174a49c7e07072dda5327c4c679200ae249c11020106a3e9c94452ba938",
+    "package.json": "2127e0617353d9b62197e0c37787ed48675db57567cd6b113d3b3d5450166d6d",
+    "lib/host/managed-patch-contract.js": "23d93cec02cf1c398f82f52a2520a1f3bb08f9ad31aa4e4ab6c0de31879d7d98",
+    "lib/client.js": "6c41db8a91af93db99b93e70619d0bcf20f2f7391b03970b792f6da3eb76ec26",
+    "docs/STATUS.md": "f7a6118e37eceaaa3ae1732375278da9d832484f6b0f26c09c3e3985127ef97f",
+    "docs/NEXT_SESSION_PROMPT.md": "dcb200ab5809adf8685dca081a2fc9675f70ffe26852e344dae457bb5f2f91b6",
+    "docs/r5/PATCH-EVIDENCE.md": "1b9fe61512edfb5edc8f4e05471a11124de96928ca1f9d7a80efc14d3c4ae971"
+  }
+}

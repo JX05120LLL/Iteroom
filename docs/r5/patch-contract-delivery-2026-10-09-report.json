@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-09T07:01:45.052Z",
+  "platform": "win32",
+  "node": "v24.14.0",
+  "scope": "R5-3 pure v2 text patch contract and synthetic export verification",
+  "parent": "5e904d9b7a4c62ee4b1a5bded0baab42a621b1cd",
+  "localUncommittedChanges": true,
+  "git": {
+    "head": "5e904d9b7a4c62ee4b1a5bded0baab42a621b1cd",
+    "remoteTracking": "5e904d9b7a4c62ee4b1a5bded0baab42a621b1cd",
+    "stagedFiles": 0,
+    "commitCreated": false,
+    "pushed": false
+  },
+  "checks": {
+    "relatedTests": {
+      "total": 29,
+      "passed": 29,
+      "failed": 0
+    },
+    "fullTests": {
+      "total": 158,
+      "passed": 157,
+      "failed": 0,
+      "skipped": 1,
+      "durationMs": 70798.83
+    },
+    "typecheck": true,
+    "build": true,
+    "webSmoke": true,
+    "packageDryRun": {
+      "fileCount": 45,
+      "newInternalModule": true,
+      "privateOrDevelopmentFiles": 0
+    },
+    "diffWhitespace": true,
+    "secretScan": {
+      "textFiles": 264,
+      "findings": 0
+    },
+    "markdown": {
+      "files": 12,
+      "localLinks": 248,
+      "brokenLinks": 0
+    },
+    "changedJsonParsed": 4,
+    "finalProbeHashesMatch": true,
+    "sourceBuiltModuleMatch": true,
+    "uiApiLauncherAndLockUnchanged": true,
+    "independentReadOnlyReview": {
+      "unresolvedCritical": 0,
+      "unresolvedImportant": 0
+    }
+  },
+  "actualGit": {
+    "operations": {
+      "added": 2,
+      "modified": 2,
+      "deleted": 2,
+      "renamed": 2
+    },
+    "applyCheck": true,
+    "apply": true,
+    "reverseCheck": true,
+    "reverse": true,
+    "syntheticSourceFiles": 7,
+    "headIndexStatusPreserved": true,
+    "contentCases": [
+      "empty-add",
+      "empty-delete",
+      "pure-rename",
+      "rename-with-content-change",
+      "UTF-8-BOM",
+      "Chinese",
+      "CRLF",
+      "no-final-newline"
+    ]
+  },
+  "pureRecovery": {
+    "forwardPrefixes": 11,
+    "finishAndRollback": true,
+    "interruptedRollbackCoveredByUnitTests": true
+  },
+  "failureCleanup": {
+    "stage": "initialization",
+    "expectedFailureConfirmed": true,
+    "temporaryDirectoryRemoved": true
+  },
+  "v1Compatibility": {
+    "coldReadable": true,
+    "v2AndDisguisedV2SaveRejected": true,
+    "oldDirectoryAndSourceUnchanged": true,
+    "automaticMigration": false
+  },
+  "boundaries": {
+    "productV2Connected": false,
+    "persistedV2SnapshotsAndArtifacts": false,
+    "actualFilesystemRecovery": false,
+    "physicalPathOrAuthorizationProven": false,
+    "realModelRequests": 0,
+    "actualSandboxAllocations": 0,
+    "userSourceTransmitted": false,
+    "browserRechecked": false,
+    "installedPackageRechecked": false,
+    "publiclyPublished": false,
+    "r5Complete": false,
+    "v1Complete": false
+  },
+  "notes": [
+    "Initial full run failed only because Git status refreshed synthetic index stat cache.",
+    "Disposable Git subprocesses now set GIT_OPTIONAL_LOCKS=0; raw index assertion retained.",
+    "Old probe report precedes final boundary fixes; final success and expected fault reports match current module and script.",
+    "Current bundle hash is recorded separately; no claim that historical bundle hashes are unchanged."
+  ],
+  "hashes": {
+    "src/host/managed-patch-contract.js": "23d93cec02cf1c398f82f52a2520a1f3bb08f9ad31aa4e4ab6c0de31879d7d98",
+    "test/managed-patch-contract.test.js": "31599e324294208927e24662a5d750da405fe729e8ce3e1a9c12521400fe3f20",
+    "test/managed-artifact.test.js": "c7ace64c6b957994cbb8f46fe0c50772dad96188f9e83d7b01f7822cf9fa5fb0",
+    "scripts/r5/patch-smoke.mjs": "b1d35174a49c7e07072dda5327c4c679200ae249c11020106a3e9c94452ba938",
+    "package.json": "2127e0617353d9b62197e0c37787ed48675db57567cd6b113d3b3d5450166d6d",
+    "lib/host/managed-patch-contract.js": "23d93cec02cf1c398f82f52a2520a1f3bb08f9ad31aa4e4ab6c0de31879d7d98",
+    "lib/client.js": "71970a1bd8423a4f2d5f85ad14a8e29f5e49ae09274ab41a579935f41bc04950",
+    "README.md": "e1c59e839cf66632af857a3568eaae518f1778c126315788576d95c6f4d8100e",
+    "docs/r5/PATCH-CONTRACT.md": "cea276b8dc76db8c9b2d501662c09aeebcc90eafa096934848411088cc1dfa21",
+    "docs/r5/PATCH-PLAN.md": "69698d07e7e8f2871e7a3791b4c48cd372f192512029dcb53ab53d681dc4fdbf",
+    "docs/r5/PATCH-EVIDENCE.md": "fb1058a36262574ad0a87067ea52ac09027591f4a617f4dbbd86f154519b637c",
+    "docs/NEXT_SESSION_PROMPT.md": "ef7d71d6b1af62015459183e40febb7b42406ffa8427899d8a335f0e276ca5d8"
+  }
+}

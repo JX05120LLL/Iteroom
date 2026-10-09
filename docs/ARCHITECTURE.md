@@ -149,6 +149,8 @@ Host 负责身份/来源校验、权限审批、路径真实解析、凭证过�
 
 ## R4 阶段退出后的架构状态
 
+[R5-3 四种补丁契约](r5/PATCH-CONTRACT.md)实现内部纯模块 `managed-patch-contract.js`，包含 scope 定义、严格候选重建、应用计划与恢复计划；它不读写文件、不注册工具、不授予权限。固定路径清单区分 absent 和零字节文件，task/scope/artifact Hash 绑定候选及串行 journal；rename 计划先创建目标、再移除来源，逆向计划保全旧字节，未知或外部变化拒绝重放。清单、观察值和日志须由将来的可信 Host 捕获并持久化，哈希本身不提供授权或真实性。当前 v1 API/Store/工具/UI 均未接线，无格式迁移；v1 产物保存拒绝 v2。独立合成 Git 导出与纯状态恢复证据见 [R5-3 验证](r5/PATCH-EVIDENCE.md)。下一切片先实现隔离的 v2 快照/产物目录、安全缺失状态与冷读校验，再做写回日志及真实文件恢复；不能用该计划替代 realpath、文件身份、停止写入者和副作用前日志持久化。
+
 [R5-2](r5/INSTALLATION-EVIDENCE.md)以真实 tarball 安装到仓库外消费项目：运行包及 DSH 从消费目录解析，不链接 checkout 的 node_modules，不在消费目录构建。安装使用公共 registry 补齐缓存后离线复验，禁用 lifecycle scripts；消费锁与实际版本另存匿名证据，不把直接依赖固定当作传递依赖图完全锁定。仍是原 Web carrier，不引入第二套 Loop。
 
 理解协调器在首个异步动作前登记每任务 `starting` 和 `cancelling` promise；相同启动请求复用准备，不同请求拒绝，取消未收束时拒绝后到启动。取消先 abort 并等待准备收束，再取消 queued 或已登记引擎；claim 期间收到取消时只结算取消收据，不启动引擎。dispose 同样等待准备、引擎和取消，不能在快照写入仍进行时释放任务供历史删除。Store 锁内检查另一个活动任务后才能标记历史 `deleting`，否则保持原文件。新理解取消记录为 `status=cancelled / engineStatus=not_started / sessionId=null`；v1 无自动迁移，向旧版回退需要备份或恢复升级前数据。

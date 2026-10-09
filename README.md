@@ -4,7 +4,7 @@
 
 目标是让开发者通过文字理解、修改和审查代码：助手在独立环境中执行，提供补丁与真实验证证据，用户审阅后决定是否写回项目。白色方案 C 是产品视觉基线。
 
-> 当前仍是 DSH Web 扩展开发版。R0–R4 最小阶段退出在 Windows / 固定版本 / 合成现有文本范围内通过，R4 有真实模型 → 实际沙箱修复 → 用户接受 → 新输入复查证据。目前进入 R5，已补运行配置、预算展示与只读连接检查，以及 Windows 仓库外 tarball 安装、已安装页面和缺配置取消恢复验证，见 [R5-1](docs/r5/EVIDENCE.md)、[R5-2](docs/r5/INSTALLATION-EVIDENCE.md)。旧完整 DSH Web 入口仍有宿主工具；更多补丁类型、权限/数据管理、真实用户项目、干净发行和 v1 未完成。[R4 原阶段证据](docs/r4/COMPLETION-EVIDENCE.md)保留原范围，复查候选仍待人工判断。
+> 当前仍是 DSH Web 扩展开发版。R0–R4 最小阶段退出在 Windows / 固定版本 / 合成现有文本范围内通过，R4 有真实模型 → 实际沙箱修复 → 用户接受 → 新输入复查证据。目前推进 R5：[R5-1](docs/r5/EVIDENCE.md)补运行配置与预算，[R5-2](docs/r5/INSTALLATION-EVIDENCE.md)补 Windows 仓库外安装与取消恢复，[R5-3](docs/r5/PATCH-EVIDENCE.md)实现四种文本补丁的独立 v2 数据契约、导出和纯恢复计划。v2 尚未接入产品；现有修改入口仍只处理选定的现有文本文件。旧完整 DSH Web 入口仍有宿主工具；权限/数据管理、真实用户项目、干净发行和 v1 未完成。[R4 原阶段证据](docs/r4/COMPLETION-EVIDENCE.md)保留原范围，复查候选仍待人工判断。
 
 ## 职责分工
 
@@ -73,6 +73,7 @@ flowchart TD
 - [接续开发提示词](docs/NEXT_SESSION_PROMPT.md)：核对工作区和 R5 切片证据，继续关闭产品验收缺项。
 - [R5 运行配置证据](docs/r5/EVIDENCE.md)：配置/预算、只读连接检查、超时收束和合成浏览器复验。
 - [R5 独立安装证据](docs/r5/INSTALLATION-EVIDENCE.md)：真实 tarball、生产依赖、已安装入口、缺配置失败及取消收束。
+- [R5 四种补丁契约与证据](docs/r5/PATCH-EVIDENCE.md)：独立 v2 校验、合成 Git 导出验证、纯冲突/恢复计划及 v1 兼容边界；产品尚未接线。
 - [运行支持矩阵](docs/r5/SUPPORT-MATRIX.md)：已验环境与尚未声明支持的范围。
 - [R3 接受与恢复证据](docs/r3/EVIDENCE.md)：合成脏工作树、冲突、写回检查点、恢复/回滚、历史删除与缺项。
 - [R2 隔离修改证据](docs/r2/EVIDENCE.md)：真实沙箱/模型、模拟模型组合、执行故障与取消、复验和缺项。
